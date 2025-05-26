@@ -1,11 +1,11 @@
 import { View, Text, SafeAreaView } from 'react-native'
 import React from 'react'
+import { Fonts } from './src/utils/Constants'
+import AppNavigator from './src/navigation/AppNavigator'
 
-const App = () => {
+const App: React.FC = () => {
   return (
-    <SafeAreaView style={{flex:1  , justifyContent:'center', alignItems:'center', backgroundColor :'white' }}>
-      <Text      >App</Text>
-    </SafeAreaView>
+     <AppNavigator/>
   )
 }
 
