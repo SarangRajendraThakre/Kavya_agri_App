@@ -1,25 +1,51 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+// BottomNavigator.tsx
+import { View, Text, StyleSheet } from 'react-native'; // Added StyleSheet for example
+import React from 'react';
+import { createBottomTabNavigator, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
-import Screen1 from './Screen1';
+// Import your screen components
+import Screen1 from './Screen1'; // Assuming these are in the same folder or adjust path
 import Screen2 from './Screen2';
 import Screen3 from './Screen3';
-import { RootStackParamList } from '../types';
 
+// Import RootTabParamList from your types.ts file
+import { RootTabParamList } from '../types'; // Adjust path if types.ts is elsewhere
+import { Colors, Fonts } from '../../utils/Constants';
 
-
-
-const Bottom = createBottomTabNavigator<RootStackParamList>();
+// Create a Bottom Tab Navigator instance, explicitly typing it with RootTabParamList
+const Bottom = createBottomTabNavigator<RootTabParamList>();
 
 const BottomNavigator: React.FC = () => {
   return (
-    <Bottom.Navigator>
-        <Bottom.Screen name='Screen1' component={Screen1} options={{headerShown : true}}/>
-        <Bottom.Screen name='Screen2' component={Screen2} options={{headerShown : true}}/>
-        <Bottom.Screen name='Screen3' component={Screen3} options={{headerShown : true}}/>
+    <Bottom.Navigator
+      initialRouteName="Screen1" // Set initial tab
+      screenOptions={{
+        tabBarActiveTintColor: Colors.primary, // Example: active tab color
+        tabBarInactiveTintColor: Colors.inactive, // Example: inactive tab color
+        tabBarStyle: {
+          backgroundColor: Colors.backgroundDark, // Example: tab bar background
+          borderTopWidth: 0, // Remove top border
+        },
+        headerShown: true, // You can control header visibility per screen or globally
+        headerStyle: {
+          backgroundColor: Colors.backgroundDark,
+        },
+        headerTintColor: Colors.text,
+        headerTitleStyle: {
+          fontFamily: Fonts.SatoshiBold,
+          fontSize: 20,
+        }
+      }}
+    >
+      {/*
+        Bottom.Screen components infer their types from RootTabParamList.
+        'name' prop must match a key in RootTabParamList.
+      */}
+      <Bottom.Screen name='Screen1' component={Screen1} options={{ title: 'Home' }} />
+      <Bottom.Screen name='Screen2' component={Screen2} options={{ title: 'Explore' }} />
+      <Bottom.Screen name='Screen3' component={Screen3} options={{ title: 'Settings' }} />
     </Bottom.Navigator>
-  )
-}
+  );
+};
 
-export default BottomNavigator
+export default BottomNavigator;
