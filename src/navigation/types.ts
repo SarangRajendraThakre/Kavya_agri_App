@@ -17,8 +17,7 @@ export type RootTabParamList = {
 
 
 export type RootDrawerParamList = {
-  HomeTabNavigator: undefined; // This route will typically hold your entire BottomTabNavigator
-  // You might also have other direct drawer items here:
-  // ProfileDrawer: undefined;
-  // SettingsDrawer: undefined;
+  Main: undefined; 
+
+  
 };
