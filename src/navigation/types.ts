@@ -6,6 +6,13 @@ export type RootStackParamList = {
   Screen2:undefined;
   Screen3:undefined;
    PlayGame: undefined;
+     OnboardingScreen: undefined;
+  HomeScreen: undefined;
+  CreateProfile:undefined;
+  LoginScreen:undefined;
+  OtpScreen:undefined;
+  SuccessScreen:undefined;
+
 };
 
 export type RootTabParamList = {

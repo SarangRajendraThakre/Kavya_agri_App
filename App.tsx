@@ -10,3 +10,19 @@ const App: React.FC = () => {
 }
 
 export default App
+
+
+// import { View, Text } from 'react-native'
+// import React from 'react'
+// import SignupScreen from './src/screens/authScreens/CreateProfile'
+
+
+// const App = () => {
+//   return (
+//     <View style={{flex:1}}>
+//         <SignupScreen  />
+//     </View>
+//   )
+// }
+
+// export default App

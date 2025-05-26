@@ -7,10 +7,16 @@ export enum Colors {
   backgroundDark = '#121212',
   backgroundLight = '#1F1F1F',
   inactive = '#B3B3B3',
+
+  white = '#FFFFFF',
+  black = '#323232',
+  black60 = '#B6B6B6',
+  btnColor = '#FF8D4D',
+  offColor = '#DDDDDD',
 }
 
 export enum Fonts {
-  // Satoshi Fonts (already present and confirmed from screenshot)
+  // Satoshi Fonts
   SatoshiRegular = 'Satoshi-Regular',
   SatoshiMedium = 'Satoshi-Medium',
   SatoshiLight = 'Satoshi-Light',
@@ -23,8 +29,7 @@ export enum Fonts {
   // Akaya Kanadaka
   AkayaKanadakaRegular = 'AkayaKanadaka-Regular',
 
-
-  // Poppins Fonts (all variants from screenshot)
+  // Poppins Fonts
   PoppinsBlack = 'Poppins-Black',
   PoppinsBlackItalic = 'Poppins-BlackItalic',
   PoppinsBold = 'Poppins-Bold',
@@ -43,12 +48,30 @@ export enum Fonts {
   PoppinsSemiBoldItalic = 'Poppins-SemiBoldItalic',
   PoppinsThin = 'Poppins-Thin',
   PoppinsThinItalic = 'Poppins-ThinItalic',
-
-
 }
 
-// Your existing convertPodcast function (no changes needed here)
-export const convertPodcast = (podcast: any) => {
+// Define the interface for the incoming podcast object.
+export interface Podcast {
+  id: string;
+  audio_uri: string;
+  title: string;
+  artist: {
+    name: string;
+  };
+  artwork: string;
+}
+
+// Define the interface for the converted podcast object.
+export interface ConvertedPodcast {
+  id: string;
+  url: string;
+  title: string;
+  artist: string;
+  artwork: string;
+}
+
+// The convertPodcast function
+export const convertPodcast = (podcast: Podcast): ConvertedPodcast => {
   return {
     id: podcast.id,
     url: podcast.audio_uri,
@@ -57,3 +80,11 @@ export const convertPodcast = (podcast: any) => {
     artwork: podcast.artwork,
   };
 };
+
+// Default export of image assets
+export default {
+  logoImage: require('./../assets/images/Image.png'),
+  Editicon: require('./../assets/images/Editicon.png'),
+  back_arrow: require('./../assets/images/back_arrow.png'),
+  successIc: require('./../assets/images/succ.png'),
+} as const;
