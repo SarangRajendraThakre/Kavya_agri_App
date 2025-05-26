@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Screen1:undefined;
   Screen2:undefined;
   Screen3:undefined;
+   PlayGame: undefined;
 };
 
 export type RootTabParamList = {
