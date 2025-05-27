@@ -13,6 +13,8 @@ export enum Colors {
   black60 = '#B6B6B6',
   btnColor = '#FF8D4D',
   offColor = '#DDDDDD',
+
+  lightGrey='#D3D3D3'
 }
 
 export enum Fonts {

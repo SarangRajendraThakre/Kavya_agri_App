@@ -16,6 +16,7 @@ import {RootStackParamList} from './types';
 import CreateProfile from '../screens/authScreens/CreateProfile';
 import OtpScreen from '../screens/authScreens/OtpScreen';
 import SuccessScreen from '../screens/authScreens/SuccessScreen';
+import { navigationRef } from '../utils/NavigationUtils';
 
 // MMKV is no longer needed directly in AppNavigator, it's in Splash now
 
@@ -28,7 +29,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer   ref={navigationRef} >
       {/* initialRouteName is now fixed to 'Splash' */}
       <Stack.Navigator initialRouteName="Splash">
         {/* All screens are unconditionally rendered now */}

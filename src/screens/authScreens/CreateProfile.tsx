@@ -338,23 +338,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-            {/* Password and Confirm Password inputs - Add back if needed */}
-            {/*
-            <CustomTextInput
-              icon="lock-outline"
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-            <CustomTextInput
-              icon="lock-outline"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
-            */}
+       
 
             {/* Date of Birth Input */}
             <TouchableOpacity onPress={showDatePicker} style={styles.dateInputWrapper}>

@@ -3,7 +3,7 @@ import React from 'react';
 import WrapperContainer from '../../components/WrapperContainerComp';
 
 import Constants, { Colors } from '../../utils/Constants';
-import { moderateScale, textScale, width } from '../../utils/Scaling';
+import { moderateScale, textScale, screenWidth } from '../../utils/Scaling';
 import ButtonComp from '../../components/ButtonComp';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -24,7 +24,7 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
         </Text>
         <View>
           <ButtonComp
-            width={width / 1.2}
+            width={screenWidth / 1.2}
             buttonText={'Continue'}
             onPress={() => navigation.navigate('CreateProfile')} // Wrap in function
           />

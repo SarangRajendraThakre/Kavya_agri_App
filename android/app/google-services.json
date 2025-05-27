@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "248628718653",
+    "project_id": "kavya-agri",
+    "storage_bucket": "kavya-agri.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:248628718653:android:d28044edf7b52905eece54",
+        "android_client_info": {
+          "package_name": "com.kavya_agri_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdmU_dSIIBNLQx3wRbivO7Upu-ax9wVw0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
