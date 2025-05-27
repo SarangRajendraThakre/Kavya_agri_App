@@ -16,7 +16,7 @@ import { getAuth, GoogleAuthProvider } from '@react-native-firebase/auth'; // Fo
 import {
   GoogleSignin,
   statusCodes,
-  GoogleSigninButton,
+  GoogleSigninButton, // Keep this import if you want to see the original button
 } from '@react-native-google-signin/google-signin';
 
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
@@ -164,12 +164,21 @@ export default function App() {
       ) : (
         // User is not signed in: Display Google Sign-in button
         <View>
-          <GoogleSigninButton
+          {/* Option 1: Use the default GoogleSigninButton (limited customization) */}
+          {/* <GoogleSigninButton
             style={styles.googleButton}
             size={GoogleSigninButton.Size.Wide}
             color={GoogleSigninButton.Color.Dark}
             onPress={onGoogleButtonPress}
-          />
+          /> */}
+
+          {/* Option 2: Use a custom button with full styling control */}
+          <TouchableOpacity
+            style={styles.customGoogleButton}
+            onPress={onGoogleButtonPress}
+          >
+            <Text style={styles.customGoogleButtonText}>Sign In with Google</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -192,9 +201,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   googleButton: {
-    width: 220, // Adjust width as needed
-    height: 60, // Adjust height as needed
+    width: 220, // Default GoogleSigninButton width
+    height: 60, // Default GoogleSigninButton height
     marginBottom: 20,
+  },
+  // New styles for the custom Google button
+  customGoogleButton: {
+    backgroundColor: '#4285F4', // Google blue
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    elevation: 3, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginBottom: 20,
+    flexDirection: 'row', // To align text and potential icon
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customGoogleButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   signOutButton: {
     backgroundColor: '#d32f2f', // Red color for sign out
