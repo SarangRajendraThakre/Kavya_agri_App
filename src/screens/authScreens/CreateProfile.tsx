@@ -294,14 +294,14 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             {/* First Name and Last Name side-by-side */}
             <View style={styles.nameInputContainer}>
               <CustomTextInput
-                icon="account-outline"
+                iconLeft="account-outline"
                 placeholder="First Name"
                 value={firstName}
                 onChangeText={setFirstName}
                 containerStyle={styles.halfInput}
               />
               <CustomTextInput
-                icon="account-outline"
+                iconLeft="account-outline"
                 placeholder="Last Name"
                 value={lastName}
                 onChangeText={setLastName}
@@ -310,7 +310,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             </View>
 
             <CustomTextInput
-              icon="phone-outline"
+              iconLeft="phone-outline"
               placeholder="Mobile No (auto-captured)"
               value={mobileNo}
               onChangeText={setMobileNo}
@@ -372,7 +372,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               <>
                 <Animated.View style={animatedResidenceCityStyle}>
                   <CustomTextInput
-                    icon="city-variant-outline"
+                    iconLeft="city-variant-outline"
                     placeholder="Residence City"
                     value={residenceCity}
                     onChangeText={setResidenceCity}
@@ -380,7 +380,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 </Animated.View>
                 <Animated.View style={animatedEducationStyle}>
                   <CustomTextInput
-                    icon="school-outline"
+                    iconLeft="school-outline"
                     placeholder="Education"
                     value={education}
                     onChangeText={setEducation}
@@ -388,7 +388,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 </Animated.View>
                 <Animated.View style={animatedCollegeNameStyle}>
                   <CustomTextInput
-                    icon="office-building-outline"
+                    iconLeft="office-building-outline"
                     placeholder="College Name"
                     value={collegeName}
                     onChangeText={setCollegeName}
@@ -396,7 +396,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 </Animated.View>
                 <Animated.View style={animatedCollegeCityVillageStyle}>
                   <CustomTextInput
-                    icon="map-marker-outline"
+                    iconLeft="map-marker-outline"
                     placeholder="College City/Village"
                     value={collegeCityVillage}
                     onChangeText={setCollegeCityVillage}

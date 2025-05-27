@@ -1,25 +1,26 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign'; // Import AntDesign
 
 // Define the props interface
 interface CustomTextInputProps {
-  icon?: string;
+  iconLeft?: string;
   placeholder?: string;
   value: string;
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
-  // *** DEFINE THE TYPE DIRECTLY AS THE UNION OF STRING LITERALS ***
-  pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto'; // Defined directly
+  pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
   editable?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  // Corrected type for containerStyle to accept StyleSheet.AbsoluteFillObject or an array of styles
-  containerStyle?: object | object[]; // Use object | object[] for flexible styling
+  containerStyle?: object | object[];
+  iconRight?: string;
+  iconRightType?: 'MaterialCommunityIcons' | 'AntDesign'; // Added prop for icon type
 }
 
 const CustomTextInput: React.FC<CustomTextInputProps> = ({
-  icon,
+  iconLeft,
   placeholder,
   value,
   onChangeText,
@@ -28,12 +29,28 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
   editable = true,
   pointerEvents,
   autoCapitalize,
-  containerStyle // Destructure the containerStyle prop
+  containerStyle,
+  iconRight,
+  iconRightType = 'MaterialCommunityIcons' // Default to MaterialCommunityIcons if not specified
 }) => {
+  const renderRightIcon = () => {
+    if (!iconRight) {
+      return null;
+    }
+
+    switch (iconRightType) {
+      case 'MaterialCommunityIcons':
+        return <MaterialCommunityIcons name={iconRight} size={20} color="#888" style={styles.iconRight} />;
+      case 'AntDesign':
+        return <AntDesign name={iconRight} size={20} color="#888" style={styles.iconRight} />;
+      default:
+        return null; // Or a default icon/error handling
+    }
+  };
+
   return (
-    // Apply the containerStyle here
     <View style={[styles.inputContainer, containerStyle]}>
-      {icon && <MaterialCommunityIcons name={icon} size={20} color="#888" style={styles.icon} />}
+      {iconLeft && <MaterialCommunityIcons name={iconLeft} size={20} color="#888" style={styles.iconLeft} />}
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -46,6 +63,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
         pointerEvents={pointerEvents}
         autoCapitalize={autoCapitalize}
       />
+      {renderRightIcon()} {/* Call the helper function to render the icon */}
     </View>
   );
 };
@@ -60,8 +78,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     height: 50,
   },
-  icon: {
+  iconLeft: {
     marginRight: 10,
+  },
+  iconRight: {
+    marginLeft: 10,
   },
   input: {
     flex: 1,
