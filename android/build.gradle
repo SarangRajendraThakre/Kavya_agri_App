@@ -1,3 +1,5 @@
+// android/build.gradle (Project Level)
+
 buildscript {
     ext {
         buildToolsVersion = "35.0.0"
@@ -6,17 +8,35 @@ buildscript {
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.0.21"
+        // --- ADD THIS LINE FOR FIREBASE ---
+        firebaseBoMVersion = "32.8.1" // Check https://firebase.google.com/docs/android/setup#dependencies for latest
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        // --- ADD VERSIONS HERE ---
+        classpath("com.android.tools.build:gradle:8.1.0") // Common version, adjust if needed
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-         classpath("com.google.gms:google-services:4.4.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion") // Use $kotlinVersion
+        classpath("com.google.gms:google-services:4.4.1")
     }
 }
 
-apply plugin: "com.facebook.react.rootproject"
+allprojects { // Ensure this block is also present and correct
+    repositories {
+        mavenCentral()
+        maven {
+            url("$rootDir/../node_modules/react-native/android")
+        }
+        google()
+    }
+}
+
+// Remove this if it's causing issues or if it's not a standard setup:
+// apply plugin: "com.facebook.react.rootproject"
+// This plugin is usually for the app-level build.gradle.
+// The default React Native setup doesn't have this in the project-level build.gradle.
+// If your project template added it, ensure it's intended.
+// The primary issue is likely the missing versions in `dependencies` and `firebaseBoMVersion`.

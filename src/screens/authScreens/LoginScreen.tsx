@@ -23,7 +23,7 @@ interface LoginScreenProps {
 
 
 // Define your backend URL (replace with your actual backend server address)
-const API_BASE_URL = 'http://ocalhost:3000'; // IMPORTANT: Use your actual IP or domain
+const API_BASE_URL = 'http://localhost:3000'; // IMPORTANT: Use your actual IP or domain
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -33,66 +33,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
   };
 
-  // --- Google Sign-in Logic ---
-  const onGoogleButtonPress = async () => {
-    setLoading(true);
-    try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-      // Get user info which contains idToken directly
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.idToken; // Correctly access idToken here
 
-      console.log('Google User Info (Full Object):', userInfo); // Log the full object to see its structure
-      console.log('ID Token:', idToken); // Log the idToken specifically
-
-      if (!idToken) {
-        Alert.alert('Error', 'Google ID Token not received.');
-        return;
-      }
-
-      // Send idToken to your Node.js backend for verification
-      const response = await fetch(`${API_BASE_URL}/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Success', data.message || 'Google login successful!');
-        // Now you have a session token or user data from your backend
-        // Store it securely (e.g., AsyncStorage, react-native-keychain)
-        // And then navigate
-        navigate('SuccessScreen'); // Navigate to your SuccessScreen
-      } else {
-        Alert.alert('Login Failed', data.message || 'Something went wrong on the server.');
-      }
-
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('Google Sign-in cancelled');
-        Alert.alert('Login Cancelled', 'You cancelled the Google sign-in process.');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Google Sign-in in progress');
-        Alert.alert('Sign-in In Progress', 'Google sign-in is already in progress.');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Google Play Services not available or outdated');
-        Alert.alert('Error', 'Google Play Services are not available or outdated.');
-      } else {
-        console.error('Google Sign-in error:', error);
-        Alert.alert('Sign-in Failed', `An error occurred: ${error.message || 'Unknown error'}`);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  // --- End Google Sign-in Logic ---
-
-  // --- OTP Request Logic (Frontend) ---
   const onRequestOtp = async () => {
     if (!email) {
       Alert.alert('Error', 'Please enter your email address.');

@@ -84,6 +84,7 @@ android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
+    
 
     namespace "com.kavya_agri_app"
     defaultConfig {
@@ -118,6 +119,9 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+      implementation platform("com.google.firebase:firebase-bom:${rootProject.ext.firebaseBoMVersion}")
+implementation("com.google.android.gms:play-services-auth:21.0.0") // Use a recent stable version
+
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
