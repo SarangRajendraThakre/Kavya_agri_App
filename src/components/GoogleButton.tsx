@@ -9,102 +9,145 @@ import {
 } from 'react-native';
 
 // Firebase imports (using modular API)
-import { getApp } from '@react-native-firebase/app'; // For getting the app instance
-import { getAuth, GoogleAuthProvider   } from '@react-native-firebase/auth'; // For auth methods and GoogleAuthProvider
-import type { User } from '@react-native-firebase/auth'; // <--- Import the namespace
+import { getApp } from '@react-native-firebase/app';
+import { getAuth, GoogleAuthProvider } from '@react-native-firebase/auth';
+import type { User } from '@react-native-firebase/auth';
 
 // Google Sign-in imports
 import {
   GoogleSignin,
   statusCodes,
   GoogleSigninButton,
-  
-  
 } from '@react-native-google-signin/google-signin';
-import { fontR, moderateScale, scale } from '../utils/Scaling';
 
-import GoogleIcon from '../assets/icons/google.svg'
+import { fontR, moderateScale, scale } from '../utils/Scaling';
+import GoogleIcon from '../assets/icons/google.svg';
+import { storage } from '../utils/storage';
+
+// Import MMKV storage instance
+
 
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
-// Go to Firebase Console -> Authentication -> Sign-in method -> Google -> Web SDK configuration.
-// VERIFY in your android/app/google-services.json file: look for client_type: 3 under oauth_client.
-
 const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
+
+// Define your backend URL for user data submission
+const BACKEND_API_URL = 'http://192.168.103.188:3000/userCreation'; // <--- Adjust this to your backend endpoint
 
 export default function GoogleButton() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  
   const [loading, setLoading] = useState(false);
 
-  // Get the default Firebase app and auth instances once
   const firebaseApp = getApp();
   const firebaseAuth = getAuth(firebaseApp);
 
-  // Handle user state changes (Firebase Auth listener)
   useEffect(() => {
-    // 1. Configure Google Sign-in SDK
     GoogleSignin.configure({
-      webClientId: WEB_CLIENT_ID, // This client ID is crucial
-      offlineAccess: true,        // Request code for offline access to Google APIs (optional)
-      // scopes: ['profile', 'email'], // Default scopes for Google Sign-in, add more if needed
+      webClientId: WEB_CLIENT_ID,
+      offlineAccess: true,
     });
 
-    // 2. Set up Firebase Authentication state listener
-   const subscriber = firebaseAuth.onAuthStateChanged((firebaseUser: User | null) => { // <--- Optional: explicitly type parameter for clarity
-      setUser(firebaseUser); // This will now be type-safe
+    const subscriber = firebaseAuth.onAuthStateChanged((firebaseUser: User | null) => {
+      setUser(firebaseUser);
       if (initializing) {
         setInitializing(false);
       }
     });
 
-    // 3. Unsubscribe from listener on component unmount
-    return subscriber; 
+    return subscriber;
   }, []);
 
-  function onAuthStateChanged(firebaseUser: React.SetStateAction<null>) {
-    setUser(firebaseUser);
-    if (initializing) {
-      setInitializing(false);
+  // Function to send user data to your backend
+  const sendUserDataToBackend = async (userData: {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL: string | null;
+    idToken: string; // Google ID Token
+    accessToken: string; // Firebase Access Token (from getIdToken)
+  }) => {
+    try {
+      const response = await fetch(BACKEND_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userData.accessToken}`, // Send Firebase ID token for backend verification
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send user data to backend');
+      }
+
+      const responseData = await response.json();
+      console.log('Backend response:', responseData);
+      Alert.alert('Backend Success', 'User data sent and processed by backend!');
+      return responseData; // Return data from backend if needed
+    } catch (error: any) {
+      console.error('Error sending user data to backend:', error);
+      Alert.alert('Backend Error', `Failed to sync user data with backend: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw to handle in onGoogleButtonPress if needed
     }
-  }
+  };
+
 
   // Function to handle Google Sign-in button press
   const onGoogleButtonPress = async () => {
+    setLoading(true); // Start loading
 
     try {
-      // 1. Check if Google Play Services are available (Android specific, but good practice)
-      // This will automatically show a dialog to the user if services are missing/outdated
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-
-      // 2. Get the user's ID token from Google Sign-in
       const signInResult = await GoogleSignin.signIn();
-      
-      // Determine idToken based on documentation (v13+ data property first)
+
       let idToken = signInResult.data?.idToken;
       if (!idToken) {
-        // Fallback for older versions or different result structure
-        idToken = signInResult.idToken; 
+        idToken = signInResult.idToken;
       }
 
       if (!idToken) {
         throw new Error('Google Sign-in did not return an ID token.');
       }
 
-      // 3. Create a Google credential with the ID token
-      // GoogleAuthProvider is imported from '@react-native-firebase/auth'
       const googleCredential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await firebaseAuth.signInWithCredential(googleCredential);
 
-      // 4. Sign-in the user to Firebase using the Google credential
-      await firebaseAuth.signInWithCredential(googleCredential);
+      // Successfully signed in to Firebase
       Alert.alert('Success', 'Signed in with Google and Firebase!');
 
-    } catch (error: any) { // Use 'any' type for flexible error handling
+      // Get Firebase ID token for backend authentication
+      const firebaseIdToken = await userCredential.user.getIdToken();
+
+      // --- Store user details in MMKV ---
+      const userDataToStore = {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+        photoURL: userCredential.user.photoURL,
+        idToken: idToken, // Google ID Token
+        firebaseAccessToken: firebaseIdToken, // Firebase ID Token for backend auth
+      };
+
+      // Store as a string
+      storage.set('user_data', JSON.stringify(userDataToStore));
+      console.log('User data stored in MMKV:', userDataToStore);
+
+      // --- Send user details to your backend ---
+      await sendUserDataToBackend({
+        uid: userDataToStore.uid,
+        email: userDataToStore.email,
+        displayName: userDataToStore.displayName,
+        photoURL: userDataToStore.photoURL,
+        idToken: userDataToStore.idToken, // Google ID Token
+        accessToken: userDataToStore.firebaseAccessToken, // Firebase ID Token
+      });
+
+    } catch (error: any) {
       console.error("Google Sign-in Error:", error);
 
-      // Robust error handling to catch various types of errors
       if (error && typeof error === 'object') {
-        if (error.code) { // Check if 'code' property exists on the error object
+        if (error.code) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
             Alert.alert('Sign In Cancelled', 'You cancelled the Google Sign-in process.');
           } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -112,32 +155,30 @@ export default function GoogleButton() {
           } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
             Alert.alert('Play Services Not Available', 'Google Play Services are not available or outdated. Please update them.');
           } else if (error.code === 'auth/developer-error') {
-            // This is often due to missing/incorrect SHA-1 fingerprint for Android or wrong Web Client ID
             Alert.alert('Configuration Error', 'DEVELOPER_ERROR: Check your SHA-1 fingerprint AND Web Client ID in Firebase/Google Cloud Console.');
           } else {
-            // General error from Google Sign-in or Firebase Auth with a known code
             Alert.alert('Sign In Failed', `An unexpected error occurred: ${error.message || 'Unknown error'}`);
           }
         } else {
-          // Error is an object but doesn't have a 'code' property
           Alert.alert('Sign In Failed', `An unexpected error occurred. Details: ${JSON.stringify(error)}`);
         }
       } else {
-        // Error is not an object (e.g., null, undefined, or a string)
         Alert.alert('Sign In Failed', `An entirely unexpected error occurred: ${error ? String(error) : 'Unknown'}`);
       }
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
-  // Function to handle Sign Out
   const signOut = async () => {
     try {
-      // 1. Optional: Revoke Google access token (removes app's consent from Google)
-      await GoogleSignin.revokeAccess(); 
-      // 2. Sign out from Google (local SDK state)
-      await GoogleSignin.signOut();      
-      // 3. Sign out from Firebase Authentication using the modular auth instance
-      await firebaseAuth.signOut();            
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      await firebaseAuth.signOut();
+
+      // --- Clear user data from MMKV on sign out ---
+      storage.delete('user_data');
+      console.log('User data cleared from MMKV.');
 
       Alert.alert('Signed Out', 'You have successfully signed out.');
       console.log('User signed out from Google and Firebase.');
@@ -147,7 +188,6 @@ export default function GoogleButton() {
     }
   };
 
-  // Show a loading indicator while Firebase initializes
   if (initializing) {
     return (
       <View style={styles.container}>
@@ -157,36 +197,45 @@ export default function GoogleButton() {
     );
   }
 
+  // You might want to conditionally render a "Sign Out" button if `user` is not null
+  // For the purpose of the LoginScreen, we're assuming this button is primarily for sign-in.
+  // If `user` is not null, the user is already authenticated.
+  if (user) {
+    return (
+      <View style={styles.socialButtonsContainer}>
+        <Text style={styles.socialButtonText}>Logged in as: {user.displayName || user.email}</Text>
+        <TouchableOpacity style={styles.socialButton} onPress={signOut}>
+          <Text style={styles.socialButtonText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
-
-         <View style={styles.socialButtonsContainer}>
-          <TouchableOpacity
-            style={styles.socialButton}
-            onPress={onGoogleButtonPress}
-            disabled={loading}
-          >
-            <GoogleIcon width={scale(24)} height={scale(24)} />
-            <Text style={styles.socialButtonText}>
-              {loading ? 'Signing in...' : 'Sign in With Google '}
-            </Text> 
-
-            
-          </TouchableOpacity>
-
-        </View> 
+    <View style={styles.socialButtonsContainer}>
+      <TouchableOpacity
+        style={styles.socialButton}
+        onPress={onGoogleButtonPress}
+        disabled={loading}
+      >
+        <GoogleIcon width={scale(24)} height={scale(24)} />
+        <Text style={styles.socialButtonText}>
+          {loading ? 'Signing in...' : 'Sign in With Google '}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
-
 }
-  const  styles = StyleSheet.create({
 
-     socialButtonsContainer: {
+const styles = StyleSheet.create({
+  socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: moderateScale(30),
     paddingHorizontal: moderateScale(20),
     width: '100%',
   },
- socialButton: {
+  socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F0F0F0',
@@ -203,7 +252,7 @@ export default function GoogleButton() {
     fontSize: fontR(16),
     color: '#333',
   },
-    statusText: {
+  statusText: {
     marginTop: 10,
     fontSize: 16,
     color: '#555',
@@ -215,10 +264,4 @@ export default function GoogleButton() {
     backgroundColor: '#f0f4f8',
     padding: 20,
   },
-
-  })
-
-
-
-
-  
+});

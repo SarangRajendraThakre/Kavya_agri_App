@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
+import { View, TextInput, StyleSheet, KeyboardTypeOptions, TouchableOpacity } from 'react-native'; // <--- Import TouchableOpacity
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import AntDesign from 'react-native-vector-icons/AntDesign'; // Import AntDesign
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 // Define the props interface
 interface CustomTextInputProps {
@@ -16,7 +16,8 @@ interface CustomTextInputProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   containerStyle?: object | object[];
   iconRight?: string;
-  iconRightType?: 'MaterialCommunityIcons' | 'AntDesign'; // Added prop for icon type
+  iconRightType?: 'MaterialCommunityIcons' | 'AntDesign';
+  onPressIconRight?: () => void; // <--- NEW PROP: Add this line
 }
 
 const CustomTextInput: React.FC<CustomTextInputProps> = ({
@@ -31,21 +32,22 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
   autoCapitalize,
   containerStyle,
   iconRight,
-  iconRightType = 'MaterialCommunityIcons' // Default to MaterialCommunityIcons if not specified
+  iconRightType = 'MaterialCommunityIcons',
+  onPressIconRight // <--- NEW: Destructure the new prop here
 }) => {
   const renderRightIcon = () => {
     if (!iconRight) {
       return null;
     }
 
-    switch (iconRightType) {
-      case 'MaterialCommunityIcons':
-        return <MaterialCommunityIcons name={iconRight} size={20} color="#888" style={styles.iconRight} />;
-      case 'AntDesign':
-        return <AntDesign name={iconRight} size={20} color="#888" style={styles.iconRight} />;
-      default:
-        return null; // Or a default icon/error handling
-    }
+    const IconComponent = iconRightType === 'AntDesign' ? AntDesign : MaterialCommunityIcons;
+
+    return (
+      // <--- NEW: Wrap the icon in TouchableOpacity
+      <TouchableOpacity onPress={onPressIconRight} disabled={!onPressIconRight}>
+        <IconComponent name={iconRight} size={20} color="#888" style={styles.iconRight} />
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -63,7 +65,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
         pointerEvents={pointerEvents}
         autoCapitalize={autoCapitalize}
       />
-      {renderRightIcon()} {/* Call the helper function to render the icon */}
+      {renderRightIcon()}
     </View>
   );
 };
