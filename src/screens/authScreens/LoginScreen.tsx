@@ -1,5 +1,7 @@
 import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react'; // Import useEffect and useRef
+import React, { useState, useEffect, useRef } from 'react';
+// import AsyncStorage from '@react-native-async-storage/async-storage'; // REMOVE THIS LINE
+import { storage } from '../../utils/storage'; // IMPORT YOUR MMKV STORAGE INSTANCE
 
 import WrapperContainer from '../../components/WrapperContainerComp';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -21,11 +23,43 @@ interface LoginScreenProps {
   navigation: LoginScreenNavigationProp;
 }
 
-const API_BASE_URL = 'http://192.168.103.188:3000';
+// --- IMPORTANT: Update this to your GraphQL endpoint ---
+// Use your server's IP address and the GraphQL port (e.g., 4000)
+// Ensure this IP is accessible from your device (e.g., same Wi-Fi network)
+const API_GRAPHQL_ENDPOINT = 'http://192.168.103.188:3000/graphql';
 
-const INITIAL_COOLDOWN = 30; // seconds
-const SPAM_THRESHOLD_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
-const COOLDOWN_INCREMENT = 15; // seconds to add for each spam attempt
+// --- GraphQL Mutations ---
+const REQUEST_OTP_MUTATION = `
+  mutation RequestOtp($email: String!) {
+    requestOtp(input: { email: $email }) {
+      success
+      message
+      # You can add a cooldown value here if your server returns it in data
+      # e.g., currentCooldown
+    }
+  }
+`;
+
+const VERIFY_OTP_MUTATION = `
+  mutation VerifyOtpAndRegister(
+    $email: String!,
+    $otp: String!,
+
+  ) {
+    verifyOtpAndRegister(
+      input: {
+        email: $email,
+        otp: $otp,
+       
+      }
+    ) {
+      success
+      message
+      accessToken
+      refreshToken
+    }
+  }
+`;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -33,10 +67,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0); // State for cooldown timer
-  const [requestAttempts, setRequestAttempts] = useState(0); // Counter for spam prevention
-  const lastRequestTimeRef = useRef<number>(0); // Ref to store last request timestamp
-
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref for interval ID
+
+  // States for new user registration fields (only needed if backend returns purpose: 'registration_complete')
+  const [isRegisteringNewUser, setIsRegisteringNewUser] = useState(false);
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
 
   useEffect(() => {
     // Clear interval on component unmount
@@ -81,41 +118,51 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     setLoading(true);
 
-    const currentTime = Date.now();
-    let currentAttempts = requestAttempts;
-    let currentCooldown = INITIAL_COOLDOWN;
-
-    // Check for spam attempts
-    if (currentTime - lastRequestTimeRef.current < SPAM_THRESHOLD_TIME) {
-      currentAttempts += 1;
-      currentCooldown = INITIAL_COOLDOWN + (currentAttempts - 1) * COOLDOWN_INCREMENT;
-    } else {
-      currentAttempts = 1; // Reset attempts if enough time has passed
-    }
-
-    setRequestAttempts(currentAttempts);
-    lastRequestTimeRef.current = currentTime; // Update last request time
-
     try {
-      const response = await fetch(`${API_BASE_URL}/request-otp`, {
+      const response = await fetch(API_GRAPHQL_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Add Authorization header if your requestOtp mutation requires it
+          // 'Authorization': `Bearer ${yourAuthToken}`
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          query: REQUEST_OTP_MUTATION,
+          variables: { email },
+        }),
       });
 
-      const data = await response.json();
+      const result = await response.json(); // Parse the GraphQL response
+      console.log('Request OTP Response:', result); // Log the full response
 
-      if (response.ok) {
+      if (result.errors) {
+        // Handle GraphQL errors (e.g., from rate limiting, email not found)
+        const errorMessage = result.errors[0].message || 'Failed to request OTP.';
+        Alert.alert('Error', errorMessage);
+
+        // --- Client-side Cooldown based on Server's Response ---
+        // If the error message contains cooldown info, extract and use it
+        const cooldownMatch = errorMessage.match(/Please wait (\d+) seconds/);
+        if (cooldownMatch && cooldownMatch[1]) {
+          const serverCooldown = parseInt(cooldownMatch[1], 10);
+          if (serverCooldown > 0) {
+            startCountdown(serverCooldown);
+          }
+        }
+      } else if (result.data && result.data.requestOtp) {
+        // OTP request successful
         setOtpSent(true);
-        startCountdown(currentCooldown); // Start countdown with calculated duration
-        Alert.alert('Success', data.message);
+        Alert.alert('Success', result.data.requestOtp.message || 'OTP sent to your email.');
+
+        // If the server returns a cooldown (e.g., in data.requestOtp.currentCooldown) use that
+        // Otherwise, start a default cooldown for resend button visibility
+        startCountdown(30); // Default to 30s if not specified by server
       } else {
-        Alert.alert('Error', data.message || 'Failed to request OTP.');
+        // Generic error if response.data.requestOtp is false or unexpected
+        Alert.alert('Error', 'Failed to request OTP. Please try again.');
       }
     } catch (error: any) {
-      console.error('Request OTP error:', error);
+      console.error('Request OTP network error:', error);
       Alert.alert('Network Error', 'Could not connect to the server. Please check your internet connection.');
     } finally {
       setLoading(false);
@@ -127,26 +174,116 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       Alert.alert('Error', 'Please enter the OTP.');
       return;
     }
+
+    // If registering a new user, ensure password and name fields are filled
+    if (isRegisteringNewUser) {
+      if (!password || !firstName || !lastName) {
+        Alert.alert('Error', 'Please fill in all registration details (Password, First Name, Last Name).');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/verify-otp`, {
+      const variables: any = { email, otp };
+
+      // Conditionally add registration fields if needed
+      if (isRegisteringNewUser) {
+        variables.password = password;
+        variables.firstName = firstName;
+        variables.lastName = lastName;
+      }
+
+      const response = await fetch(API_GRAPHQL_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({
+          query: VERIFY_OTP_MUTATION,
+          variables: variables,
+        }),
       });
 
-      const data = await response.json();
+      const result = await response.json(); // Parse the GraphQL response
+      console.log('Verify OTP Response:', result); // Log the full response
 
-      if (response.ok && data.success) {
-        Alert.alert('Success', data.message);
-        navigate('SuccessScreen');
+      if (result.errors) {
+        const errorMessage = result.errors[0].message || 'OTP verification failed.';
+        Alert.alert('Error', errorMessage);
+      } else if (result.data && result.data.verifyOtpAndRegister) {
+        const { success, message, purpose, user, accessToken, refreshToken } = result.data.verifyOtpAndRegister;
+
+        if (success) {
+          Alert.alert('Success', message);
+          // Reset state
+          setOtpSent(false);
+          setOtp('');
+          setCountdown(0);
+          setIsRegisteringNewUser(false);
+          setPassword('');
+          setFirstName('');
+          setLastName('');
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+          }
+
+          // Handle different purposes
+          if (purpose === 'registration_complete') {
+            // --- Store tokens and user data using MMKV ---
+            try {
+              storage.set('userEmail', user.email);
+              storage.set('userId', user.userId);
+              storage.set('accessToken', accessToken);
+              storage.set('refreshToken', refreshToken);
+              // You can stringify complex objects if needed, e.g., storage.set('userProfile', JSON.stringify(user));
+              console.log('New user registration: User data and tokens saved with MMKV!');
+              Alert.alert('Registration Successful!', 'Welcome to the app!');
+              navigate('SuccessScreen'); // Navigate after successful registration
+            } catch (storageError) {
+              console.error('Failed to save data to MMKV after registration:', storageError);
+              Alert.alert('Storage Error', 'Could not save user data locally after registration.');
+            }
+          } else if (purpose === 'otp_verified_for_existing_user') {
+            // This means OTP was verified, but it's an existing user.
+            // If your backend now returns tokens for login in this scenario, use them.
+            if (user && accessToken && refreshToken) {
+              // --- Store tokens and user data using MMKV ---
+              try {
+                storage.set('userEmail', user.email);
+                storage.set('userId', user.userId);
+                storage.set('accessToken', accessToken);
+                storage.set('refreshToken', refreshToken);
+                console.log('Existing user login: User data and tokens saved with MMKV!');
+                Alert.alert('Login Successful!', 'Welcome back!');
+                navigate('SuccessScreen'); // Navigate after successful login
+              } catch (storageError) {
+                console.error('Failed to save data to MMKV after login:', storageError);
+                Alert.alert('Storage Error', 'Could not save user data locally after login.');
+              }
+            } else {
+              // If tokens are not returned for existing users, you might
+              // navigate them to a password reset screen or a dedicated login screen
+              Alert.alert('OTP Verified', 'You can now proceed to login or reset password.');
+              // Example: navigate('ResetPasswordScreen', { email: email });
+            }
+          } else {
+            // Fallback for unexpected purpose
+            Alert.alert('Success', 'OTP verified, but purpose is unknown. Please proceed.');
+            navigate('SuccessScreen'); // Default navigation
+          }
+        } else {
+          Alert.alert('Error', message || 'OTP verification failed.');
+          // Set isRegisteringNewUser based on backend response, if applicable for retry scenario
+          if (result.data.verifyOtpAndRegister.purpose === 'registration_required') { // Assuming your backend sends this
+            setIsRegisteringNewUser(true);
+          }
+        }
       } else {
-        Alert.alert('Error', data.message || 'OTP verification failed.');
+        Alert.alert('Error', 'OTP verification failed. Unexpected response.');
       }
     } catch (error: any) {
-      console.error('Verify OTP error:', error);
+      console.error('Verify OTP network error:', error);
       Alert.alert('Network Error', 'Could not connect to the server. Please check your internet connection.');
     } finally {
       setLoading(false);
@@ -157,12 +294,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     setOtpSent(false); // Go back to email input state
     setOtp(''); // Clear OTP field
     setCountdown(0); // Reset countdown
+    setIsRegisteringNewUser(false); // Reset registration state
+    setPassword('');
+    setFirstName('');
+    setLastName('');
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current); // Clear any running countdown
     }
-    // Optionally, you might want to reset requestAttempts if the user goes back to edit email
-    // setRequestAttempts(0);
-    // lastRequestTimeRef.current = 0;
   };
 
   return (
@@ -187,8 +325,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
               editable={!otpSent}
-              iconRight={otpSent ? 'pencil' : undefined} // Only show pencil icon if OTP sent
-              onPressIconRight={otpSent ? onPressEditEmail : undefined} // Attach handler if icon is visible
+              iconRight={otpSent ? 'pencil' : undefined}
+              onPressIconRight={otpSent ? onPressEditEmail : undefined}
             />
 
             {otpSent && (
@@ -199,22 +337,53 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <OTPTextInput
                   containerStyle={styles.otpInputContainer}
                   textInputStyle={styles.textInputStyle}
-                  inputCount={4}
+                  inputCount={6} // Assuming 6-digit OTP, adjust if different from your backend
                   tintColor={Colors.btnColor}
                   offTintColor={Colors.offColor}
                   keyboardType="number-pad"
                   handleTextChange={setOtp}
-                  textInputProps={{ autoFocus: true }}
+                  // textInputProps={{ autoFocus: true }} // Consider enabling this if it improves UX for your app
                 />
                 <TouchableOpacity onPress={() => {
-                  // Option to resend OTP or go back to email input
-                  setOtp('');
-                  setOtpSent(false);
-                  // If you want to automatically resend, uncomment the line below:
-                  // onRequestOtp(); // This would trigger the cooldown logic again
+                  if (countdown === 0) {
+                    onRequestOtp(); // This will re-trigger the cooldown logic on the server
+                  } else {
+                    Alert.alert('Wait', `Please wait ${countdown} seconds before requesting another OTP.`);
+                  }
                 }}>
-                  <Text style={styles.resendText}>Didn't receive OTP? <Text style={styles.linkText}>Resend</Text></Text>
+                  <Text style={styles.resendText}>
+                    Didn't receive OTP?{' '}
+                    <Text style={styles.linkText}>
+                      {countdown > 0 ? `Resend in ${countdown}s` : 'Resend'}
+                    </Text>
+                  </Text>
                 </TouchableOpacity>
+
+                {/* Conditional fields for new user registration */}
+                {isRegisteringNewUser && (
+                  <View style={styles.registrationFields}>
+                    <CustomTextInput
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder={'Create Password'}
+                      containerStyle={styles.EmailInput}
+                      secureTextEntry
+                    />
+                    <CustomTextInput
+                      value={firstName}
+                      onChangeText={setFirstName}
+                      placeholder={'First Name'}
+                      containerStyle={styles.EmailInput}
+                    />
+                    <CustomTextInput
+                      value={lastName}
+                      onChangeText={setLastName}
+                      placeholder={'Last Name'}
+                      containerStyle={styles.EmailInput}
+                    />
+                  </View>
+                )}
+
               </View>
             )}
 
@@ -223,10 +392,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               buttonText={
                 otpSent
                   ? 'Verify OTP'
-                  : (countdown > 0 ? `Resend in ${countdown}s` : 'Continue') // Dynamic button text with countdown
+                  : (countdown > 0 ? `Continue in ${countdown}s` : 'Continue')
               }
               containerStyle={styles.ButtonStyle}
-              disabled={loading || (countdown > 0 && !otpSent)} // Disable button while loading or during countdown (if not OTP verification phase)
+              disabled={loading || (countdown > 0 && !otpSent)} // Disable if loading or on cooldown (unless it's the verify phase)
             />
             {loading && <ActivityIndicator size="small" color={Colors.btnColor} style={styles.loader} />}
 
@@ -297,7 +466,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   EmailInput: {
-    marginTop: moderateScale(-30),
+    marginTop: moderateScale(10),
     width: '100%',
   },
   ButtonStyle: {
@@ -347,10 +516,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   weHaveTextstyle: {
-    fontSize: fontR(8),
+    fontSize: fontR(14),
     color: Colors.black60 || '#666',
     fontWeight: '500',
-    marginTop: moderateScale(1),
+    marginTop: moderateScale(10),
     textAlign: 'center',
     paddingHorizontal: moderateScale(10),
   },
@@ -384,5 +553,9 @@ const styles = StyleSheet.create({
   loader: {
     marginTop: moderateScale(10),
     marginBottom: moderateScale(10),
+  },
+  registrationFields: {
+    width: '100%',
+    marginTop: moderateScale(20),
   },
 });

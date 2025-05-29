@@ -13,10 +13,11 @@ import LoginScreen from '../screens/authScreens/LoginScreen';
 
 // Import your RootStackParamList from types.ts
 import {RootStackParamList} from './types';
-import CreateProfile from '../screens/authScreens/CreateProfile';
+import CreateProfile from '../screens/authScreens/CreateProfileScreen';
 import OtpScreen from '../screens/authScreens/OtpScreen';
 import SuccessScreen from '../screens/authScreens/SuccessScreen';
 import { navigationRef } from '../utils/NavigationUtils';
+import CreateProfileScreen from '../screens/authScreens/CreateProfileScreen';
 
 // MMKV is no longer needed directly in AppNavigator, it's in Splash now
 
@@ -54,8 +55,8 @@ const AppNavigator: React.FC = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="CreateProfile"
-          component={CreateProfile}
+          name="CreateProfileScreen"
+          component={CreateProfileScreen}
           options={{headerShown: false}}
         />
         <Stack.Screen

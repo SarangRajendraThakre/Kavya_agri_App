@@ -12,6 +12,7 @@ export type RootStackParamList = {
   LoginScreen:undefined;
   OtpScreen:undefined;
   SuccessScreen:undefined;
+  CreateProfileScreen:undefined;
 
 };
 

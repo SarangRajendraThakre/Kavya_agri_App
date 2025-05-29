@@ -6,7 +6,7 @@ import LoginScreen from './src/screens/authScreens/LoginScreen'
 
 const App = () => {
   return (
-    <LoginScreen/>
+    <AppNavigator/>
   )
 }
 

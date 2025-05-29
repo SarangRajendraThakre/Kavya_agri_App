@@ -38,7 +38,7 @@ type SignupScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'CreateProfile'>;
 };
 
-const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
+const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [salutation, setSalutation] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
@@ -580,4 +580,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default CreateProfileScreen;

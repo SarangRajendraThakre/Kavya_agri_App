@@ -22,16 +22,14 @@ import {
 
 import { fontR, moderateScale, scale } from '../utils/Scaling';
 import GoogleIcon from '../assets/icons/google.svg';
-import { storage } from '../utils/storage';
-
-// Import MMKV storage instance
-
+import { storage } from '../utils/storage'; // Import MMKV storage instance
+import { navigate } from '../utils/NavigationUtils';
 
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
 const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
-// Define your backend URL for user data submission
-const BACKEND_API_URL = 'http://192.168.103.188:3000/userCreation'; // <--- Adjust this to your backend endpoint
+const BACKEND_API_URL = 'http://192.168.103.188:3000/auth/userCreation';
+
 
 export default function GoogleButton() {
   const [initializing, setInitializing] = useState(true);
@@ -57,45 +55,56 @@ export default function GoogleButton() {
     return subscriber;
   }, []);
 
-  // Function to send user data to your backend
-  const sendUserDataToBackend = async (userData: {
-    uid: string;
+  // Define the type for the user data sent to the backend
+  interface BackendUserData {
+    uid: string; // The Firebase User ID (unique identifier for the user)
     email: string | null;
-    displayName: string | null;
-    photoURL: string | null;
-    idToken: string; // Google ID Token
-    accessToken: string; // Firebase Access Token (from getIdToken)
-  }) => {
-    try {
-      const response = await fetch(BACKEND_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userData.accessToken}`, // Send Firebase ID token for backend verification
-        },
-        body: JSON.stringify(userData),
-      });
+    displayName: string | null; // User's display name
+    photoURL: string | null;    // User's photo URL
+    idToken: string;            // Google's ID Token (optional for backend if Firebase ID Token is used)
+    firebaseAccessToken: string; // The Firebase ID Token (for backend verification)
+  }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to send user data to backend');
-      }
+ const sendUserDataToBackend = async (userData: BackendUserData) => {
+  try {
+    console.log('Sending user data to backend:', BACKEND_API_URL, {
+    
+      email: userData.email,
+         });
 
-      const responseData = await response.json();
-      console.log('Backend response:', responseData);
-      Alert.alert('Backend Success', 'User data sent and processed by backend!');
-      return responseData; // Return data from backend if needed
-    } catch (error: any) {
-      console.error('Error sending user data to backend:', error);
-      Alert.alert('Backend Error', `Failed to sync user data with backend: ${error.message || 'Unknown error'}`);
-      throw error; // Re-throw to handle in onGoogleButtonPress if needed
+    const response = await fetch(BACKEND_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userData.firebaseAccessToken}`,
+      },
+      body: JSON.stringify({
+       
+        email: userData.email,
+    
+      }),
+    });
+
+    let responseData;
+    // Check if the response is successful (HTTP status 2xx)
+    if (response.ok) {
+      // If successful, assume JSON and parse it
+      responseData = await response.json();
+      console.log('Backend response (user creation/login):', responseData);
+    } else
+    {
+      console.log(response);
     }
-  };
 
+  } catch (error: any) {
+    console.error('Error sending user data to backend:', error.message || error);
+    Alert.alert('Backend Error', `Failed to sync user data: ${error.message || 'Unknown error'}`);
+    throw error;
+  }
+};
 
-  // Function to handle Google Sign-in button press
   const onGoogleButtonPress = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -103,7 +112,7 @@ export default function GoogleButton() {
 
       let idToken = signInResult.data?.idToken;
       if (!idToken) {
-        idToken = signInResult.idToken;
+        idToken = signInResult.idToken; // Fallback for older versions or different data structures
       }
 
       if (!idToken) {
@@ -113,34 +122,31 @@ export default function GoogleButton() {
       const googleCredential = GoogleAuthProvider.credential(idToken);
       const userCredential = await firebaseAuth.signInWithCredential(googleCredential);
 
-      // Successfully signed in to Firebase
+      // --- IMMEDIATE NAVIGATION AFTER SUCCESSFUL AUTHENTICATION ---
       Alert.alert('Success', 'Signed in with Google and Firebase!');
+      navigate('SuccessScreen'); // <--- Move navigation here!
 
-      // Get Firebase ID token for backend authentication
+      // Get the Firebase ID Token (this is what your backend will primarily verify)
       const firebaseIdToken = await userCredential.user.getIdToken();
 
-      // --- Store user details in MMKV ---
-      const userDataToStore = {
+      const userDataToStore: BackendUserData = { // Use the defined interface here
         uid: userCredential.user.uid,
         email: userCredential.user.email,
         displayName: userCredential.user.displayName,
         photoURL: userCredential.user.photoURL,
-        idToken: idToken, // Google ID Token
-        firebaseAccessToken: firebaseIdToken, // Firebase ID Token for backend auth
+        idToken: idToken, // The original Google ID token
+        firebaseAccessToken: firebaseIdToken, // The Firebase ID Token
       };
 
-      // Store as a string
       storage.set('user_data', JSON.stringify(userDataToStore));
       console.log('User data stored in MMKV:', userDataToStore);
 
-      // --- Send user details to your backend ---
-      await sendUserDataToBackend({
-        uid: userDataToStore.uid,
-        email: userDataToStore.email,
-        displayName: userDataToStore.displayName,
-        photoURL: userDataToStore.photoURL,
-        idToken: userDataToStore.idToken, // Google ID Token
-        accessToken: userDataToStore.firebaseAccessToken, // Firebase ID Token
+      // --- SEND DATA TO BACKEND IN THE BACKGROUND ---
+      // Do NOT await this call if you want immediate navigation
+      sendUserDataToBackend(userDataToStore).catch(backendError => {
+        // Handle backend errors separately if needed, but don't block navigation
+        console.error("Error sending user data to backend in background:", backendError);
+        // You might want to log this error to an analytics service or display a less intrusive message
       });
 
     } catch (error: any) {
@@ -166,7 +172,7 @@ export default function GoogleButton() {
         Alert.alert('Sign In Failed', `An entirely unexpected error occurred: ${error ? String(error) : 'Unknown'}`);
       }
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -176,12 +182,13 @@ export default function GoogleButton() {
       await GoogleSignin.signOut();
       await firebaseAuth.signOut();
 
-      // --- Clear user data from MMKV on sign out ---
       storage.delete('user_data');
       console.log('User data cleared from MMKV.');
 
       Alert.alert('Signed Out', 'You have successfully signed out.');
       console.log('User signed out from Google and Firebase.');
+      // You could use your utility function here too, e.g.:
+      // navigate('LoginScreen');
     } catch (error: any) {
       console.error('Sign Out Error:', error);
       Alert.alert('Sign Out Failed', `An error occurred during sign out: ${error.message || 'Unknown error'}`);
@@ -197,9 +204,6 @@ export default function GoogleButton() {
     );
   }
 
-  // You might want to conditionally render a "Sign Out" button if `user` is not null
-  // For the purpose of the LoginScreen, we're assuming this button is primarily for sign-in.
-  // If `user` is not null, the user is already authenticated.
   if (user) {
     return (
       <View style={styles.socialButtonsContainer}>
