@@ -35,7 +35,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
 
 type SignupScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'CreateProfile'>;
+  navigation: StackNavigationProp<RootStackParamList, 'CreateProfileScreen'>;
 };
 
 const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
@@ -323,7 +323,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               onPress={() => setWhatsAppSameAsMobile(!whatsAppSameAsMobile)}
             />
             <CustomTextInput
-              icon="whatsapp"
+              iconLeft="whatsapp"
               placeholder="WhatsApp Number"
               value={whatsAppNumber}
               onChangeText={setWhatsAppNumber}
@@ -331,7 +331,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               editable={!whatsAppSameAsMobile}
             />
             <CustomTextInput
-              icon="email-outline"
+              iconLeft="email-outline"
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
@@ -343,7 +343,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             {/* Date of Birth Input */}
             <TouchableOpacity onPress={showDatePicker} style={styles.dateInputWrapper}>
               <CustomTextInput
-                icon="calendar"
+                iconLeft="calendar"
                 placeholder="Date of Birth"
                 value={dateOfBirth}
                 editable={false}
@@ -468,13 +468,13 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: width * 0.08,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: '#000',
     marginTop: height * 0.02,
     marginBottom: height * 0.005,
   },
   subHeaderText: {
     fontSize: width * 0.04,
-    color: '#DDD',
+    color: '#000',
   },
   formContainer: {
     backgroundColor: '#FFF',

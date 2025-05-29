@@ -70,6 +70,7 @@ export default function GoogleButton() {
     console.log('Sending user data to backend:', BACKEND_API_URL, {
     
       email: userData.email,
+      
          });
 
     const response = await fetch(BACKEND_API_URL, {

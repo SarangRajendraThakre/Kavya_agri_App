@@ -26,7 +26,7 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
           <ButtonComp
             width={screenWidth / 1.2}
             buttonText={'Continue'}
-            onPress={() => navigation.navigate('CreateProfile')} // Wrap in function
+            onPress={() => navigation.navigate('CreateProfileScreen')} // Wrap in function
           />
         </View>
       </View>

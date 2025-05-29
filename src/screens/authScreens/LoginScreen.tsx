@@ -508,6 +508,7 @@ const styles = StyleSheet.create({
     marginTop: moderateScale(5),
     width: '100%',
     alignItems: 'center',
+    marginRight:moderateScale(30)
   },
   codeTextStyle: {
     fontSize: fontR(2),
@@ -539,8 +540,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   otpInputContainer: {
-    marginTop: moderateScale(20),
-    marginBottom: moderateScale(20),
+    marginTop: moderateScale(10),
+    marginBottom: moderateScale(10),
     width: '100%',
     justifyContent: 'space-evenly',
   },
