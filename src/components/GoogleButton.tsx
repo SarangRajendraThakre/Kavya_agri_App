@@ -234,7 +234,7 @@ export default function GoogleButton() {
 
 const styles = StyleSheet.create({
   socialButtonsContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: moderateScale(30),
     paddingHorizontal: moderateScale(20),

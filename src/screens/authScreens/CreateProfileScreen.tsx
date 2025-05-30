@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   Alert,
+  Platform, // Import Platform for keyboardVerticalOffset
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import DropdownComponent from '../../components/DropdownComponent';
@@ -46,8 +47,6 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [whatsAppSameAsMobile, setWhatsAppSameAsMobile] = useState<boolean>(false);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  // Removed password and confirmPassword as they were not in the snippet for this context
-  // but if you have them in your full code, make sure to include them in areInitialFieldsFilled
 
   const [dateOfBirth, setDateOfBirth] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
@@ -71,14 +70,12 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   // Function to check if all initial fields are filled
   const areInitialFieldsFilled = (): boolean => {
     return (
-      !!salutation && // Check salutation
+      !!salutation &&
       !!firstName &&
       !!lastName &&
       !!mobileNo &&
       !!whatsAppNumber &&
       !!email &&
-      // !!password && // Include if password fields are part of initial
-      // !!confirmPassword && // Include if password fields are part of initial
       !!dateOfBirth &&
       !!selectedGender
     );
@@ -89,12 +86,11 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     if (areInitialFieldsFilled()) {
       setShowAdditionalFields(true);
 
-      const animationDuration = 500; // Duration for each individual slide
-      const delayBetweenFields = 150; // Delay between each subsequent field
+      const animationDuration = 500;
+      const delayBetweenFields = 150;
 
-      // Animate each field with a progressive delay
       translateXResidenceCity.value = withDelay(
-        0, // No delay for the first field
+        0,
         withTiming(0, { duration: animationDuration })
       );
       translateXEducation.value = withDelay(
@@ -110,9 +106,6 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         withTiming(0, { duration: animationDuration })
       );
     } else {
-      // Hide fields and reset their positions when criteria are not met
-      // You might want to animate them out gracefully here if setShowAdditionalFields(false)
-      // is not immediate
       setShowAdditionalFields(false);
       translateXResidenceCity.value = width;
       translateXEducation.value = width;
@@ -126,8 +119,6 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     mobileNo,
     whatsAppNumber,
     email,
-    // password, // Include if password fields are part of initial
-    // confirmPassword, // Include if password fields are part of initial
     dateOfBirth,
     selectedGender,
   ]);
@@ -135,7 +126,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   // Animated styles for each input field
   const animatedResidenceCityStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateXResidenceCity.value }],
-    width: '100%', // Ensure it takes full width
+    width: '100%',
   }));
 
   const animatedEducationStyle = useAnimatedStyle(() => ({
@@ -162,7 +153,9 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   };
 
   const handleConfirmDate = (date: Date): void => {
-    setDateOfBirth(date.toLocaleDateString()); // Format as desired
+    // Format the date to 'MM/DD/YYYY' or 'YYYY-MM-DD' as expected by your backend
+    // It's crucial to send a format that can be parsed by `new Date()` on the backend.
+    setDateOfBirth(date.toLocaleDateString('en-CA')); // YYYY-MM-DD format for consistency
     hideDatePicker();
   };
 
@@ -171,11 +164,12 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     if (whatsAppSameAsMobile) {
       setWhatsAppNumber(mobileNo);
     } else {
-      if (whatsAppNumber === mobileNo) {
+      if (whatsAppNumber === mobileNo) { // Only clear if it was auto-populated from mobileNo
         setWhatsAppNumber('');
       }
     }
   }, [whatsAppSameAsMobile, mobileNo]);
+
 
   const handleSignUp = async (): Promise<void> => {
     // Basic validation
@@ -186,11 +180,8 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       !mobileNo ||
       !whatsAppNumber ||
       !email ||
-      // !password || // Include if password fields are part of initial
-      // !confirmPassword || // Include if password fields are part of initial
       !dateOfBirth ||
       !selectedGender ||
-      // Add validation for the dynamically revealed fields
       !residenceCity ||
       !education ||
       !collegeName ||
@@ -200,53 +191,88 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       return;
     }
 
-    // if (password !== confirmPassword) { // Include if password fields are part of initial
-    //   Alert.alert('Password Mismatch', 'Password and Confirm Password do not match.');
-    //   return;
-    // }
+    // --- IMPORTANT: Replace with actual userId from your authentication flow ---
+    // For demonstration, we'll use a hardcoded user ID.
+    // In a real app, this userId would come from a user object
+    // obtained after successful login or registration.
+    const userId = '60c72b2f9b1d8e001c8e4d3a'; // Replace with a valid MongoDB ObjectId for an existing user or one you'll create.
+    // You could fetch this from secure storage or Redux state if the user is logged in.
+    // Example: const userId = await AsyncStorage.getItem('currentUserId');
+    // Or if creating a user first: const response = await fetch('/api/signup', { ... }); const userId = response.json().userId;
 
-    const userData = {
-      salutation,
-      firstName,
-      lastName,
-      mobileNo,
-      whatsAppNumber,
-      email,
-      // password, // In a real app, hash this before sending to backend
-      dateOfBirth,
-      gender: selectedGender,
-      residenceCity,
-      education,
-      collegeName,
-      collegeCityVillage,
-      rememberMe,
+    // GraphQL Mutation
+    const CREATE_PROFILE_MUTATION = `
+      mutation CreateOrUpdateProfile($input: CreateProfileInput!) {
+        createOrUpdateProfile(input: $input) {
+          id
+          userId
+          salutation
+          firstName
+          lastName
+          mobileNo
+          whatsAppNumber
+          email
+          dateOfBirth
+          gender
+          residenceCity
+          education
+          collegeName
+          collegeCityVillage
+          rememberMe
+          createdAt
+        }
+      }
+    `;
+
+    const variables = {
+      input: {
+        userId: userId,
+        salutation: salutation,
+        firstName: firstName,
+        lastName: lastName,
+        mobileNo: mobileNo,
+        whatsAppNumber: whatsAppNumber,
+        email: email,
+        dateOfBirth: dateOfBirth, // This string will be parsed to Date on backend
+        gender: selectedGender,
+        residenceCity: residenceCity,
+        education: education,
+        collegeName: collegeName,
+        collegeCityVillage: collegeCityVillage,
+        rememberMe: rememberMe,
+      },
     };
 
-    console.log('Signing Up with:', userData);
+    console.log('Sending data:', variables);
 
-    // --- Backend API Call ---
     try {
-      // Replace with your actual backend API endpoint
-      const response = await fetch('YOUR_BACKEND_API_ENDPOINT/signup', {
+      const response = await fetch('http://localhost:4000/graphql', { // Your GraphQL endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Include if authentication is required
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          query: CREATE_PROFILE_MUTATION,
+          variables: variables,
+          operationName: 'CreateOrUpdateProfile', // Make sure operationName matches the mutation name
+        }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        Alert.alert('Success', data.message || 'Account created successfully!');
-        // Consider navigating to a success screen or login
-        // navigation.navigate('LoginScreen');
+      const responseData = await response.json();
+      console.log('Backend response:', responseData);
+
+      if (response.ok && !responseData.errors) {
+        Alert.alert('Success', 'Profile created/updated successfully!');
+        // Navigate to a success screen or home screen
+        // navigation.navigate('HomeScreen'); // Example navigation
       } else {
-        const errorData = await response.json();
-        Alert.alert('Sign Up Failed', errorData.message || 'Something went wrong. Please try again.');
+        const errorMessage = responseData.errors ? responseData.errors[0].message : 'Something went wrong.';
+        Alert.alert('Operation Failed', errorMessage);
       }
     } catch (error) {
-      console.error('Error during signup:', error);
-      Alert.alert('Error', 'Network error. Please check your internet connection.');
+      console.error('Error during profile creation/update:', error);
+      Alert.alert('Error', 'Network error. Please check your internet connection and backend server.');
     }
   };
 
@@ -271,8 +297,8 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     >
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
-        behavior="position"
-        keyboardVerticalOffset={-200}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -200} // Adjust offset as needed
       >
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.headerContainer}>
@@ -288,7 +314,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               value={salutation}
               onSelect={setSalutation}
               icon="account-circle-outline"
-              searchable={false} // Assuming no search needed for Salutation
+              searchable={false}
             />
 
             {/* First Name and Last Name side-by-side */}
@@ -315,7 +341,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               value={mobileNo}
               onChangeText={setMobileNo}
               keyboardType="phone-pad"
-              editable={true} // Set to false if truly auto-captured and non-editable
+              editable={true}
             />
             <CustomCheckbox
               label="WhatsApp number same as Mobile No"
@@ -338,7 +364,6 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-       
 
             {/* Date of Birth Input */}
             <TouchableOpacity onPress={showDatePicker} style={styles.dateInputWrapper}>
@@ -347,7 +372,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 placeholder="Date of Birth"
                 value={dateOfBirth}
                 editable={false}
-                pointerEvents="none" // Prevents the input from being directly typed into
+                pointerEvents="none"
               />
             </TouchableOpacity>
             <DateTimePickerModal
@@ -364,7 +389,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               value={selectedGender}
               onSelect={setSelectedGender}
               icon="gender-male-female"
-              searchable={false} // Assuming no search needed for Gender
+              searchable={false}
             />
 
             {/* Animated Individual Fields */}
@@ -405,42 +430,12 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               </>
             )}
 
-          
-
             <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
               <Text style={styles.loginButtonText}>SUBMIT</Text>
             </TouchableOpacity>
-
-            {/* If you want the OR separator and social buttons, uncomment these */}
-            {/*
-            <View style={styles.orSeparator}>
-              <View style={styles.line} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.line} />
-            </View>
-
-            <View style={styles.socialButtonsContainer}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialButtonText}>Google</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialButtonText}>Apple</Text>
-              </TouchableOpacity>
-            </View>
-            */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* If you want the "Already have an account?" section, uncomment this */}
-      {/*
-      <View style={styles.signUpContainer}>
-        <Text style={styles.signUpText}>Already have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
-          <Text style={styles.signUpLink}>Login</Text>
-        </TouchableOpacity>
-      </View>
-      */}
     </ImageBackground>
   );
 };
