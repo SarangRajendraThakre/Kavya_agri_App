@@ -35,16 +35,13 @@ interface Option {
 }
 
 // Assuming Props from navigation
-import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
 import { replace } from '../../utils/NavigationUtils';
 import { MMKV } from 'react-native-mmkv';
 
-type SignupScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'CreateProfileScreen'>;
-};
 
-const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
+
+const CreateProfileScreen: React.FC = ({  }) => {
   const [salutation, setSalutation] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');

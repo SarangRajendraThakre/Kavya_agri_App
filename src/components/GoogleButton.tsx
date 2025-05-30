@@ -188,7 +188,7 @@ export default function GoogleButton() {
 
             // Navigate AFTER backend communication and MMKV storage are complete
             Alert.alert('Success', 'Signed in with Google and profile synced!');
-            replace('CreateProfileScreen'); // Navigate to CreateProfileScreen to complete profile details
+            replace('SuccessScreen'); // Navigate to CreateProfileScreen to complete profile details
 
         } catch (error: any) {
             console.error("Google Sign-in Error:", error);
@@ -219,50 +219,11 @@ export default function GoogleButton() {
         }
     };
 
-    const signOut = async () => {
-        try {
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-            await firebaseAuth.signOut();
+  
 
-            // Clear all relevant user data from MMKV on sign out
-            storage.delete('userEmail');
-            storage.delete('userId');
-            storage.delete('appId');
-            storage.delete('role');
-            storage.delete('accessToken');
-            storage.delete('refreshToken');
-            storage.delete('googleAuthUserData');
+  
 
-            console.log('All user data cleared from MMKV.');
-
-            Alert.alert('Signed Out', 'You have successfully signed out.');
-            console.log('User signed out from Google and Firebase.');
-            replace('LoginScreen'); // Navigate back to login or initial screen
-        } catch (error: any) {
-            console.error('Sign Out Error:', error);
-            Alert.alert('Sign Out Failed', `An error occurred during sign out: ${error.message || 'Unknown error'}`);
-        }
-    };
-
-    if (initializing) {
-        return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={styles.statusText}>Initializing Firebase...</Text>
-            </View>
-        );
-    }
-
-    if (user) {
-        return (
-            <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity style={styles.socialButton} onPress={signOut} disabled={loading}>
-                    <Text style={styles.socialButtonText}>{loading ? 'Signing Out...' : 'Sign Out'}</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
+  
 
     return (
         <View style={styles.socialButtonsContainer}>

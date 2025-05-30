@@ -1,6 +1,5 @@
 import {
   Image,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,11 +14,9 @@ import WrapperContainer from '../../components/WrapperContainerComp';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ButtonComp from '../../components/ButtonComp';
 import Constants, {Colors} from '../../utils/Constants';
-import {moderateScale, fontR, scale} from '../../utils/Scaling';
-import {RootStackParamList} from '../../navigation/types';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {moderateScale, fontR} from '../../utils/Scaling';
 import CustomTextInput from '../../components/CustomTextInput';
-import {navigate, replace} from '../../utils/NavigationUtils';
+import {replace} from '../../utils/NavigationUtils';
 
 import {Linking} from 'react-native';
 import GoogleButton from '../../components/GoogleButton';
