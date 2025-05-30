@@ -9,12 +9,12 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   Alert,
-  Platform, // Import Platform for keyboardVerticalOffset
+  Platform,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import DropdownComponent from '../../components/DropdownComponent';
 import CustomTextInput from '../../components/CustomTextInput';
-import CustomCheckbox from '../../components/CustomCheckbox';
+import CustomCheckbox from '../../components/CustomCheckbox'; // Removed: Remember Me checkbox is gone
 
 // Import reanimated
 import Animated, {
@@ -23,6 +23,9 @@ import Animated, {
   withTiming,
   withDelay,
 } from 'react-native-reanimated';
+
+// Import MMKV storage utility
+import { storage } from '../../utils/storage'; // <--- ASSUMPTION: Adjust path to your MMKV storage instance
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +37,8 @@ interface Option {
 // Assuming Props from navigation
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
+import { replace } from '../../utils/NavigationUtils';
+import { MMKV } from 'react-native-mmkv';
 
 type SignupScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'CreateProfileScreen'>;
@@ -43,20 +48,22 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [salutation, setSalutation] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
+  const [UserId, setUserId] = useState<string>('');
   const [mobileNo, setMobileNo] = useState<string>('');
   const [whatsAppSameAsMobile, setWhatsAppSameAsMobile] = useState<boolean>(false);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(''); // Will be auto-populated
 
   const [dateOfBirth, setDateOfBirth] = useState<string>('');
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
 
   const [residenceCity, setResidenceCity] = useState<string>('');
-  const [education, setEducation] = useState<string>('');
+  const [education, setEducation] = useState<string | null>(null); // Changed to allow null for dropdown
+  const [customEducation, setCustomEducation] = useState<string>(''); // For 'Other' education input
   const [collegeName, setCollegeName] = useState<string>('');
   const [collegeCityVillage, setCollegeCityVillage] = useState<string>('');
 
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  // const [rememberMe, setRememberMe] = useState<boolean>(false); // REMOVED: Remember Me field
   const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
 
   // Shared values for each animated input field
@@ -67,6 +74,21 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   const [showAdditionalFields, setShowAdditionalFields] = useState<boolean>(false);
 
+  // Auto-populate email from MMKV on component mount
+ useEffect(() => {
+    const storedEmail = storage.getString('userEmail'); 
+    const storedUserId  = storage.getString('userId'); 
+    console.log("Email from MMKV:", storedEmail); // Changed console log message for clarity
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
+
+
+
   // Function to check if all initial fields are filled
   const areInitialFieldsFilled = (): boolean => {
     return (
@@ -74,7 +96,9 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       !!firstName &&
       !!lastName &&
       !!mobileNo &&
+      mobileNo.length === 10 && // Check mobile number length
       !!whatsAppNumber &&
+      whatsAppNumber.length === 10 && // Check WhatsApp number length
       !!email &&
       !!dateOfBirth &&
       !!selectedGender
@@ -153,9 +177,25 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   };
 
   const handleConfirmDate = (date: Date): void => {
-    // Format the date to 'MM/DD/YYYY' or 'YYYY-MM-DD' as expected by your backend
-    // It's crucial to send a format that can be parsed by `new Date()` on the backend.
-    setDateOfBirth(date.toLocaleDateString('en-CA')); // YYYY-MM-DD format for consistency
+    const today = new Date();
+    const eighteenYearsAgo = new Date(
+      today.getFullYear() - 18,
+      today.getMonth(),
+      today.getDate()
+    );
+
+    if (date > eighteenYearsAgo) {
+      Alert.alert(
+        'Age Restriction',
+        'You must be at least 18 years old to create a profile.'
+      );
+      setDateOfBirth(''); // Clear the date of birth if it's invalid
+      hideDatePicker();
+      return;
+    }
+
+    // Format the date to 'YYYY-MM-DD' for consistency with backend
+    setDateOfBirth(date.toLocaleDateString('en-CA'));
     hideDatePicker();
   };
 
@@ -164,15 +204,39 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     if (whatsAppSameAsMobile) {
       setWhatsAppNumber(mobileNo);
     } else {
-      if (whatsAppNumber === mobileNo) { // Only clear if it was auto-populated from mobileNo
+      if (whatsAppNumber === mobileNo) {
+        // Only clear if it was auto-populated from mobileNo
         setWhatsAppNumber('');
       }
     }
   }, [whatsAppSameAsMobile, mobileNo]);
 
-
   const handleSignUp = async (): Promise<void> => {
-    // Basic validation
+    // --- Input Validation ---
+
+    // Name validation: no digits, at least 2 characters
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
+    if (!nameRegex.test(firstName)) {
+      Alert.alert('Invalid First Name', 'First Name must contain only letters and spaces, and be at least 2 characters long.');
+      return;
+    }
+    if (!nameRegex.test(lastName)) {
+      Alert.alert('Invalid Last Name', 'Last Name must contain only letters and spaces, and be at least 2 characters long.');
+      return;
+    }
+
+    // Mobile Number validation: exactly 10 digits
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(mobileNo)) {
+      Alert.alert('Invalid Mobile Number', 'Mobile Number must be exactly 10 digits.');
+      return;
+    }
+    if (!phoneRegex.test(whatsAppNumber)) {
+      Alert.alert('Invalid WhatsApp Number', 'WhatsApp Number must be exactly 10 digits.');
+      return;
+    }
+
+    // Basic validation for initial fields
     if (
       !salutation ||
       !firstName ||
@@ -181,30 +245,61 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       !whatsAppNumber ||
       !email ||
       !dateOfBirth ||
-      !selectedGender ||
-      !residenceCity ||
-      !education ||
-      !collegeName ||
-      !collegeCityVillage
+      !selectedGender
     ) {
-      Alert.alert('Missing Information', 'Please fill in all the required fields.');
+      Alert.alert('Missing Information', 'Please fill in all the required initial fields.');
       return;
     }
 
-    // --- IMPORTANT: Replace with actual userId from your authentication flow ---
-    // For demonstration, we'll use a hardcoded user ID.
-    // In a real app, this userId would come from a user object
-    // obtained after successful login or registration.
-    const userId = '60c72b2f9b1d8e001c8e4d3a'; // Replace with a valid MongoDB ObjectId for an existing user or one you'll create.
-    // You could fetch this from secure storage or Redux state if the user is logged in.
-    // Example: const userId = await AsyncStorage.getItem('currentUserId');
-    // Or if creating a user first: const response = await fetch('/api/signup', { ... }); const userId = response.json().userId;
+    // Check if additional fields are shown and filled
+    if (showAdditionalFields) {
+      const finalEducation = education === 'Other' ? customEducation : education;
+      if (
+        !residenceCity ||
+        !finalEducation || // Use the final education value
+        !collegeName ||
+        !collegeCityVillage
+      ) {
+        Alert.alert('Missing Information', 'Please fill in all the required additional fields.');
+        return;
+      }
+    }
 
-    // GraphQL Mutation
+
+    // Age validation check again in case dateOfBirth was manually changed or if someone bypassed the date picker.
+    if (dateOfBirth) {
+      const dob = new Date(dateOfBirth);
+      const today = new Date();
+      const eighteenYearsAgo = new Date(
+        today.getFullYear() - 18,
+        today.getMonth(),
+        today.getDate()
+      );
+      if (dob > eighteenYearsAgo) {
+        Alert.alert(
+          'Age Restriction',
+          'You must be at least 18 years old to create a profile.'
+        );
+        return;
+      }
+    }
+
+  const userId = storage.getString('userId'); // Corrected: Get uid from MMKV based on your MMKV data
+    if (!userId) {
+      Alert.alert('Authentication Error', 'User ID not found. Please log in again.');
+      return;
+    }
+
+    
+    // Determine the education value to send
+    const finalEducationValue = education === 'Other' ? customEducation : education;
+
+
+    // GraphQL Mutation for ProfileDetails
     const CREATE_PROFILE_MUTATION = `
-      mutation CreateOrUpdateProfile($input: CreateProfileInput!) {
-        createOrUpdateProfile(input: $input) {
-          id
+      mutation CreateOrUpdateProfileDetails($input: CreateProfileDetailsInput!) {
+        createOrUpdateProfileDetails(input: $input) {
+        
           userId
           salutation
           firstName
@@ -218,7 +313,6 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
           education
           collegeName
           collegeCityVillage
-          rememberMe
           createdAt
         }
       }
@@ -226,7 +320,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
     const variables = {
       input: {
-        userId: userId,
+        userId: userId, // Ensure this userId corresponds to a user in your system
         salutation: salutation,
         firstName: firstName,
         lastName: lastName,
@@ -236,17 +330,18 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         dateOfBirth: dateOfBirth, // This string will be parsed to Date on backend
         gender: selectedGender,
         residenceCity: residenceCity,
-        education: education,
+        education: finalEducationValue, // Use the determined education value
         collegeName: collegeName,
         collegeCityVillage: collegeCityVillage,
-        rememberMe: rememberMe,
+        // rememberMe: rememberMe, // REMOVED: rememberMe field
       },
     };
 
     console.log('Sending data:', variables);
 
     try {
-      const response = await fetch('http://localhost:4000/graphql', { // Your GraphQL endpoint
+      const response = await fetch('http://192.168.103.188:3000/graphql', {
+        // Your GraphQL endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -255,7 +350,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         body: JSON.stringify({
           query: CREATE_PROFILE_MUTATION,
           variables: variables,
-          operationName: 'CreateOrUpdateProfile', // Make sure operationName matches the mutation name
+          operationName: 'CreateOrUpdateProfileDetails', // Ensure operationName matches the mutation name
         }),
       });
 
@@ -264,15 +359,20 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
       if (response.ok && !responseData.errors) {
         Alert.alert('Success', 'Profile created/updated successfully!');
-        // Navigate to a success screen or home screen
-        // navigation.navigate('HomeScreen'); // Example navigation
+        replace('ProfileSuccessfulScreen');
+
       } else {
-        const errorMessage = responseData.errors ? responseData.errors[0].message : 'Something went wrong.';
+        const errorMessage = responseData.errors
+          ? responseData.errors[0].message
+          : 'Something went wrong.';
         Alert.alert('Operation Failed', errorMessage);
       }
     } catch (error) {
       console.error('Error during profile creation/update:', error);
-      Alert.alert('Error', 'Network error. Please check your internet connection and backend server.');
+      Alert.alert(
+        'Error',
+        'Network error. Please check your internet connection and backend server.'
+      );
     }
   };
 
@@ -286,8 +386,17 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     { label: 'Mr.', value: 'mr' },
     { label: 'Ms.', value: 'ms' },
     { label: 'Mrs.', value: 'mrs' },
-    { label: 'Dr.', value: 'dr' },
   ];
+
+  const educationOptions: Option[] = [
+    { label: 'B.Sc. Agriculture', value: 'B.Sc. Agriculture' },
+    { label: 'M.Sc. Agriculture', value: 'M.Sc. Agriculture' },
+    { label: 'Ph.D. Agriculture', value: 'Ph.D. Agriculture' },
+    { label: 'B.Tech. Agricultural Engineering', value: 'B.Tech. Agricultural Engineering' },
+    { label: 'Diploma in Agriculture', value: 'Diploma in Agriculture' },
+    { label: 'Other', value: 'Other' }, // Added "Other" option
+  ];
+
 
   return (
     <ImageBackground
@@ -307,7 +416,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.formContainer}>
-            {/* Salutation Dropdown - RE-ADDED */}
+            {/* Salutation Dropdown */}
             <DropdownComponent
               data={salutationOptions}
               placeholder="Salutation"
@@ -337,11 +446,11 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
             <CustomTextInput
               iconLeft="phone-outline"
-              placeholder="Mobile No (auto-captured)"
+              placeholder="Mobile No"
               value={mobileNo}
               onChangeText={setMobileNo}
               keyboardType="phone-pad"
-              editable={true}
+              maxLength={10} // Enforce 10 digits
             />
             <CustomCheckbox
               label="WhatsApp number same as Mobile No"
@@ -354,6 +463,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               value={whatsAppNumber}
               onChangeText={setWhatsAppNumber}
               keyboardType="phone-pad"
+              maxLength={10} // Enforce 10 digits
               editable={!whatsAppSameAsMobile}
             />
             <CustomTextInput
@@ -363,6 +473,8 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+              editable={false} // <--- Email is not editable
+              style={{ backgroundColor: '#f0f0f0' }} // Optional: visually indicate non-editable
             />
 
             {/* Date of Birth Input */}
@@ -380,6 +492,7 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               mode="date"
               onConfirm={handleConfirmDate}
               onCancel={hideDatePicker}
+              maximumDate={new Date()} // Prevent selecting future dates
             />
 
             {/* Gender Dropdown */}
@@ -404,13 +517,27 @@ const CreateProfileScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   />
                 </Animated.View>
                 <Animated.View style={animatedEducationStyle}>
-                  <CustomTextInput
-                    iconLeft="school-outline"
+                  <DropdownComponent // <--- Changed to DropdownComponent
+                    data={educationOptions}
                     placeholder="Education"
                     value={education}
-                    onChangeText={setEducation}
+                    onSelect={setEducation}
+                    icon="school-outline"
+                    searchable={true}
                   />
                 </Animated.View>
+                {/* Conditionally render custom education input */}
+                {education === 'Other' && (
+                  <Animated.View style={animatedEducationStyle}>
+                    <CustomTextInput
+                      iconLeft="school-outline"
+                      placeholder="Specify your Education"
+                      value={customEducation}
+                      onChangeText={setCustomEducation}
+                      containerStyle={styles.customEducationInput}
+                    />
+                  </Animated.View>
+                )}
                 <Animated.View style={animatedCollegeNameStyle}>
                   <CustomTextInput
                     iconLeft="office-building-outline"
@@ -573,6 +700,10 @@ const styles = StyleSheet.create({
     fontSize: width * 0.038,
     fontWeight: 'bold',
   },
+  customEducationInput: {
+    marginTop: -height * 0.01, // Adjust margin to visually align with dropdown
+    marginBottom: height * 0.02,
+  }
 });
 
 export default CreateProfileScreen;

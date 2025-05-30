@@ -1,41 +1,58 @@
-// Screen1.tsx
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import React from 'react';
-// Import the necessary types for tabs and drawers
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { DrawerScreenProps } from '@react-navigation/drawer';
-import { CompositeScreenProps } from '@react-navigation/native'; // For combining types
+import { CompositeScreenProps } from '@react-navigation/native';
 import { RootDrawerParamList, RootTabParamList } from '../types';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Fonts } from '../../utils/Constants';
+import { storage } from '../../utils/storage';
 
-// Import your RootTabParamList and RootDrawerParamList from types.ts
-
-
-// 1. Define the primary props for Screen1 as a tab screen
 type Screen1TabProps = BottomTabScreenProps<RootTabParamList, 'Screen1'>;
 
-// 2. Define the composite props for Screen1
-// This means Screen1 has its Tab navigation props,
-// AND it also has access to the Drawer navigation methods (like openDrawer())
 type Screen1Props = CompositeScreenProps<
-  Screen1TabProps, // Primary props for this screen (from Bottom Tabs)
-  DrawerScreenProps<RootDrawerParamList> // Additional props for Drawer functionality
+  Screen1TabProps,
+  DrawerScreenProps<RootDrawerParamList>
 >;
 
 const Screen1: React.FC<Screen1Props> = ({ navigation }) => {
+  // Function to get all data from MMKV
+  const getAllMMKVData = () => {
+    const keys = storage.getAllKeys();
+    const data: Record<string, any> = {};
+    
+    keys.forEach(key => {
+      // Try to get value as different types
+      data[key] = storage.getString(key) 
+        || storage.getNumber(key) 
+        || storage.getBoolean(key)
+        || (storage.contains(key) ? 'EXISTS (UNKNOWN TYPE)' : 'MISSING');
+    });
+    
+    return data;
+  };
+
+  const mmkvData = getAllMMKVData();
+
   return (
     <View style={styles.container}>
-      <Text
-        style={styles.text}
-        onPress={() => {
-          // TypeScript now correctly recognizes openDrawer() because of CompositeScreenProps
-          // Make sure this screen is actually nested within a DrawerNavigator in your AppNavigator setup.
-          navigation.openDrawer();
-        }}
+      <Text 
+        style={styles.header}
+        onPress={() => navigation.openDrawer()}
       >
-        Open Side Drawer
+        MMKV Storage Contents
       </Text>
+      
+      <ScrollView style={styles.scrollContainer}>
+        {Object.entries(mmkvData).map(([key, value]) => (
+          <View key={key} style={styles.itemContainer}>
+            <Text style={styles.keyText}>{key}:</Text>
+            <Text style={styles.valueText}>
+              {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -45,16 +62,35 @@ export default Screen1;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.backgroundLight,
+    padding: 16,
   },
-  text: {
-    fontSize: 20,
+  header: {
+    fontSize: 24,
     fontFamily: Fonts.SatoshiBold,
     color: Colors.primary,
-    padding: 10,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  scrollContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  itemContainer: {
+    marginBottom: 12,
+    padding: 12,
     backgroundColor: Colors.background,
     borderRadius: 8,
+  },
+  keyText: {
+    fontFamily: Fonts.SatoshiBold,
+    color: Colors.primary,
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  valueText: {
+    fontFamily: Fonts.SatoshiRegular,
+    color: Colors.text,
+    fontSize: 14,
   },
 });

@@ -4,9 +4,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 // Define the props interface
 interface CustomCheckboxProps {
-  label: string;
+ 
   checked: boolean;
   onPress: () => void;
+  label: React.ReactNode;
 }
 
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, checked, onPress }) => {
@@ -16,6 +17,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ label, checked, onPress
         name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
         size={24}
         color={checked ? '#6A5ACD' : '#888'} // Checked color matches primary button
+        
       />
       <Text style={styles.label}>{label}</Text>
     </TouchableOpacity>

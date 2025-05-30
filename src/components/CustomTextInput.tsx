@@ -17,7 +17,8 @@ interface CustomTextInputProps {
   containerStyle?: object | object[];
   iconRight?: string;
   iconRightType?: 'MaterialCommunityIcons' | 'AntDesign';
-  onPressIconRight?: () => void; // <--- NEW PROP: Add this line
+  onPressIconRight?: () => void; 
+  onBlur?: () => void;
 }
 
 const CustomTextInput: React.FC<CustomTextInputProps> = ({
@@ -32,6 +33,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
   autoCapitalize,
   containerStyle,
   iconRight,
+  onBlur,
   iconRightType = 'MaterialCommunityIcons',
   onPressIconRight // <--- NEW: Destructure the new prop here
 }) => {
@@ -64,6 +66,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
         editable={editable}
         pointerEvents={pointerEvents}
         autoCapitalize={autoCapitalize}
+        onBlur={onBlur}
       />
       {renderRightIcon()}
     </View>

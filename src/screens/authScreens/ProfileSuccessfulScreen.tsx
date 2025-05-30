@@ -13,11 +13,12 @@ type SuccessScreenProp = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SuccessScreen'>;
 };
 
-const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
+const ProfileSuccessfulScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
   useEffect(() => {
     // Set a timeout to navigate after 4 seconds (4000 milliseconds)
     const timer = setTimeout(() => {
-      navigation.replace('CreateProfileScreen');
+      navigation.replace('Screen1');  
+
     }, 2000);
 
     // Clear the timeout if the component unmounts before navigation
@@ -27,9 +28,9 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
   return (
     <WrapperContainer>
       <View style={styles.containerView}>
-        {/* Your Lottie Animation */}
+   
         <LottieView
-          source={require('../../assets/animation/authenticaton.json')} // Adjust the path to your Lottie JSON file
+          source={require('../../assets/animation/ProfileSuccess.json')} // Adust the path to your Lottie JSON file
           autoPlay // Start playing automatically
           loop={false} // Play only once, or set to true if you want it to loop
           style={styles.lottieAnimation} // Apply styles for size and positioning
@@ -38,16 +39,13 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
           // speed={animationDurationInMs / 4000} // Example: if animation is 2s long, speed = 2000/4000 = 0.5
         />
 
-        <Text style={styles.successTextStyle}>Success!</Text>
-        <Text style={styles.congratulationTextStyle}>
-          Congratulations! You have been successfully authenticated
-        </Text>
+       -
       </View>
     </WrapperContainer>
   );
 };
 
-export default SuccessScreen;
+export default ProfileSuccessfulScreen;
 
 const styles = StyleSheet.create({
   containerView: {

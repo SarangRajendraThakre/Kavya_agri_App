@@ -18,6 +18,7 @@ import OtpScreen from '../screens/authScreens/OtpScreen';
 import SuccessScreen from '../screens/authScreens/SuccessScreen';
 import { navigationRef } from '../utils/NavigationUtils';
 import CreateProfileScreen from '../screens/authScreens/CreateProfileScreen';
+import ProfileSuccessfulScreen from '../screens/authScreens/ProfileSuccessfulScreen';
 
 // MMKV is no longer needed directly in AppNavigator, it's in Splash now
 
@@ -62,6 +63,11 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="ProfileSuccessfulScreen"
+          component={ProfileSuccessfulScreen}
           options={{headerShown: false}}
         />
 

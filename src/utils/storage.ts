@@ -1,13 +1,25 @@
-// src/utils/storage.ts
 import { MMKV } from 'react-native-mmkv';
 
-// You can create multiple instances if needed, with different IDs or encryption keys.
-// For user-specific data, consider using an encryption key.
 export const storage = new MMKV({
-  id: 'user-storage', // A unique ID for this storage instance
-  // encryptionKey: 'your-secure-encryption-key', // RECOMMENDED: Use a strong, securely generated key.
+  id: 'user-storage',
+  // encryptionKey: 'your-secure-key',
 });
 
-// Example of how to use it:
-// storage.set('userToken', 'some_jwt_token');
-// const userToken = storage.getString('userToken'); // 'some_jwt_token'
+// Function to log all MMKV data
+export const logAllStorageData = () => {
+  const keys = storage.getAllKeys(); // Returns string[]
+  
+  keys.forEach((key) => {
+    let value: string | number | boolean | undefined;
+
+    // Try to fetch value based on its type
+    value = storage.getString(key);
+    if (value === undefined) value = storage.getNumber(key);
+    if (value === undefined) value = storage.getBoolean(key);
+
+    console.log(`MMKV Data: ${key} =>`, value);
+  });
+};
+
+// Usage: Call this anywhere in your app
+logAllStorageData();
