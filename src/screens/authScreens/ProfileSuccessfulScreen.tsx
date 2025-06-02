@@ -5,29 +5,32 @@ import LottieView from 'lottie-react-native'; // Import LottieView
 
 import Constants, { Colors } from '../../utils/Constants';
 import { moderateScale, textScale, screenWidth } from '../../utils/Scaling';
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { replace } from '../../utils/NavigationUtils';
 
+// Define props interface properly
+type SuccessScreenProp = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'ProfileSuccessfulScreen'>;
+};
 
-const ProfileSuccessfulScreen: React.FC = ({  }) => {
+const ProfileSuccessfulScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
   useEffect(() => {
     // Set a timeout to navigate after 4 seconds (4000 milliseconds)
     const timer = setTimeout(() => {
-      replace('Screen1');  
-
+      replace('Parent');
     }, 2000);
 
     // Clear the timeout if the component unmounts before navigation
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigation]);
 
   return (
     <WrapperContainer>
       <View style={styles.containerView}>
-   
+        {/* Your Lottie Animation */}
         <LottieView
-          source={require('../../assets/animation/ProfileSuccessful.json')} // Adust the path to your Lottie JSON file
+          source={require('../../assets/animation/ProfileSuccessful.json')} // Adjust the path to your Lottie JSON file
           autoPlay // Start playing automatically
           loop={false} // Play only once, or set to true if you want it to loop
           style={styles.lottieAnimation} // Apply styles for size and positioning
@@ -36,7 +39,7 @@ const ProfileSuccessfulScreen: React.FC = ({  }) => {
           // speed={animationDurationInMs / 4000} // Example: if animation is 2s long, speed = 2000/4000 = 0.5
         />
 
-       -
+       
       </View>
     </WrapperContainer>
   );

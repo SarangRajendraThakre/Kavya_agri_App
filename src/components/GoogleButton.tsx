@@ -28,7 +28,7 @@ import { navigate, replace } from '../utils/NavigationUtils';
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
 const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
-const BACKEND_API_URL = 'http://192.168.103.188:3000/auth/userCreation';
+const BACKEND_API_URL = 'http://192.168.140.188:3000/auth/userCreation';
 
 
 export default function GoogleButton() {
@@ -187,7 +187,7 @@ export default function GoogleButton() {
             await sendUserDataToBackend(userDataToStore);
 
             // Navigate AFTER backend communication and MMKV storage are complete
-            Alert.alert('Success', 'Signed in with Google and profile synced!');
+            // Alert.alert('Success', 'Signed in with Google and profile synced!');
             replace('SuccessScreen'); // Navigate to CreateProfileScreen to complete profile details
 
         } catch (error: any) {

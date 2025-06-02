@@ -6,34 +6,35 @@ import {
   View,
   Alert,
   ActivityIndicator,
+  findNodeHandle, // Import findNodeHandle for measuring layout
+  Dimensions, // Optional: for calculating screen height if needed for more complex offsets
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import {storage} from '../../utils/storage'; // IMPORT YOUR MMKV STORAGE INSTANCE
+import axios from 'axios'; // Import Axios
 
 import WrapperContainer from '../../components/WrapperContainerComp';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'; // Keep this
 import ButtonComp from '../../components/ButtonComp';
-import Constants, {Colors} from '../../utils/Constants';
+import Constants, {API_GRAPHQL_ENDPOINT, Colors} from '../../utils/Constants';
 import {moderateScale, fontR} from '../../utils/Scaling';
 import CustomTextInput from '../../components/CustomTextInput';
 import {replace} from '../../utils/NavigationUtils';
 
 import {Linking} from 'react-native';
 import GoogleButton from '../../components/GoogleButton';
-import OTPTextInput from 'react-native-otp-textinput';
+import OTPTextInput from 'react-native-otp-textinput'; // Assuming this is your custom component
 
 // Import your new CustomCheckbox component
 import CustomCheckbox from '../../components/CustomCheckbox';
 import {REQUEST_OTP_MUTATION, VERIFY_OTP_MUTATION} from '../../utils/mutation';
 
-
-
-// --- IMPORTANT: Update this to your GraphQL endpoint ---
-// Use your server's IP address and the GraphQL port (e.g., 4000)
-// Ensure this IP is accessible from your device (e.g., same Wi-Fi network)
-const API_GRAPHQL_ENDPOINT = 'http://192.168.103.188:3000/graphql';
-
-// --- GraphQL Mutations ---
+// Extend the interface for OTPTextInput to include its public methods for ref
+interface OTPTextInputRef {
+  clear: () => void;
+  setValue: (value: string, isPaste?: boolean) => void;
+  // Add other methods if you plan to use them via ref
+}
 
 const LoginScreen: React.FC = ({}) => {
   const [email, setEmail] = useState('');
@@ -43,6 +44,13 @@ const LoginScreen: React.FC = ({}) => {
   const [countdown, setCountdown] = useState(0);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Refs for scrolling functionality
+  const keyboardAwareScrollViewRef = useRef<KeyboardAwareScrollView>(null);
+  const otpInputContainerRef = useRef<View>(null); // Ref for the View containing OTPTextInput
+
+  // Ref for the OTPTextInput component to call its clear method
+  const otpInputRef = useRef<OTPTextInputRef>(null);
 
   // States for new user registration fields, only shown if backend signals 'registration_required'
   const [isRegisteringNewUser, setIsRegisteringNewUser] = useState(false);
@@ -60,6 +68,29 @@ const LoginScreen: React.FC = ({}) => {
       }
     };
   }, []);
+
+  // Effect to scroll to OTP input when it appears
+  useEffect(() => {
+    if (otpSent) {
+      // Give React Native a moment to render the OTP section before measuring
+      setTimeout(() => {
+        if (otpInputContainerRef.current && keyboardAwareScrollViewRef.current) {
+          otpInputContainerRef.current.measureLayout(
+            findNodeHandle(keyboardAwareScrollViewRef.current) as number, // Cast to number
+            (x, y, width, height) => {
+              // y is the top position of the otpInputContainerRef relative to the scroll view's content
+              // We want to scroll to this position, adding a small offset for better visibility
+              const offset = y + 20; // 20 pixels extra padding from the top
+              keyboardAwareScrollViewRef.current?.scrollToPosition(0, offset, true);
+            },
+            (error) => {
+              console.error('Measurement failed for OTP input container:', error);
+            },
+          );
+        }
+      }, 100); // Short delay to ensure layout is complete
+    }
+  }, [otpSent]); // This effect runs when otpSent changes
 
   const startCountdown = (duration: number) => {
     if (countdownIntervalRef.current) {
@@ -119,7 +150,6 @@ const LoginScreen: React.FC = ({}) => {
         'Terms and Conditions',
         'Please accept the Terms and Conditions and Privacy Notice to continue.',
       );
-
       return;
     }
 
@@ -128,63 +158,58 @@ const LoginScreen: React.FC = ({}) => {
         'Wait',
         `Please wait ${countdown} seconds before requesting another OTP.`,
       );
-
       return;
     }
 
     setLoading(true);
 
-    setOtp(''); // <-- Add this line to clear the OTP input
+    // Clear the OTP input using the component's clear method via ref
+    if (otpInputRef.current) {
+      otpInputRef.current.clear();
+    }
+    setOtp(''); // Also clear the state holding the OTP (important for verification logic)
 
     try {
-      const response = await fetch(API_GRAPHQL_ENDPOINT, {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json',
-        },
-
-        body: JSON.stringify({
+      const response = await axios.post(
+        API_GRAPHQL_ENDPOINT,
+        {
           query: REQUEST_OTP_MUTATION,
-
           variables: {email: email.trim()},
-        }),
-      });
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
-      const result = await response.json();
-
+      const result = response.data;
       console.log('Request OTP Response:', result);
 
       if (result.errors) {
         const errorMessage =
           result.errors[0].message || 'Failed to request OTP.';
-
         Alert.alert('Error', errorMessage);
 
         const cooldownMatch = errorMessage.match(/Please wait (\d+) seconds/);
-
         if (cooldownMatch && cooldownMatch[1]) {
           const serverCooldown = parseInt(cooldownMatch[1], 10);
-
           if (serverCooldown > 0) {
             startCountdown(serverCooldown);
           }
         }
       } else if (result.data && result.data.requestOtp) {
         setOtpSent(true);
-
-        Alert.alert(
-          'Success',
-          result.data.requestOtp.message || 'OTP sent to your email.',
-        );
-
+        // Alert.alert(
+        //   'Success',
+        //   result.data.requestOtp.message || 'OTP sent to your email.',
+        // );
         startCountdown(30);
       } else {
         Alert.alert('Error', 'Failed to request OTP. Please try again.');
       }
     } catch (error: any) {
       console.error('Request OTP network error:', error);
-
       Alert.alert(
         'Network Error',
         'Could not connect to the server. Please check your internet connection.',
@@ -216,25 +241,27 @@ const LoginScreen: React.FC = ({}) => {
       const variables: any = {email: email.trim(), otp};
 
       // Only send these if the backend expects them for registration
-      if (isRegisteringNewUser) {
-        variables.password = password.trim();
-        variables.firstName = firstName.trim();
-        variables.lastName = lastName.trim();
-      }
+      // if (isRegisteringNewUser) {
+      //   variables.password = password.trim();
+      //   variables.firstName = firstName.trim();
+      //   variables.lastName = lastName.trim();
+      // }
 
-      const response = await fetch(API_GRAPHQL_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        API_GRAPHQL_ENDPOINT,
+        {
           query: VERIFY_OTP_MUTATION,
           variables: variables,
-        }),
-      });
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
-      const result = await response.json();
-      console.log('Verify OTP Response:', result);
+      const result = response.data;
+      console.log('Verify OTP Response from backend:', result);
 
       if (result.errors) {
         const errorMessage =
@@ -245,7 +272,7 @@ const LoginScreen: React.FC = ({}) => {
           result.data.verifyOtpAndRegister;
 
         if (success) {
-          Alert.alert('Success', message);
+         
           setOtpSent(false);
           setOtp('');
           setCountdown(0);
@@ -258,23 +285,39 @@ const LoginScreen: React.FC = ({}) => {
           if (countdownIntervalRef.current) {
             clearInterval(countdownIntervalRef.current);
           }
+          // Clear OTP input visually on successful verification
+          if (otpInputRef.current) {
+            otpInputRef.current.clear();
+          }
+
+          
 
           if (
-            purpose === 'registration_complete' ||
-            purpose === 'otp_verified_for_existing_user'
+            purpose === 'REGISTRATION_COMPLETE' ||
+            purpose === 'otp_verified_for_existing_user' ||
+             purpose === 'LOGIN_SUCCESS'
           ) {
             try {
+
+       
+
+    // IMPORTANT: Immediately verify if the email was stored
+    console.log('MMKV: userEmail after set:', storage.getString('userEmail'));
+    console.log('MMKV: userId after set:', storage.getString('userId'));
+    console.log('MMKV: accessToken after set:', storage.getString('accessToken'));
+    console.log('MMKV: refreshToken after set:', storage.getString('refreshToken'));
+
               storage.set('userEmail', user.email);
-              storage.set('userId', user._id);
-              storage.set('appId', user.appId);
+              console.log( ' mmkv set stored' + user.email);
+              storage.set('userId', user.id);
+         
               storage.set('role', user.role);
               storage.set('accessToken', accessToken);
               storage.set('refreshToken', refreshToken);
               console.log('User data and tokens saved with MMKV!');
-              Alert.alert(
-                'Success!',
-                message || 'Login/Registration Successful!',
-              );
+             
+              console.log(storage.getString(accessToken));
+              console.log(storage.getString(refreshToken));
               replace('SuccessScreen');
             } catch (storageError) {
               console.error('Failed to save data to MMKV:', storageError);
@@ -287,20 +330,13 @@ const LoginScreen: React.FC = ({}) => {
               'Please provide additional details to complete your registration.',
             );
           } else {
-            Alert.alert(
-              'Success',
-              'OTP verified, but purpose is unknown. Proceeding to default screen.',
-            );
+              
             replace('SuccessScreen'); // Fallback in case 'purpose' is unexpected
           }
         } else {
           Alert.alert('Error', message || 'OTP verification failed.');
           // If the backend explicitly says registration is required even on failure, set the state
-          if (
-            result.data.verifyOtpAndRegister.purpose === 'registration_required'
-          ) {
-            setIsRegisteringNewUser(true);
-          }
+    
         }
       } else {
         Alert.alert('Error', 'OTP verification failed. Unexpected response.');
@@ -328,13 +364,21 @@ const LoginScreen: React.FC = ({}) => {
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
     }
+    // Clear the OTP input using the component's clear method via ref
+    if (otpInputRef.current) {
+      otpInputRef.current.clear();
+    }
   };
 
   return (
     <WrapperContainer>
       <KeyboardAwareScrollView
+        ref={keyboardAwareScrollViewRef} // Attach ref to KeyboardAwareScrollView
         bounces={false}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        extraScrollHeight={100} // Add some extra height for scrolling, often useful
+        enableOnAndroid={true} // Explicitly enable for Android
+      >
         <View style={styles.contentContainer}>
           <Image style={styles.imageStyle} source={Constants.logoImage} />
           <Text style={styles.textStyle}>Login In</Text>
@@ -385,19 +429,24 @@ const LoginScreen: React.FC = ({}) => {
             )}
 
             {otpSent && (
-              <View style={styles.otpSectionContainer}>
+              <View
+                style={styles.otpSectionContainer}
+                ref={otpInputContainerRef} // Attach ref to this container View
+              >
                 <Text style={styles.weHaveTextstyle}>
                   We have sent the verification code to your email address{' '}
                   <Text style={styles.emailTextHighlight}>{email}</Text>
                 </Text>
                 <OTPTextInput
+                  ref={otpInputRef} // Attach ref to the OTPTextInput component
                   containerStyle={styles.otpInputContainer}
                   textInputStyle={styles.textInputStyle}
-                  inputCount={6}
+                  inputCount={5}
                   tintColor={Colors.btnColor}
                   offTintColor={Colors.offColor}
                   keyboardType="number-pad"
-                  handleTextChange={setOtp}
+                  handleTextChange={setOtp} // Still capture the text into state for verification
+                  // Do NOT add a 'value' prop here, as your OTPTextInput does not support it directly
                 />
                 <TouchableOpacity
                   onPress={() => {
@@ -418,31 +467,37 @@ const LoginScreen: React.FC = ({}) => {
                   </Text>
                 </TouchableOpacity>
 
-    
+              
               </View>
             )}
 
-            <ButtonComp
-              onPress={otpSent ? onVerifyOtp : onRequestOtp}
-              buttonText={
-                otpSent
-                  ? 'Verify OTP'
-                  : countdown > 0
-                  ? `Continue in ${countdown}s`
-                  : 'Continue'
-              }
-              containerStyle={styles.ButtonStyle}
-            
-              disabled={
-                loading ||
-                (countdown > 0 && !otpSent) ||
-                (emailError && !otpSent) ||
-                (!acceptTerms && !otpSent) ||
-                (otpSent &&
-                  isRegisteringNewUser &&
-                  (!password.trim() || !firstName.trim() || !lastName.trim()))
-              }
-            />
+           <ButtonComp
+               onPress={otpSent ? onVerifyOtp : onRequestOtp}
+               buttonText={
+                 otpSent
+                   ? 'Verify OTP'
+                   : countdown > 0
+                   ? `Continue in ${countdown}s`
+                   : 'Continue'
+               }
+               containerStyle={styles.ButtonStyle}
+               disabled={
+                 loading ||
+                 (countdown > 0 && !otpSent) ||
+                 (emailError && !otpSent) ||
+                 (!acceptTerms && !otpSent) ||
+                 (otpSent &&
+                   isRegisteringNewUser &&
+                   (!password.trim() || !firstName.trim() || !lastName.trim())
+                   // Add a console log here to see this condition's value:
+                   // && console.log('DEBUG: Reg fields empty?', (!password.trim() || !firstName.trim() || !lastName.trim()))
+                   ) ||
+                 (otpSent && otp.length !== 5 && !isRegisteringNewUser
+                   // Add a console log here to see this condition's value:
+                   // && console.log('DEBUG: OTP length invalid?', otp.length !== 6, 'isRegisteringNewUser:', isRegisteringNewUser)
+                   )
+               }
+             />
             {loading && (
               <ActivityIndicator
                 size="small"
@@ -539,7 +594,6 @@ const styles = StyleSheet.create({
     marginTop: moderateScale(5),
     width: '100%',
     alignItems: 'center',
-    // Removed marginRight: moderateScale(30) as it was causing misalignment
   },
   codeTextStyle: {
     fontSize: fontR(2),
@@ -571,7 +625,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   otpInputContainer: {
-    marginLeft: moderateScale(-30),
+    marginLeft: moderateScale(-30), // Adjust if needed for visual alignment
     marginTop: moderateScale(10),
     marginBottom: moderateScale(10),
     width: '100%',
