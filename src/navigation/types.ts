@@ -28,6 +28,7 @@ export type RootTabParamList = {
 
 export type RootDrawerParamList = {
   Main: undefined; 
+  AboutUsScreen:undefined;
 
   
 };

@@ -26,7 +26,7 @@ const BottomNavigator: React.FC = () => {
           backgroundColor: Colors.backgroundDark, // Example: tab bar background
           borderTopWidth: 0, // Remove top border
         },
-        headerShown: true, // You can control header visibility per screen or globally
+        headerShown: false, // You can control header visibility per screen or globally
         headerStyle: {
           backgroundColor: Colors.backgroundDark,
         },
@@ -41,9 +41,9 @@ const BottomNavigator: React.FC = () => {
         Bottom.Screen components infer their types from RootTabParamList.
         'name' prop must match a key in RootTabParamList.
       */}
-      <Bottom.Screen name='Screen1' component={Screen1} options={{ title: 'Home' }} />
-      <Bottom.Screen name='Screen2' component={Screen2} options={{ title: 'Explore' }} />
-      <Bottom.Screen name='Screen3' component={Screen3} options={{ title: 'Settings' }} />
+      <Bottom.Screen name='Screen1' component={Screen1} options={{ title: 'Home'  , headerShown:false }} />
+      <Bottom.Screen name='Screen2' component={Screen2} options={{ title: 'Explore'  , headerShown:false }} />
+      <Bottom.Screen name='Screen3' component={Screen3} options={{ title: 'Settings' , headerShown:false }} />
     </Bottom.Navigator>
   );
 };

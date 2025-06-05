@@ -1,129 +1,85 @@
-// Example for Screen3.tsx
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { screenWidth, verticalScale } from '../../utils/Scaling';
-// ... other imports (e.g., useHeaderVisibility)
+// screens/HomeScreen.tsx (or App.js, or any other screen component)
 
-const HEADER_HEIGHT = verticalScale(60); // Ensure this matches context and CustomHeader
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import CustomBannerCarousel from '../../components/CustomBannerCarousel';
 
-const Screen3: React.FC = () => {
-  // ... useHeaderVisibility hook ...
+// Import your images (replace with your actual image paths)
+const bannerImage1 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer1.jpg');
+const bannerImage2 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer2.jpg');
+const bannerImage3 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer3.jpg');
+const bannerImage4 = require('../../assets/images/HomePageTopBanner/Explore.Learn.Grow.Let’sbuildyouragriculturecareertogether.jpg');
+
+const Screen3 = () => {
+  // 1. Prepare your data for the carousel
+  const carouselData = [
+    { id: '1', image: bannerImage1 },
+    { id: '2', image: bannerImage2 },
+    { id: '3', image: bannerImage3 },
+    { id: '4', image: bannerImage4 }
+  
+  ];
 
   return (
-    <View style={styles.container}> {/* Use a plain View as the top container */}
-      <ScrollView
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ paddingTop: HEADER_HEIGHT }} // IMPORTANT
-      >
-        {/* Your screen content */}
-        <Text>Screen 3 Content</Text>
-        {/* ... other elements ... */}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {/* Your other screen content can go here */}
+        <Text style={styles.sectionTitle}>Welcome to Kavya Agri App</Text>
+
+        {/* 2. & 3. Render the CustomBannerCarousel component */}
+        <CustomBannerCarousel data={carouselData} />
+
+        {/* More content below the carousel */}
+        <Text style={styles.anotherSectionTitle}>Explore our Services</Text>
+        <View style={styles.placeholderContent}>
+          <Text style={styles.placeholderText}>
+            This is placeholder content below the carousel. You can add more sections, cards, or lists here.
+          </Text>
+        </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Light gray background
+    backgroundColor: '#F5F5F5', // Light background
   },
-  header: {
-    padding: 20,
-    paddingBottom: 10,
-    backgroundColor: '#f0f0f0',
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingBottom: 20, // Add some padding at the bottom
   },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20, // Keep marginBottom on the TouchableOpacity
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20,
+    color: '#333',
   },
-  profileIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#34A853', // Google Green (G)
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  profileIconText: {
-    color: '#fff',
+  anotherSectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: '#555',
-  },
-  gamePlayText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-    tintColor: '#888',
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  categoriesTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginLeft: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
-  categoryItem: {
-    width: (screenWidth - 60) / 4, // 4 items per row with some padding
-    height: (screenWidth - 60) / 4 + 20, // Adjust height based on icon and text
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    fontWeight: '600',
+    marginTop: 30,
     marginBottom: 15,
-    marginHorizontal: 5,
-    paddingVertical: 10,
+    marginHorizontal: 20,
+    color: '#333',
+  },
+  placeholderContent: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 20,
+    marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3, // For Android shadow
-    borderWidth: 1,
-    borderColor: '#eee',
+    shadowRadius: 4,
+    elevation: 3,
   },
-  categoryIcon: {
-    width: 45,
-    height: 45,
-    marginBottom: 5,
-  },
-  categoryText: {
-    fontSize: 12,
+  placeholderText: {
+    fontSize: 16,
+    lineHeight: 24,
     color: '#555',
-    textAlign: 'center',
   },
 });
 

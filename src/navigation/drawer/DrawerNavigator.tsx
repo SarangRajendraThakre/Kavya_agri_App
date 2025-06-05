@@ -10,6 +10,7 @@ import CustomDrawer from './CustomDrawer'; // Adjust path if needed
 // Import RootDrawerParamList from your types.ts file
 import { RootDrawerParamList } from '../types'; // Adjust path if types.ts is elsewhere
 import { Colors, Fonts } from '../../utils/Constants';
+import AboutUsScreen from '../../pages/AboutUsScreen';
 
 // Create a Drawer Navigator instance, explicitly typing it with RootDrawerParamList
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
@@ -38,6 +39,23 @@ const DrawerNavigator: React.FC = () => {
       <Drawer.Screen
         name='Main'
         component={Main}
+        options={{
+          headerShown: true,
+          title: '',
+          headerStyle: {
+            backgroundColor: Colors.backgroundDark,
+          },
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontFamily: Fonts.SatoshiBold,
+            fontSize: 20,
+          }
+        }}
+      />
+
+         <Drawer.Screen
+        name='AboutUsScreen'
+        component={AboutUsScreen}
         options={{
           headerShown: true,
           title: 'Home',
