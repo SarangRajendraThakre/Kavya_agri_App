@@ -15,13 +15,13 @@ interface ImageSliderType {
   image: any;
 }
 
-type Screen2TabProps = BottomTabScreenProps<RootTabParamList, 'Screen2'>;
+type Screen2TabProps = BottomTabScreenProps<RootTabParamList, 'Explore'>;
 type Screen2Props = CompositeScreenProps<
   Screen2TabProps,
   NativeStackScreenProps<RootStackParamList>
 >;
 
-const Screen2: React.FC<Screen2Props> = ({ navigation }) => {
+const Explore: React.FC<Screen2Props> = ({ navigation }) => {
   const mySliderItems: ImageSliderType[] = [
     {
       id: 1,
@@ -54,6 +54,7 @@ const Screen2: React.FC<Screen2Props> = ({ navigation }) => {
     <View style={styles.container}>
       {/* 1. CustomSlider at the very top */}
       <CustomSlider
+  
         itemList={mySliderItems}
         imageWidthPercentage={90}
         imageHeightPercentage={100}
@@ -88,14 +89,14 @@ const Screen2: React.FC<Screen2Props> = ({ navigation }) => {
       </View>
 
       {/* Optional: A general button at the bottom */}
-      <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate('Screen1')}>
+      <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate('Home')}>
         <Text style={styles.mainButtonText}>View All Options</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default Screen2;
+export default Explore;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,8 +1,12 @@
 // screens/HomeScreen.tsx (or App.js, or any other screen component)
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import CustomBannerCarousel from '../../components/CustomBannerCarousel';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import CustomBannerCarousel from '../../components/carousel/CustomBannerCarousel';
+import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen';
+import { navigate } from '../../utils/NavigationUtils';
+import CustomDrawer from '../drawer/CustomDrawer';
+import CustomHeader from '../../components/CustomHeader';
 
 // Import your images (replace with your actual image paths)
 const bannerImage1 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer1.jpg');
@@ -10,7 +14,10 @@ const bannerImage2 = require('../../assets/images/HomePageTopBanner/ExploretheWo
 const bannerImage3 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer3.jpg');
 const bannerImage4 = require('../../assets/images/HomePageTopBanner/Explore.Learn.Grow.Let’sbuildyouragriculturecareertogether.jpg');
 
-const Screen3 = () => {
+  const handleExploreCourses = () => {
+    navigate('CourseList'); // 'CourseList' should match the name in your RootDrawerParamList
+  };
+const Share = () => {
   // 1. Prepare your data for the carousel
   const carouselData = [
     { id: '1', image: bannerImage1 },
@@ -22,11 +29,9 @@ const Screen3 = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <CustomHeader title={'Kavya Agri'}  />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {/* Your other screen content can go here */}
-        <Text style={styles.sectionTitle}>Welcome to Kavya Agri App</Text>
-
-        {/* 2. & 3. Render the CustomBannerCarousel component */}
+     
         <CustomBannerCarousel data={carouselData} />
 
         {/* More content below the carousel */}
@@ -36,6 +41,11 @@ const Screen3 = () => {
             This is placeholder content below the carousel. You can add more sections, cards, or lists here.
           </Text>
         </View>
+
+        <Text style={styles.anotherSectionTitle}>Explore our Courses</Text>
+        <TouchableOpacity style={styles.exploreButton} onPress={handleExploreCourses}>
+          <Text style={styles.exploreButtonText}>View All Courses</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -81,6 +91,29 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: '#555',
   },
+
+  exploreButton: {
+    backgroundColor: '#4CAF50', // A nice green color
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginBottom: 20, // Spacing below the button
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  exploreButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+ 
 });
 
-export default Screen3;
+
+export default Share;

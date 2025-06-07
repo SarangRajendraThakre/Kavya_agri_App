@@ -28,7 +28,7 @@ import { navigate, replace } from '../utils/NavigationUtils';
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
 const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
-const BACKEND_API_URL = 'http://192.168.140.188:3000/auth/userCreation';
+const BACKEND_API_URL = 'http://192.168.11.188:3000/auth/userCreation';
 
 
 export default function GoogleButton() {
