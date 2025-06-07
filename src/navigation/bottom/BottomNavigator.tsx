@@ -1,16 +1,34 @@
 // BottomNavigator.tsx
-import { View, Text, StyleSheet } from 'react-native'; // Added StyleSheet for example
+import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
-// Import your screen components
-import Screen1 from './Screen1'; // Assuming these are in the same folder or adjust path
-import Screen2 from './Screen2';
-import Screen3 from './Screen3';
+// Define a simple RootTabParamList interface for type safety
+// This would typically be in a separate types.ts file in a real project
+type RootTabParamList = {
+  Home: undefined; // No params for Home screen
+  Explore: undefined;
+  Share: undefined;
+};
 
-// Import RootTabParamList from your types.ts file
-import { RootTabParamList } from '../types'; // Adjust path if types.ts is elsewhere
-import { Colors, Fonts } from '../../utils/Constants';
+// Import your screen components
+// Ensure these paths are correct relative to your BottomNavigator.tsx file
+import Home from './Home';
+import Explore from './Explore';
+import Share from './Share';
+
+// Assuming you have a file for Colors and Fonts constants,
+// otherwise, you'll need to define them or replace with direct values.
+const Colors = {
+  primary: '#007AFF', // Example primary color (blue)
+  inactive: '#8E8E93', // Example inactive color (gray)
+  backgroundDark: '#1C1C1E', // Example dark background
+  text: '#FFFFFF', // Example text color
+};
+
+const Fonts = {
+  SatoshiBold: 'System', // Placeholder: replace with your actual font
+};
 
 // Create a Bottom Tab Navigator instance, explicitly typing it with RootTabParamList
 const Bottom = createBottomTabNavigator<RootTabParamList>();
@@ -18,7 +36,7 @@ const Bottom = createBottomTabNavigator<RootTabParamList>();
 const BottomNavigator: React.FC = () => {
   return (
     <Bottom.Navigator
-      initialRouteName="Screen1" // Set initial tab
+      initialRouteName="Home" // Set initial tab
       screenOptions={{
         tabBarActiveTintColor: Colors.primary, // Example: active tab color
         tabBarInactiveTintColor: Colors.inactive, // Example: inactive tab color
@@ -26,7 +44,7 @@ const BottomNavigator: React.FC = () => {
           backgroundColor: Colors.backgroundDark, // Example: tab bar background
           borderTopWidth: 0, // Remove top border
         },
-        headerShown: true, // You can control header visibility per screen or globally
+        headerShown: false, // You can control header visibility per screen or globally
         headerStyle: {
           backgroundColor: Colors.backgroundDark,
         },
@@ -34,18 +52,55 @@ const BottomNavigator: React.FC = () => {
         headerTitleStyle: {
           fontFamily: Fonts.SatoshiBold,
           fontSize: 20,
-        }
+        },
       }}
     >
       {/*
         Bottom.Screen components infer their types from RootTabParamList.
         'name' prop must match a key in RootTabParamList.
       */}
-      <Bottom.Screen name='Screen1' component={Screen1} options={{ title: 'Home' }} />
-      <Bottom.Screen name='Screen2' component={Screen2} options={{ title: 'Explore' }} />
-      <Bottom.Screen name='Screen3' component={Screen3} options={{ title: 'Settings' }} />
+      <Bottom.Screen
+        name='Home'
+        component={Home}
+        options={{
+          title: 'Home',
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => (
+            // You can use a library like react-native-vector-icons here
+            // For simplicity, using a Text component with an emoji/character
+            <Text style={{ color: color, fontSize: size }}>🏠</Text> // Home icon
+          ),
+        }}
+      />
+      <Bottom.Screen
+        name='Explore'
+        component={Explore}
+        options={{
+          title: 'Explore',
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Text style={{ color: color, fontSize: size }}>🔍</Text> // Explore icon
+          ),
+        }}
+      />
+      <Bottom.Screen
+        name='Share'
+        component={Share}
+        options={{
+          title: 'Share',
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Text style={{ color: color, fontSize: size }}>📤</Text> // Share icon
+          ),
+        }}
+      />
     </Bottom.Navigator>
   );
 };
+
+// You can add styles here if needed, but for tabBarIcon, inline styles are common.
+const styles = StyleSheet.create({
+  // Add any specific styles for the navigator or icons if desired
+});
 
 export default BottomNavigator;

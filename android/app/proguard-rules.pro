@@ -8,3 +8,14 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+# Keep specific classes and their members for Razorpay
+-keep class com.razorpay.** { *; }
+-keep interface com.razorpay.** { *; }
+
+# Depending on your React Native Razorpay integration, you might need these:
+-keep class com.razorpay.reactnative.** { *; }
+
+# Important: Prevent warnings about missing classes that R8 might not find (e.g., from reflection)
+-dontwarn com.razorpay.**
+-dontwarn org.apache.http.**
+-dontwarn org.json.**

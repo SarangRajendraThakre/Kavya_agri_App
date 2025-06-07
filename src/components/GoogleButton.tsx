@@ -24,11 +24,12 @@ import { fontR, moderateScale, scale } from '../utils/Scaling';
 import GoogleIcon from '../assets/icons/google.svg';
 import { storage } from '../utils/storage'; // Import MMKV storage instance
 import { navigate, replace } from '../utils/NavigationUtils';
+import { BACKEND_API_URL } from '../utils/Constants';
 
 // --- IMPORTANT: Replace with your actual Web Client ID from Firebase ---
 const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
-const BACKEND_API_URL = 'http://192.168.140.188:3000/auth/userCreation';
+
 
 
 export default function GoogleButton() {

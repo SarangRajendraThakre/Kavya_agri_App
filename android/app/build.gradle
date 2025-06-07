@@ -123,6 +123,10 @@ dependencies {
 implementation("com.google.android.gms:play-services-auth:21.0.0") // Use a recent stable version
 
 
+
+  
+
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
