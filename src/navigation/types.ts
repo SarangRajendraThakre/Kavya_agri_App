@@ -1,60 +1,41 @@
-// navigation/types.ts
-import { CompositeScreenProps } from '@react-navigation/native';
-import { DrawerScreenProps } from '@react-navigation/drawer';
-import { StackScreenProps } from '@react-navigation/stack';
+// types.ts
 
-// Define the Course interface
-export interface Course {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-}
-
-// Define the route parameters for the CourseDetail screen
-export type CourseDetailRouteParams = {
-  course: Course;
+// 1. RootTabParamList (for BottomNavigator)
+export type RootTabParamList = {
+  Home: undefined;
+  Explore: undefined;
+  Share: undefined;
 };
 
-// Define your RootStackParamList if you use a Stack Navigator
-// This is typically used for defining the overall app's stack navigation.
-// If your CourseDetail is nested within a Stack that is itself
-// part of a Drawer, this is relevant.
-export type RootStackParamList = {
-  // Add all your stack screen names here.
-  // Example:
-  Splash: undefined;
-  LoginScreen: undefined;
-  HomeScreen: undefined;
-  OnboardingScreen:undefined;
-  Explore:undefined;
-  ProfileSuccessfulScreen:undefined;
-
-};
-
-export type RootTabParamList= {
-  Home : undefined;
-  Explore:undefined;
-  Share:undefined;
-}
-
-// Define your RootDrawerParamList
-// This should contain all screens directly accessible from the Drawer Navigator.
+// 2. RootDrawerParamList (for DrawerNavigator)
+// The 'Main' screen will render your BottomNavigator.
+// We indicate that 'Main' might receive parameters, specifically for nested navigation.
 export type RootDrawerParamList = {
-  Main: undefined;
+  Main: {
+    screen: keyof RootTabParamList; // This indicates that 'Main' can receive a 'screen' param from RootTabParamList
+    params?: any; // Optional: if tabs themselves take params
+  } | undefined; // 'Main' can also be navigated to without any params (e.g., as the initial route)
+  ProfileEditScreen: undefined;
   AboutUsScreen: undefined;
   CourseList: undefined;
-  CourseDetail: CourseDetailRouteParams; // CourseDetail is a screen in the drawer
+  CourseDetail: { course: any }; // Example, adjust 'any' to your actual course type
+  CareerDetail: undefined;
+  // Add other screens directly accessible from the drawer
 };
 
 
-export type CourseDetailScreenProps = CompositeScreenProps<
-  DrawerScreenProps<RootDrawerParamList, 'CourseDetail'>,
-  StackScreenProps<RootStackParamList> // Keep this if CourseDetail might be part of a Stack somewhere, otherwise simplify
->;
-
-export type CourseListScreenProps = CompositeScreenProps<
-  DrawerScreenProps<RootDrawerParamList, 'CourseList'>,
-  StackScreenProps<RootStackParamList>
->;
+// 3. RootStackParamList (for AppNavigator)
+// This is your top-level stack.
+// 'Parent' is likely the screen that renders your DrawerNavigator.
+export type RootStackParamList = {
+  Splash: undefined;
+  OnboardingScreen: undefined;
+  Parent: undefined; // Parent screen will render your DrawerNavigator
+  PlayGame: undefined;
+  CreateProfileScreen: undefined;
+  LoginScreen: undefined;
+  ProfileSuccessfulScreen: undefined;
+  OtpScreen: undefined;
+  SuccessScreen: undefined;
+  // Add any other screens at the root stack level
+};

@@ -1,103 +1,95 @@
-import React from 'react';
-import { View, TextInput, StyleSheet, KeyboardTypeOptions, TouchableOpacity, TextStyle, ViewStyle } from 'react-native'; // <--- Import TextStyle and ViewStyle
+// CustomTextInput.tsx
+import React from 'react'; // Import React
+import { View, TextInput, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import { moderateScale, verticalScale, fontR } from '../utils/Scaling'; // Ensure these are correctly imported
 
-// Define the props interface
 interface CustomTextInputProps {
   iconLeft?: string;
   placeholder?: string;
   value: string;
-  onChangeText?: (text: string) => void;
+  onChangeText: (text: string) => void;
+  keyboardType?: 'default' | 'numeric' | 'email-address' | 'phone-pad';
   secureTextEntry?: boolean;
-  keyboardType?: KeyboardTypeOptions;
-  pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
-  editable?: boolean;
+  maxLength?: number;
+  editable?: boolean; // Added editable prop
+  inputStyle?: TextStyle; // Style for the TextInput itself
+  containerStyle?: ViewStyle; // Style for the outer View
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  containerStyle?: ViewStyle | ViewStyle[]; // Use ViewStyle for container
-  iconRight?: string;
-  iconRightType?: 'MaterialCommunityIcons' | 'AntDesign';
-  onPressIconRight?: () => void;
-  onBlur?: () => void;
-  maxLength?: number; // <--- FIX: Changed to 'number'
-  style?: TextStyle | TextStyle[]; // <--- FIX: Changed to 'TextStyle | TextStyle[]'
+  pointerEvents?: 'none' | 'auto'; // Added pointerEvents
 }
 
-const CustomTextInput: React.FC<CustomTextInputProps> = ({
+// Wrap the component with React.memo
+const CustomTextInput: React.FC<CustomTextInputProps> = React.memo(({
   iconLeft,
   placeholder,
   value,
   onChangeText,
-  secureTextEntry = false,
   keyboardType = 'default',
-  editable = true,
-  pointerEvents,
-  autoCapitalize,
+  secureTextEntry = false,
+  maxLength,
+  editable = true, // Default to true
+  inputStyle,
   containerStyle,
-  iconRight,
-  onBlur,
-  iconRightType = 'MaterialCommunityIcons',
-  onPressIconRight,
-  maxLength, // Now directly a number
-  style // Now TextStyle | TextStyle[]
+  autoCapitalize = 'sentences',
+  pointerEvents,
 }) => {
-  const renderRightIcon = () => {
-    if (!iconRight) {
-      return null;
-    }
-
-    const IconComponent = iconRightType === 'AntDesign' ? AntDesign : MaterialCommunityIcons;
-
-    return (
-      <TouchableOpacity onPress={onPressIconRight} disabled={!onPressIconRight}>
-        <IconComponent name={iconRight} size={20} color="#888" style={styles.iconRight} />
-      </TouchableOpacity>
-    );
-  };
-
   return (
     <View style={[styles.inputContainer, containerStyle]}>
-      {iconLeft && <MaterialCommunityIcons name={iconLeft} size={20} color="#888" style={styles.iconLeft} />}
+      {iconLeft && (
+        <MaterialCommunityIcons
+          name={iconLeft}
+          size={moderateScale(20)}
+          color="#6A5ACD" // Adjust color as needed
+          style={styles.icon}
+        />
+      )}
       <TextInput
-        style={[styles.input, style]} 
+        style={[styles.input, inputStyle, !editable && styles.disabledInputText]} // Apply disabled text style
         placeholder={placeholder}
-        placeholderTextColor="#AAA"
+        placeholderTextColor="#999"
         value={value}
         onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        maxLength={maxLength}
         editable={editable}
-        pointerEvents={pointerEvents}
         autoCapitalize={autoCapitalize}
-        onBlur={onBlur}
-        maxLength={maxLength} // <--- Pass the number directly
+        pointerEvents={pointerEvents} // Apply pointerEvents
       />
-      {renderRightIcon()}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7F7F7',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    height: 50,
+    backgroundColor: '#f0f0f0', // Lighter background for input
+    borderRadius: 8,
+    paddingHorizontal: moderateScale(10),
+    marginBottom: verticalScale(10), // Adjust spacing if needed, typically handled by parent FieldRenderer
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    // Add subtle shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
   },
-  iconLeft: {
-    marginRight: 10,
-  },
-  iconRight: {
-    marginLeft: 10,
+  icon: {
+    marginRight: moderateScale(10),
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: '#333',
-    paddingVertical: 0,
+    height: verticalScale(45), // Consistent height
+    fontSize: fontR(15),
+    color: '#333', // Darker text for readability
+    paddingVertical: 0, // Remove default vertical padding
+  },
+  disabledInputText: {
+    color: '#777', // Dim text when input is disabled
   },
 });
 

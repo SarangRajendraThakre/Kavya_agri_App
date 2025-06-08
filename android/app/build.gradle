@@ -115,13 +115,15 @@ android {
         }
     }
 }
-
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-      implementation platform("com.google.firebase:firebase-bom:${rootProject.ext.firebaseBoMVersion}")
-implementation("com.google.android.gms:play-services-auth:21.0.0") // Use a recent stable version
+    implementation platform("com.google.firebase:firebase-bom:${rootProject.ext.firebaseBoMVersion}")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
+    // **THIS IS THE CRITICAL LINE**
+    // Ensure this line is present and uses version 1.6.39 for react-native-razorpay@2.3.0
+    implementation 'com.razorpay:checkout:1.6.39'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -129,6 +131,5 @@ implementation("com.google.android.gms:play-services-auth:21.0.0") // Use a rece
         implementation jscFlavor
     }
 }
-
 
 apply plugin: 'com.google.gms.google-services'

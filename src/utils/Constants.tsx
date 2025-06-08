@@ -1,6 +1,10 @@
 // utils/theme.ts or constants/styles.ts
 
-export const API_GRAPHQL_ENDPOINT = 'http://192.168.11.188:3000/graphql';
+// export const API_GRAPHQL_ENDPOINT = 'http://192.168.11.188:3000/graphql';
+// export const Backend_Main = 'http://192.168.11.188:3000';
+
+export const API_GRAPHQL_ENDPOINT = 'https://api.kavyaagri.in/graphql';
+export const Backend_Main = 'https://api.kavyaagri.in';
 
 
 export enum Colors {

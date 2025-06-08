@@ -1,97 +1,124 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown'; // Assuming react-native-element-dropdown
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// DropdownComponent.tsx
+import React from 'react'; // Import React
+import { View, StyleSheet, Text, ViewStyle, TextStyle } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown'; // Ensure this is imported
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { moderateScale, verticalScale, fontR } from '../utils/Scaling'; // Ensure these are correctly imported
 
-// Define the structure of each item in your dropdown data
-interface DropdownItem {
+interface Option {
   label: string;
   value: string;
 }
 
-// Define the props interface for DropdownComponent
 interface DropdownComponentProps {
-  data: DropdownItem[];
-  placeholder?: string;
-  value: string | null; // Value can be string or null
+  data: Option[];
+  placeholder: string;
+  value: string | null;
   onSelect: (value: string) => void;
-  icon?: string; // Optional icon name
-  searchable?: boolean; // New prop: boolean to control search visibility
+  icon?: string;
+  searchable?: boolean;
+  disabled?: boolean; // Add disabled prop
+  inputContainerStyle?: ViewStyle; // Style for the outer container
+  textStyle?: TextStyle; // Style for the selected text
 }
 
-const DropdownComponent: React.FC<DropdownComponentProps> = ({
+// Wrap the component with React.memo
+const DropdownComponent: React.FC<DropdownComponentProps> = React.memo(({
   data,
   placeholder,
   value,
   onSelect,
   icon,
-  searchable = true, // Set a default value to true (search is on by default)
+  searchable = false,
+  disabled = false, // Default to false
+  inputContainerStyle,
+  textStyle,
 }) => {
-  const [isFocus, setIsFocus] = useState<boolean>(false);
-
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, inputContainerStyle, disabled && styles.disabledContainer]}>
+      {icon && (
+        <MaterialCommunityIcons
+          name={icon}
+          size={moderateScale(20)}
+          color="#6A5ACD"
+          style={styles.icon}
+        />
+      )}
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: '#6A5ACD' }]}
+        style={[styles.dropdown, disabled && styles.disabledDropdown]} // Apply disabled style to dropdown
         placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
+        selectedTextStyle={[styles.selectedTextStyle, textStyle, disabled && styles.disabledTextStyle]}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
         data={data}
-        // Conditionally apply the 'search' prop
-        search={searchable} // Use the new 'searchable' prop here
-        maxHeight={200}
+        search={searchable}
+        maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? placeholder : '...'}
-        // Only show searchPlaceholder if search is enabled
-        searchPlaceholder={searchable ? "Search..." : undefined}
+        placeholder={placeholder}
+        searchPlaceholder="Search..."
         value={value}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
         onChange={item => {
-          onSelect(item.value);
-          setIsFocus(false);
+          if (!disabled) { // Only allow change if not disabled
+            onSelect(item.value);
+          }
         }}
-        renderLeftIcon={() => (
-          icon ? <Icon style={styles.icon} color={isFocus ? '#6A5ACD' : '#888'} name={icon} size={20} /> : null
-        )}
+        disable={disabled} // Pass disabled prop to Dropdown component
       />
     </View>
   );
-};
-
-export default DropdownComponent;
+});
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 15,
-  },
-  dropdown: {
-    height: 50,
-    borderColor: '#E0E0E0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: moderateScale(10),
+    marginBottom: verticalScale(10),
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#F7F7F7',
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
+  },
+  disabledContainer: {
+    backgroundColor: '#e0e0e0',
+    opacity: 0.8,
   },
   icon: {
-    marginRight: 10,
+    marginRight: moderateScale(10),
+  },
+  dropdown: {
+    flex: 1,
+    height: verticalScale(45),
+  },
+  disabledDropdown: {
+    // You might need to add specific styles here if the dropdown library doesn't handle opacity well
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: '#AAA',
+    fontSize: fontR(15),
+    color: '#999',
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: fontR(15),
     color: '#333',
   },
-  iconStyle: {
-    width: 20,
-    height: 20,
+  disabledTextStyle: {
+    color: '#777', // Dim text when disabled
   },
   inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+    height: verticalScale(40),
+    fontSize: fontR(15),
+    borderRadius: 5, // Match border radius of inputs
+  },
+  iconStyle: {
+    width: moderateScale(20),
+    height: moderateScale(20),
   },
 });
+
+export default DropdownComponent;

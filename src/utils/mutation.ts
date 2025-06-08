@@ -94,3 +94,28 @@ export const REFRESH_TOKEN_MUTATION = `
     }
   }
 `;
+
+
+export const GET_PROFILE_QUERY = `
+  query GetProfileDetails($userId: ID!) {
+    getProfileDetails(userId: $userId) {
+      id
+      userId
+      salutation
+      firstName
+      lastName
+      mobileNo
+      whatsAppNumber
+      email
+      dateOfBirth
+      gender
+      residenceCity
+      education
+      collegeName
+      collegeCityVillage
+      createdAt
+      updatedAt
+    }
+  }
+`;
+

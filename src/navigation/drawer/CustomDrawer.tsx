@@ -126,26 +126,24 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
             iconName="account-outline"
             title="My Profile"
             // description="Make changes to your account" // Consider removing description for drawer
-            onPress={() => props.navigation.navigate('ProfileScreen')} // Navigate to Profile screen
+            onPress={() => props.navigation.navigate('ProfileEditScreen')} // Navigate to Profile screen
           />
           <CustomProfileMenuItem
             iconName="bookmark-outline"
-            title="Saved Beneficiary"
+            title="Explore"
             // description="Manage your saved account"
-            onPress={() => showAlert('Navigate to Saved Beneficiary')}
+             onPress={() => props.navigation.navigate('MainTabs', { screen: 'Explore' })} // <-- KEY CHANGE HERE
           />
+         
           <CustomProfileMenuItem
-            iconName="face-recognition"
-            title="Face ID / Touch ID"
-            // description="Manage device security"
-            isSwitch={true}
-            switchValue={faceIdEnabled}
-            onSwitchChange={setFaceIdEnabled}
-            onPress={() => setFaceIdEnabled(prev => !prev)} // Toggle on press if not switch itself
+            iconName="shield-lock-outline"
+            title="Certificate" //s Shorter title
+            // description="Further secure your account"
+            onPress={() => showAlert('Navigate to Two-Factor Auth')}
           />
           <CustomProfileMenuItem
             iconName="shield-lock-outline"
-            title="Two-Factor Auth" // Shorter title
+            title="Refer" //s Shorter title
             // description="Further secure your account"
             onPress={() => showAlert('Navigate to Two-Factor Auth')}
           />
