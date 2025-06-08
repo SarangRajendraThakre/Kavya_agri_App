@@ -16,6 +16,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackScreenProps } from '@react-navigation/stack';
 import LinearGradient from 'react-native-linear-gradient'; // Install this library
+import { navigate } from '../../utils/NavigationUtils';
 
 // Install LinearGradient:
 // npm install react-native-linear-gradient
@@ -23,6 +24,10 @@ import LinearGradient from 'react-native-linear-gradient'; // Install this libra
 // After installing, follow native linking instructions if not using Expo Managed Workflow.
 // For bare React Native, run: npx react-native link react-native-linear-gradient
 
+
+ const handleExploreCourses = () => {
+    navigate('CourseList'); // 'CourseList' should match the name in your RootDrawerParamList
+  };
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -131,7 +136,7 @@ type RootStackParamList = {
 type ExploreScreenProps = StackScreenProps<RootStackParamList, 'Explore'>;
 
 
-const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
+const ChooseCareerScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   // Animations for hero section
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const heroTranslateY = useRef(new Animated.Value(50)).current;
@@ -198,13 +203,12 @@ const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
           <Text style={styles.heroTagline}>
             This program helps you find your right career direction, build strong knowledge, and take confident steps toward your future. Through live industry insights, expert mentorship, goal setting, and Interview preparation support.
           </Text>
-          <TouchableOpacity style={styles.ctaButton}>
+          <TouchableOpacity style={styles.ctaButton}  onPress={handleExploreCourses}> 
             <Animated.Text style={[styles.ctaButtonText, { transform: [{ scale: ctaPulse }] }]}>
               Enroll Now!
             </Animated.Text>
           </TouchableOpacity>
         </Animated.View>
-
         {/* Program Details Section */}
         <View style={styles.sectionPadded}>
           <Text style={styles.sectionTitle}>Program At a Glance</Text>
@@ -520,4 +524,4 @@ const styles = StyleSheet.create({
 });
 
 // Export the component with the name 'Explore' as you defined it
-export default Explore;
+export default ChooseCareerScreen;

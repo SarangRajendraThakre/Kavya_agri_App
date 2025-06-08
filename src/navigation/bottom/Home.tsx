@@ -7,8 +7,9 @@ import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen'
 import { navigate } from '../../utils/NavigationUtils';
 import CustomDrawer from '../drawer/CustomDrawer';
 import CustomHeader from '../../components/CustomHeader';
-import CustomCard1 from '../../components/cards/CustomCard1';
+import CustomCard1 from '../../components/cards/PinkCards';
 import SmallCardComponent from '../../components/cards/SmallCardComponent';
+import CardsSliderScreen from '../../screens/homePageSlider2/CardsSliderScreen';
 
 // Import your images (replace with your actual image paths)
 const bannerImage1 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer1.jpg');
@@ -37,6 +38,8 @@ const Home = () => {
 
         {/* 2. & 3. Render the CustomBannerCarousel component */}
         <CustomBannerCarousel data={carouselData} />
+        
+        <CardsSliderScreen/>
 
        <CustomCard1/>
 

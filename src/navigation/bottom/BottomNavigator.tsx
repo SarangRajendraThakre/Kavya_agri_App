@@ -7,7 +7,7 @@ import { createBottomTabNavigator, BottomTabScreenProps } from '@react-navigatio
 import { RootTabParamList } from '../types'; // Adjust path as needed
 
 import Home from './Home';
-import Explore from './Explore';
+import Explore from './CareerAdda';
 import Share from './Share';
 
 const Colors = {

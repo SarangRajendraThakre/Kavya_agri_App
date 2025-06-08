@@ -3,7 +3,7 @@
 // 1. RootTabParamList (for BottomNavigator)
 export type RootTabParamList = {
   Home: undefined;
-  Explore: undefined;
+  CareerAdda: undefined;
   Share: undefined;
 };
 
@@ -21,6 +21,16 @@ export type RootDrawerParamList = {
   CourseDetail: { course: any }; // Example, adjust 'any' to your actual course type
   CareerDetail: undefined;
   // Add other screens directly accessible from the drawer
+  Explore : undefined;
+
+    CareerPathScreen: undefined; // This is the screen that will contain the 4 cards
+  ChooseCareerScreen: undefined; // Target screen for 'Choose Your Career'
+  GoalSettingScreen: undefined; // Target screen for 'Goal Setting'
+  ResumeBuilderScreen: undefined; // Target screen for 'Resume Builder'
+  InterviewPrepScreen: undefined;
+  CardsSliderScreen:undefined;
+  RegistrationFormScreen:undefined;
+
 };
 
 
@@ -37,5 +47,4 @@ export type RootStackParamList = {
   ProfileSuccessfulScreen: undefined;
   OtpScreen: undefined;
   SuccessScreen: undefined;
-  // Add any other screens at the root stack level
 };

@@ -7,6 +7,7 @@ import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen'
 import { navigate } from '../../utils/NavigationUtils';
 import CustomDrawer from '../drawer/CustomDrawer';
 import CustomHeader from '../../components/CustomHeader';
+import FAQScreen from '../../screens/FAQScreen';
 
 // Import your images (replace with your actual image paths)
 const bannerImage1 = require('../../assets/images/HomePageTopBanner/ExploretheWorldofAgriCareer1.jpg');
@@ -46,6 +47,7 @@ const Share = () => {
         <TouchableOpacity style={styles.exploreButton} onPress={handleExploreCourses}>
           <Text style={styles.exploreButtonText}>View All Courses</Text>
         </TouchableOpacity>
+        <FAQScreen/>
       </ScrollView>
     </SafeAreaView>
   );

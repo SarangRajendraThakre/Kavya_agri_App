@@ -49,7 +49,7 @@ const SmallCardComponent: React.FC = () => {
         <Text style={styles.subtitle}>We got something for everyone</Text>
 
         <TouchableOpacity style={styles.investButton} onPress={handleStartInvesting}>
-          <Text style={styles.investButtonText}>Start Investing</Text>
+          <Text style={styles.investButtonText}>Join us </Text>
         </TouchableOpacity>
 
         <View style={styles.cardsGrid}>
