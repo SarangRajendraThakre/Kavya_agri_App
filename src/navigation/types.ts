@@ -30,6 +30,7 @@ export type RootDrawerParamList = {
   InterviewPrepScreen: undefined;
   CardsSliderScreen:undefined;
   RegistrationFormScreen:undefined;
+  MMkvDetails:undefined;
 
 };
 

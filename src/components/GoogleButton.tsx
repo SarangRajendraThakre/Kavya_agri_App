@@ -74,6 +74,7 @@ export default function GoogleButton() {
         refreshToken: string;
         role: string;
         userId: string; // This is the MongoDB _id from your backend
+        isProfileCompleted:boolean;
     }
 
     const sendUserDataToBackend = async (userData: BackendUserData) => {
@@ -126,10 +127,12 @@ export default function GoogleButton() {
                     storage.set('refreshToken', responseData.refreshToken);
                     console.log('MMKV Stored: refreshToken =', responseData.refreshToken);
                 }
-                // You can also stringify and store the entire responseData if needed
-                // storage.set('backendFullUserResponse', JSON.stringify(responseData));
-                // console.log('MMKV Stored: backendFullUserResponse (JSON string)');
 
+                 if (typeof responseData.isProfileCompleted === 'boolean') {
+                    // MMKV storage.set expects a string, so convert boolean to string
+                    storage.set('isProfileCompleted', String(responseData.isProfileCompleted));
+                    console.log('MMKV Stored: isProfileCompleted =', responseData.isProfileCompleted);
+                }
             } else {
                 // If response is not OK (e.g., 400, 500 status), try to parse error message
                 const errorResponseData = await response.json().catch(() => null);

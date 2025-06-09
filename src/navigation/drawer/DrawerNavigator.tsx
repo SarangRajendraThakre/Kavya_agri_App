@@ -21,6 +21,7 @@ import ResumeBuilderScreen from '../../screens/carrerAddaScreens/ResumeBuilderSc
 import InterviewPrepScreen from '../../screens/carrerAddaScreens/InterviewPrepScreen';
 import CareerDetailScreen from '../../components/CareerDetailScreen';
 import RegistrationFormScreen from '../../screens/homePageSlider2/RegistrationFormScreen';
+import MMkvDetails from '../../screens/MMkvDetails';
 
 // Create a Drawer Navigator instance, explicitly typing it with RootDrawerParamList
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
@@ -138,6 +139,11 @@ const DrawerNavigator: React.FC = () => {
           <Drawer.Screen
           name="RegistrationFormScreen"
           component={RegistrationFormScreen} // Create this component file
+          options={{ title: 'Interview Prep', headerShown: false }}
+        />
+        <Drawer.Screen
+          name="MMkvDetails"
+          component={MMkvDetails} // Create this component file
           options={{ title: 'Interview Prep', headerShown: false }}
         />
     </Drawer.Navigator>

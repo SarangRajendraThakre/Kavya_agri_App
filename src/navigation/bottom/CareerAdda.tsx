@@ -6,6 +6,8 @@ import { StackNavigationProp } from '@react-navigation/stack'; // Or DrawerNavig
 import { RootStackParamList } from '../types';
 import CareerCard from '../../screens/carrerAddaScreens/CareerCard';
 import { Colors } from '../../utils/Constants';
+import { navigate } from '../../utils/NavigationUtils';
+import CustomHeader from '../../components/CustomHeader';
 
 
 // Define the navigation prop type for this screen based on your RootStackParamList
@@ -30,15 +32,16 @@ const CareerAdda: React.FC<CareerPathScreenProps> = () => {
   };
 
   const handleResumeBuilder = () => {
-    navigation.navigate('ResumeBuilderScreen'); // Navigate to the screen for 'Resume Builder'
+       navigate('MMkvDetails'); // Navigate to the screen for 'Resume Builder'
   };
 
   const handleInterviewPrep = () => {
     navigation.navigate('InterviewPrepScreen'); // Navigate to the screen for 'Interview Preparation Support'
   };
 
-  return (
+  return (<>   <CustomHeader title={'Kavya Agri'}/>
     <View style={styles.container}>
+      
       <Text style={styles.headerTitle}>Career Paths</Text>
       <ScrollView contentContainerStyle={styles.cardsContainer}>
         <CareerCard
@@ -63,7 +66,8 @@ const CareerAdda: React.FC<CareerPathScreenProps> = () => {
         />
         {/* Add more cards here if needed */}
       </ScrollView>
-    </View>
+    </View> </>
+  
   );
 };
 

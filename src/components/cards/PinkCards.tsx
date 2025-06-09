@@ -41,12 +41,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
 const CustomCard1: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Courses</Text>
+     
 
       {/* First Card: Online Courses */}
       <CourseCard
         title="Online Self-help Courses"
-        description="On option Trading With Quizzes!"
+        description="Increase the chances of getting hired!"
         // Using Text components to simulate the "ONLINE COURSE" label
         iconRender={() => (
           <View style={styles.onlineCourseIconWrapper}>
@@ -60,8 +60,8 @@ const CustomCard1: React.FC = () => {
 
       {/* Second Card: Quick Videos */}
       <CourseCard
-        title="Quick Videos"
-        description="Learn about stocks, Mutual funds, IPOs, Gold and more"
+        title="Quick Sessions"
+        description="Learn from Industry Experts"
         // Using a large play button emoji
         iconRender={() => (
           <Text style={styles.playIcon}>▶️</Text>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5', // Light grey background
     alignItems: 'center', // Center content horizontally
-    paddingTop: 50, // Add some top padding
+    paddingTop: 20, // Add some top padding
   },
   header: {
     fontSize: 28,

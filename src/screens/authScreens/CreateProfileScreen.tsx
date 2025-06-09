@@ -1,3 +1,5 @@
+// src/screens/CreateProfileScreen.tsx
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -16,7 +18,6 @@ import DropdownComponent from '../../components/DropdownComponent';
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomCheckbox from '../../components/CustomCheckbox';
 
-// Import reanimated
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -24,11 +25,13 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 
-// Import MMKV storage utility
-import { storage } from '../../utils/storage'; 
+import { storage } from '../../utils/storage';
+import axios from 'axios';
 
-// Import Axios
-import axios from 'axios'; // <--- ADD THIS LINE
+import { replace } from '../../utils/NavigationUtils';
+// Import BOTH mutations
+import { CREATE_PROFILE_MUTATION, MARK_PROFILE_COMPLETED_MUTATION } from '../../utils/mutation';
+import { API_GRAPHQL_ENDPOINT } from '../../utils/Constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -37,18 +40,11 @@ interface Option {
   value: string;
 }
 
-// Assuming Props from navigation
-import { replace } from '../../utils/NavigationUtils';
-import { CREATE_PROFILE_MUTATION } from '../../utils/mutation';
-import { API_GRAPHQL_ENDPOINT } from '../../utils/Constants';
-
-
-
 const CreateProfileScreen: React.FC = ({}) => {
   const [salutation, setSalutation] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  const [UserId, setUserId] = useState<string>(''); // This state seems unused, userId is read directly from storage later
+  const [UserId, setUserId] = useState<string>(''); // Used as appId/handle
   const [mobileNo, setMobileNo] = useState<string>('');
   const [whatsAppSameAsMobile, setWhatsAppSameAsMobile] = useState<boolean>(false);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string>('');
@@ -58,43 +54,35 @@ const CreateProfileScreen: React.FC = ({}) => {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
 
   const [residenceCity, setResidenceCity] = useState<string>('');
-  const [education, setEducation] = useState<string | null>(null); // Changed to allow null for dropdown
-  const [customEducation, setCustomEducation] = useState<string>(''); // For 'Other' education input
+  const [education, setEducation] = useState<string | null>(null);
+  const [customEducation, setCustomEducation] = useState<string>('');
   const [collegeName, setCollegeName] = useState<string>('');
   const [collegeCityVillage, setCollegeCityVillage] = useState<string>('');
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
 
-  // Shared values for each animated input field
   const translateXResidenceCity = useSharedValue(width);
   const translateXEducation = useSharedValue(width);
-  const translateXCollegeName = useSharedValue(width);
-  const translateXCollegeCityVillage = useSharedValue(width);
+  translateXCollegeName = useSharedValue(width); // Corrected: Must be a const
+  translateXCollegeCityVillage = useSharedValue(width); // Corrected: Must be a const
+
 
   const [showAdditionalFields, setShowAdditionalFields] = useState<boolean>(false);
 
-  // Auto-populate email and userId from MMKV on component mount
   useEffect(() => {
     const storedEmail = storage.getString('userEmail');
-    const storedUserId = storage.getString('userId'); // Assuming 'userId' is the key for the user ID
-    console.log("Email from MMKV:", storedEmail);
-    console.log("UserId from MMKV:", storedUserId); // Log UserId for debugging
+    const storedUserId = storage.getString('userId'); // This is your unique identifier for the user
+    console.log('Email from MMKV:', storedEmail);
+    console.log('UserId from MMKV:', storedUserId);
     if (storedEmail) {
       setEmail(storedEmail);
     }
     if (storedUserId) {
-      setUserId(storedUserId); // Set the state if you intend to use this state variable for anything.
+      setUserId(storedUserId);
     }
   }, []);
 
-
-
-  // Function to check if all initial fields are filled
   const areInitialFieldsFilled = (): boolean => {
-    // Note: email and userId are auto-populated, so they shouldn't prevent animation if not yet loaded
-    // Consider adding a check if `email` and `UserId` (from storage) are set to avoid animations
-    // before they are loaded, or if they are truly required by the user to fill.
-    // For now, based on current logic, they are included if `email` is meant to be user-filled.
     return (
       !!salutation &&
       !!firstName &&
@@ -103,13 +91,12 @@ const CreateProfileScreen: React.FC = ({}) => {
       mobileNo.length === 10 &&
       !!whatsAppNumber &&
       whatsAppNumber.length === 10 &&
-      !!email && // Email is auto-populated, ensure it's not empty before showing fields
+      !!email &&
       !!dateOfBirth &&
       !!selectedGender
     );
   };
 
-  // Effect to trigger animation when initial fields are filled
   useEffect(() => {
     if (areInitialFieldsFilled()) {
       setShowAdditionalFields(true);
@@ -117,26 +104,24 @@ const CreateProfileScreen: React.FC = ({}) => {
       const animationDuration = 500;
       const delayBetweenFields = 150;
 
-      // Use a small delay for the first element as well, or just use `withTiming(0)`
       translateXResidenceCity.value = withDelay(
-        0, // Start immediately
-        withTiming(0, { duration: animationDuration })
+        0,
+        withTiming(0, { duration: animationDuration }),
       );
       translateXEducation.value = withDelay(
         delayBetweenFields,
-        withTiming(0, { duration: animationDuration })
+        withTiming(0, { duration: animationDuration }),
       );
       translateXCollegeName.value = withDelay(
         delayBetweenFields * 2,
-        withTiming(0, { duration: animationDuration })
+        withTiming(0, { duration: animationDuration }),
       );
       translateXCollegeCityVillage.value = withDelay(
         delayBetweenFields * 3,
-        withTiming(0, { duration: animationDuration })
+        withTiming(0, { duration: animationDuration }),
       );
     } else {
       setShowAdditionalFields(false);
-      // Reset position when conditions are not met
       translateXResidenceCity.value = width;
       translateXEducation.value = width;
       translateXCollegeName.value = width;
@@ -148,12 +133,16 @@ const CreateProfileScreen: React.FC = ({}) => {
     lastName,
     mobileNo,
     whatsAppNumber,
-    email, // Added email to dependency array as it's part of initial fields check
+    email,
     dateOfBirth,
     selectedGender,
+    // Add dependencies for animated values if they are used to control the animation state
+    // For translateX, it's typically controlled by the `showAdditionalFields` state,
+    // which in turn depends on the fields above.
+    // If you add `translateXResidenceCity.value` here, it will trigger an infinite loop.
+    // So, keep it as is, or control `showAdditionalFields` more directly.
   ]);
 
-  // Animated styles for each input field
   const animatedResidenceCityStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateXResidenceCity.value }],
     width: '100%',
@@ -187,66 +176,63 @@ const CreateProfileScreen: React.FC = ({}) => {
     const eighteenYearsAgo = new Date(
       today.getFullYear() - 18,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
 
     if (date > eighteenYearsAgo) {
       Alert.alert(
         'Age Restriction',
-        'You must be at least 18 years old to create a profile.'
+        'You must be at least 18 years old to create a profile.',
       );
-      setDateOfBirth(''); // Clear the date of birth if it's invalid
+      setDateOfBirth('');
       hideDatePicker();
       return;
     }
 
-    // Format the date to 'YYYY-MM-DD' for consistency with backend
-    setDateOfBirth(date.toLocaleDateString('en-CA'));
+    setDateOfBirth(date.toLocaleDateString('en-CA')); // YYYY-MM-DD format
     hideDatePicker();
   };
 
-  // Auto-populate WhatsApp number if checkbox is checked
   useEffect(() => {
     if (whatsAppSameAsMobile) {
       setWhatsAppNumber(mobileNo);
     } else {
-      // Only clear if it was auto-populated from mobileNo
-      // Check if current whatsAppNumber is exactly the same as mobileNo before clearing
-      // This prevents clearing a manually entered WhatsApp number if the checkbox is unchecked
-      if (whatsAppNumber === mobileNo) {
+      // Only clear whatsAppNumber if it was previously set *because* it was same as mobile
+      // and now the checkbox is unchecked. Avoid clearing if user manually entered a different number.
+      if (whatsAppNumber === mobileNo) { // This check prevents clearing a manually entered different number
         setWhatsAppNumber('');
       }
     }
-  }, [whatsAppSameAsMobile, mobileNo, whatsAppNumber]); // Added whatsAppNumber to dependency array
+  }, [whatsAppSameAsMobile, mobileNo]); // Depend on whatsAppSameAsMobile and mobileNo
 
   const handleSignUp = async (): Promise<void> => {
     // --- Input Validation ---
-
-    // Name validation: no digits, at least 2 characters
     const nameRegex = /^[A-Za-z\s]{2,}$/;
     if (!nameRegex.test(firstName)) {
-      Alert.alert('Invalid First Name', 'First Name must contain only letters and spaces, and be at least 2 characters long.');
+      Alert.alert(
+        'Invalid First Name',
+        'First Name must contain only letters and spaces, and be at least 2 characters long.',
+      );
       return;
     }
     if (!nameRegex.test(lastName)) {
-      Alert.alert('Invalid Last Name', 'Last Name must contain only letters and spaces, and be at least 2 characters long.');
+      Alert.alert(
+        'Invalid Last Name',
+        'Last Name must contain only letters and spaces, and be at least 2 characters long.',
+      );
       return;
     }
 
-    // Mobile Number validation: exactly 10 digits
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(mobileNo)) {
       Alert.alert('Invalid Mobile Number', 'Mobile Number must be exactly 10 digits.');
       return;
     }
-    // Only validate whatsAppNumber if it's not empty, allowing it to be potentially empty if not same as mobileNo
     if (whatsAppNumber && !phoneRegex.test(whatsAppNumber)) {
       Alert.alert('Invalid WhatsApp Number', 'WhatsApp Number must be exactly 10 digits.');
       return;
     }
 
-
-    // Basic validation for initial fields
     if (
       !salutation ||
       !firstName ||
@@ -261,12 +247,11 @@ const CreateProfileScreen: React.FC = ({}) => {
       return;
     }
 
-    // Check if additional fields are shown and filled
     if (showAdditionalFields) {
       const finalEducation = education === 'Other' ? customEducation : education;
       if (
         !residenceCity ||
-        !finalEducation || // Use the final education value
+        !finalEducation ||
         !collegeName ||
         !collegeCityVillage
       ) {
@@ -275,15 +260,13 @@ const CreateProfileScreen: React.FC = ({}) => {
       }
     }
 
-
-    // Age validation check again in case dateOfBirth was manually changed or if someone bypassed the date picker.
     if (dateOfBirth) {
       const dob = new Date(dateOfBirth);
       const today = new Date();
       const eighteenYearsAgo = new Date(
         today.getFullYear() - 18,
         today.getMonth(),
-        today.getDate()
+        today.getDate(),
       );
       if (dob > eighteenYearsAgo) {
         Alert.alert(
@@ -294,92 +277,118 @@ const CreateProfileScreen: React.FC = ({}) => {
       }
     }
 
-    const currentUserId = storage.getString('userId'); // Corrected: Get uid from MMKV based on your MMKV data
-    if (!currentUserId) {
-      Alert.alert('Authentication Error', 'User ID not found. Please log in again.');
+    if (!email) {
+      Alert.alert('Authentication Error', 'User email not found. Please log in again.');
       return;
     }
 
-    // Determine the education value to send
     const finalEducationValue = education === 'Other' ? customEducation : education;
 
-
-    // GraphQL Mutation for ProfileDetails
-
-    const variables = {
+    const profileVariables = {
       input: {
-        userId: currentUserId, // Ensure this userId corresponds to a user in your system
+        userId: UserId, // Pass the UserId obtained from MMKV
         salutation: salutation,
         firstName: firstName,
         lastName: lastName,
         mobileNo: mobileNo,
         whatsAppNumber: whatsAppNumber,
-        email: email,
-        dateOfBirth: dateOfBirth, // This string will be parsed to Date on backend
+        email: email, // This is the user's email ID
+        dateOfBirth: dateOfBirth,
         gender: selectedGender,
         residenceCity: residenceCity,
-        education: finalEducationValue, // Use the determined education value
+        education: finalEducationValue,
         collegeName: collegeName,
         collegeCityVillage: collegeCityVillage,
       },
     };
 
-    console.log('Sending data:', variables);
+    console.log('Sending profile data:', profileVariables);
 
     try {
-
-      const response = await axios.post(
+      // 1. Call the mutation to create/update profile details
+      const profileResponse = await axios.post(
         API_GRAPHQL_ENDPOINT,
         {
           query: CREATE_PROFILE_MUTATION,
-          variables: variables,
-          operationName: 'CreateOrUpdateProfileDetails', // Ensure operationName matches the mutation name
+          variables: profileVariables,
+          operationName: 'CreateOrUpdateProfileDetails',
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${YOUR_AUTH_TOKEN_HERE}` // Include if authentication is required
-            // Example: 'Authorization': `Bearer ${storage.getString('authToken')}`
+            // 'Authorization': `Bearer ${storage.getString('authToken')}` // Uncomment if you have an auth token
           },
-          // You can also add timeout here if needed
-          // timeout: 10000, // 10 seconds timeout
-        }
+        },
       );
 
-      console.log('Backend response:', response.data); // Axios puts response body in .data
+      console.log('Profile details backend response:', profileResponse.data);
 
-      // Axios automatically rejects for 4xx/5xx, so we just check for GraphQL errors
-      if (response.data.errors) {
-        const errorMessage = response.data.errors[0].message
-          ? response.data.errors[0].message
-          : 'Something went wrong on the server.';
-        Alert.alert('Operation Failed', errorMessage);
-      } else {
-        
-        replace('ProfileSuccessfulScreen');
+      if (profileResponse.data.errors) {
+        const errorMessage = profileResponse.data.errors[0]?.message
+          ? profileResponse.data.errors[0].message
+          : 'Failed to save profile details on the server.';
+        Alert.alert('Profile Creation Failed', errorMessage);
+        return; // Stop here if profile details save fails
       }
-    } catch (error: any) { // Type 'any' for error for simpler handling, but more specific typing is better
-      console.error('Error during profile creation/update:', error);
 
-      // Axios errors have a specific structure
+      // --- 2. If profile details are successfully saved, call the mutation to mark profile as completed ---
+      const markCompletedResponse = await axios.post(
+        API_GRAPHQL_ENDPOINT,
+        {
+          query: MARK_PROFILE_COMPLETED_MUTATION,
+          variables: { emailId: email }, // Pass the user's email for this mutation
+          operationName: 'MarkProfileAsCompleted',
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${storage.getString('authToken')}` // Uncomment if you have an auth token
+          },
+        },
+      );
+
+      console.log('Mark profile as completed backend response:', markCompletedResponse.data);
+
+      if (markCompletedResponse.data.errors) {
+        console.error('Error marking profile as completed:', markCompletedResponse.data.errors[0]?.message);
+        Alert.alert('Warning', 'Profile saved, but unable to mark as completed. Please contact support.');
+      } else {
+        const isProfileCompleted = markCompletedResponse.data.data.markProfileAsCompleted.user.isProfileCompleted;
+        storage.set('isProfileCompleted', isProfileCompleted);
+        console.log('Profile completion status saved to MMKV:', isProfileCompleted);
+
+        // --- MMKV Storage Logic: Store firstName, lastName, and UserId separately ---
+        // This runs ONLY if both backend operations are successful (or the second one warns but doesn't fail critically)
+        storage.set('firstName', firstName);
+        storage.set('lastName', lastName);
+        storage.set('appId', UserId);   
+        
+        console.log('User profile data stored in MMKV:', {
+          firstName,
+          lastName,
+          appId: UserId,
+        });
+      }
+
+      // Navigate to success screen after all operations
+      replace('ProfileSuccessfulScreen');
+
+    } catch (error: any) {
+      console.error('Error during profile process:', error);
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           console.error('Server response error:', error.response.data);
           Alert.alert(
             'Operation Failed',
             error.response.data.errors?.[0]?.message || 'Server responded with an error.'
           );
         } else if (error.request) {
-          // The request was made but no response was received
           console.error('No response received:', error.request);
           Alert.alert(
             'Error',
             'No response from server. Please check your network and server status.'
           );
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error('Axios setup error:', error.message);
           Alert.alert(
             'Error',
@@ -387,7 +396,6 @@ const CreateProfileScreen: React.FC = ({}) => {
           );
         }
       } else {
-        // Non-Axios error (e.g., programming error)
         Alert.alert(
           'Error',
           'An unexpected error occurred: ' + error.message
@@ -414,9 +422,8 @@ const CreateProfileScreen: React.FC = ({}) => {
     { label: 'Ph.D. Agriculture', value: 'Ph.D. Agriculture' },
     { label: 'B.Tech. Agricultural Engineering', value: 'B.Tech. Agricultural Engineering' },
     { label: 'Diploma in Agriculture', value: 'Diploma in Agriculture' },
-    { label: 'Other', value: 'Other' }, // Added "Other" option
+    { label: 'Other', value: 'Other' },
   ];
-
 
   return (
     <ImageBackground
@@ -427,9 +434,14 @@ const CreateProfileScreen: React.FC = ({}) => {
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -200} // Adjust offset as needed
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -200}
       >
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.headerContainer}>
             <Text style={styles.welcomeText}>Create Profile</Text>
             <Text style={styles.subHeaderText}>Fill the Details As per ID Proof</Text>
@@ -470,7 +482,7 @@ const CreateProfileScreen: React.FC = ({}) => {
               value={mobileNo}
               onChangeText={setMobileNo}
               keyboardType="phone-pad"
-              maxLength={10} // Enforce 10 digits
+              maxLength={10}
             />
             <CustomCheckbox
               label="WhatsApp number same as Mobile No"
@@ -483,7 +495,7 @@ const CreateProfileScreen: React.FC = ({}) => {
               value={whatsAppNumber}
               onChangeText={setWhatsAppNumber}
               keyboardType="phone-pad"
-              maxLength={10} // Enforce 10 digits
+              maxLength={10}
               editable={!whatsAppSameAsMobile}
             />
             <CustomTextInput
@@ -493,8 +505,8 @@ const CreateProfileScreen: React.FC = ({}) => {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              editable={false} // <--- Email is not editable
-              style={{ backgroundColor: '#f0f0f0' }} // Optional: visually indicate non-editable
+              editable={false}
+              style={{ backgroundColor: '#f0f0f0' }}
             />
 
             {/* Date of Birth Input */}
@@ -512,7 +524,7 @@ const CreateProfileScreen: React.FC = ({}) => {
               mode="date"
               onConfirm={handleConfirmDate}
               onCancel={hideDatePicker}
-              maximumDate={new Date()} // Prevent selecting future dates
+              maximumDate={new Date()}
             />
 
             {/* Gender Dropdown */}
@@ -537,7 +549,7 @@ const CreateProfileScreen: React.FC = ({}) => {
                   />
                 </Animated.View>
                 <Animated.View style={animatedEducationStyle}>
-                  <DropdownComponent // <--- Changed to DropdownComponent
+                  <DropdownComponent
                     data={educationOptions}
                     placeholder="Education"
                     value={education}
@@ -721,7 +733,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   customEducationInput: {
-    marginTop: -height * 0.01, // Adjust margin to visually align with dropdown
+    marginTop: -height * 0.01,
     marginBottom: height * 0.02,
   }
 });

@@ -1,10 +1,9 @@
 // CustomDrawer.tsx
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Platform, Alert } from 'react-native';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
-  // DrawerItemList, // We're not using DrawerItemList directly for these custom sections
 } from '@react-navigation/drawer';
 
 // Import your RootDrawerParamList and other types from types.ts
@@ -23,13 +22,15 @@ import {
   verticalScale,
   moderateScale,
 } from '../../utils/Scaling'; // Adjust path
-import { navigate } from '../../utils/NavigationUtils';
+import { navigate, resetAndNavigate } from '../../utils/NavigationUtils';
+import { storage } from '../../utils/storage'; // Assuming 'storage' is your MMKV instance
+import { CommonActions } from '@react-navigation/native';
 
 // --- ProfileMenuItem (Optimized for Drawer) ---
 interface ProfileMenuItemProps {
   iconName: string;
   title: string;
-  description?: string; // Keep description but maybe use shorter ones
+  description?: string;
   showWarning?: boolean;
   isSwitch?: boolean;
   switchValue?: boolean;
@@ -59,7 +60,7 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
       onPress={onPress}
     >
       <View style={profileStyles.menuItemLeft}>
-        <Icon name={iconName} size={moderateScale(20)} color={Colors.primary || '#6C63FF'} /> {/* Slightly smaller icon */}
+        <Icon name={iconName} size={moderateScale(20)} color={Colors.primary || '#6C63FF'} />
         <View style={profileStyles.menuItemTextContainer}>
           <Text style={profileStyles.menuItemTitle}>{title}</Text>
           {description && (
@@ -73,12 +74,11 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
         )}
         {isSwitch ? (
           <Switch
-            trackColor={{ false: Colors.inactive || '#D3D3D3', true: Colors.primaryLighter || '#8E9DFF' }}
+            trackColor={{ false: Colors.inactive || '#D3D3D3', true: Colors.primaryLighter || '#8E9DFF'} /* Keep colors if they are correct */ }
             thumbColor={switchValue ? Colors.primary || '#6C63FF' : Colors.backgroundLight || '#f4f3f4'}
             ios_backgroundColor={Colors.backgroundLight || '#E0E0E0'}
             onValueChange={onSwitchChange}
             value={switchValue}
-            // Scale switch for better touch area if needed, though often system controlled
             transform={[{ scaleX: moderateScale(0.8) }, { scaleY: moderateScale(0.8) }]}
           />
         ) : (
@@ -93,29 +93,75 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
 type CustomDrawerProps = DrawerContentComponentProps;
 
 const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
-  const [faceIdEnabled, setFaceIdEnabled] = React.useState(false);
+  const [faceIdEnabled, setFaceIdEnabled] = useState(false);
+  // State variables to hold the dynamic data
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [appId, setAppId] = useState<string>(''); // For the profile handle
+
 
   // A simple alert function (for demonstration)
   const showAlert = (message: string) => {
-    // Replace with a proper alert or navigation if needed
     // console.log(message); // Log for debugging
     // Alert.alert('Action', message); // Uncomment if react-native's Alert is available
   };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          onPress: () => {
+            // Clear ALL MMKV data
+            storage.clearAll(); // This line clears all data in your MMKV instance
+
+            // Use your utility function for navigation
+            resetAndNavigate('OnboardingScreen'); // Correct usage
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  // --- MODIFIED useEffect to load data from MMKV using direct keys ---
+  useEffect(() => {
+    const loadProfileDirectly = () => {
+      // Retrieve values directly using their specific keys
+      setFirstName(storage.getString('firstName') || 'Guest');
+      console.log(firstName);
+      setLastName(storage.getString('lastName') || 'User');
+      setAppId(storage.getString('appId') || 'unknown'); // Use a specific key for appId/username
+    };
+
+    loadProfileDirectly();
+    // No dependencies means this runs once after initial render.
+    // If these values can change while the drawer is open and you want it to update,
+    // you might need a way to trigger this effect (e.g., a context update).
+  }, []);
 
   return (
     <View style={styles.container}>
       {/* Drawer Header (Profile Card style - optimized) */}
       <View style={profileStyles.profileCardCustomDrawer}>
         <Image
-          source={{ uri: 'https://via.placeholder.com/150' }} // Your profile image
+          source={require('../../assets/images/SARANGTHAKRE.jpg')} // Keep this static for now, or make dynamic later
           style={profileStyles.profileImage}
         />
         <View style={profileStyles.profileInfo}>
-          <Text style={profileStyles.profileName}>Itunuoluwa Abidoye</Text>
-          <Text style={profileStyles.profileHandle}>@itunuoluwa</Text>
+          <Text style={profileStyles.profileName}>
+            {firstName} {lastName} {/* <--- Display dynamic first and last name */}
+          </Text>
+          <Text style={profileStyles.profileHandle}>
+            @{appId} {/* <--- Display dynamic appId */}
+          </Text>
         </View>
         <TouchableOpacity style={profileStyles.editButton} onPress={() => showAlert('Edit Profile')}>
-          <Icon name="pencil" size={moderateScale(14)} color="#FFF" /> {/* Smaller edit icon */}
+          <Icon name="pencil" size={moderateScale(14)} color="#FFF" />
         </TouchableOpacity>
       </View>
 
@@ -125,34 +171,29 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
           <CustomProfileMenuItem
             iconName="account-outline"
             title="My Profile"
-            // description="Make changes to your account" // Consider removing description for drawer
-            onPress={() => props.navigation.navigate('ProfileEditScreen')} // Navigate to Profile screen
+            onPress={() => props.navigation.navigate('ProfileEditScreen')}
           />
           <CustomProfileMenuItem
             iconName="bookmark-outline"
             title="Explore"
-            // description="Manage your saved account"
-             onPress={() => props.navigation.navigate('MainTabs', { screen: 'Explore' })} // <-- KEY CHANGE HERE
+            onPress={() => props.navigation.navigate('MainTabs', { screen: 'Explore' })}
           />
-         
+
           <CustomProfileMenuItem
             iconName="shield-lock-outline"
-            title="Certificate" //s Shorter title
-            // description="Further secure your account"
+            title="Certificate"
             onPress={() => showAlert('Navigate to Two-Factor Auth')}
           />
           <CustomProfileMenuItem
             iconName="shield-lock-outline"
-            title="Refer" //s Shorter title
-            // description="Further secure your account"
+            title="Refer"
             onPress={() => showAlert('Navigate to Two-Factor Auth')}
           />
           <CustomProfileMenuItem
             iconName="logout"
-            title="Log Out" // Shorter title
-            // description="Secure your account for safety"
+            title="Log Out"
             isLastInGroup={true}
-            onPress={() => showAlert('Log out!')}
+            onPress={handleLogout}
           />
         </View>
 
@@ -164,16 +205,13 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
             title="Help & Support"
             onPress={() => showAlert('Navigate to Help & Support')}
           />
-           <CustomProfileMenuItem
+          <CustomProfileMenuItem
             iconName="information-outline"
             title="About App"
             isLastInGroup={true}
-            onPress={() => navigate('AboutUsScreen')} // <--- Use your global navigate for AboutUs
+            onPress={() => navigate('AboutUsScreen')}
           />
         </View>
-
-        {/* Placeholder for your Sidemenusection if it's meant to be here */}
-        {/* <Sidemenusection /> */}
       </DrawerContentScrollView>
 
       {/* Footer content */}
@@ -193,81 +231,80 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundDark || '#F0F2F5',
   },
   drawerScrollView: {
-    paddingVertical: verticalScale(5), // Reduce overall padding
+    paddingVertical: verticalScale(5),
   },
   drawerFooter: {
-    padding: verticalScale(12), // Reduced padding
+    padding: verticalScale(12),
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight || '#E0E0E0',
     alignItems: 'center',
     backgroundColor: Colors.backgroundDark || '#F0F2F5',
   },
   drawerFooterText: {
-    fontSize: fontR(11), // Slightly smaller font
+    fontSize: fontR(11),
     color: Colors.inactive || '#A0A0A0',
     fontFamily: Fonts.SatoshiLight || 'System',
   },
 });
 
-// --- Profile-specific Styles (Optimized for Drawer) ---
 const profileStyles = StyleSheet.create({
   profileCardCustomDrawer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.primary || '#6C63FF',
-    borderRadius: moderateScale(15), // Slightly smaller radius
-    marginHorizontal: scale(10), // Reduced horizontal margin
-    marginVertical: verticalScale(15), // Reduced vertical margin
-    padding: moderateScale(15), // Reduced padding
+    borderRadius: moderateScale(15),
+    marginHorizontal: scale(10),
+    marginVertical: verticalScale(15),
+    padding: moderateScale(15),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: verticalScale(4) }, // Softer shadow
+    shadowOffset: { width: 0, height: verticalScale(4) },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(8),
     elevation: 6,
   },
   profileImage: {
-    width: scale(55), // Smaller image
+    width: scale(55),
     height: scale(55),
     borderRadius: scale(27.5),
-    marginRight: scale(15), // Reduced margin
-    borderWidth: moderateScale(2), // Thinner border
+    marginRight: scale(15),
+    borderWidth: moderateScale(2),
     borderColor: '#FFF',
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
-    fontSize: fontR(17), // Slightly smaller font
+    fontSize: fontR(17),
     fontWeight: 'bold',
     color: Colors.textLight || '#FFF',
   },
   profileHandle: {
-    fontSize: fontR(13), // Slightly smaller font
+    fontSize: fontR(13),
     color: Colors.primaryLighter || '#E0E0FF',
     marginTop: verticalScale(2),
   },
   editButton: {
     backgroundColor: 'rgba(255,255,255,0.2)',
-    padding: moderateScale(8), // Reduced padding
+    padding: moderateScale(8),
     borderRadius: moderateScale(20),
   },
   menuSectionCustomDrawer: {
     backgroundColor: Colors.cardBackground || '#fff',
-    marginHorizontal: scale(10), // Consistent with card margin
-    borderRadius: moderateScale(12), // Smaller radius
-    paddingVertical: verticalScale(5), // Reduced padding
+    marginHorizontal: scale(10),
+    borderRadius: moderateScale(12),
+    paddingVertical: verticalScale(5),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: verticalScale(2) }, // Lighter shadow
+    shadowOffset: { width: 0, height: verticalScale(2) },
     shadowOpacity: 0.05,
     shadowRadius: moderateScale(4),
     elevation: 3,
-    marginBottom: verticalScale(15), // Reduced margin
+    marginBottom: verticalScale(15),
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: verticalScale(15), // Reduced vertical padding for compactness
+    paddingVertical: verticalScale(15),
     paddingHorizontal: scale(15),
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Colors.borderLight || '#F0F0F0',
@@ -280,31 +317,31 @@ const profileStyles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItemTextContainer: {
-    marginLeft: scale(15), // Consistent margin
+    marginLeft: scale(15),
   },
   menuItemTitle: {
-    fontSize: fontR(15), // Slightly smaller font
+    fontSize: fontR(15),
     color: Colors.textDark || '#333',
     fontFamily: Fonts.SatoshiMedium || 'System',
     fontWeight: '500',
   },
   menuItemDescription: {
-    fontSize: fontR(11), // Much smaller font for description or remove entirely
+    fontSize: fontR(11),
     color: Colors.textMuted || '#888',
     marginTop: verticalScale(2),
-    lineHeight: fontR(14), // Adjusted line height
+    lineHeight: fontR(14),
   },
   menuItemRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   warningIcon: {
-    marginRight: scale(8), // Reduced margin
+    marginRight: scale(8),
   },
   moreSectionCustomDrawer: {
     backgroundColor: Colors.cardBackground || '#fff',
-    marginHorizontal: scale(10), // Consistent margin
-    borderRadius: moderateScale(12), // Smaller radius
+    marginHorizontal: scale(10),
+    borderRadius: moderateScale(12),
     paddingVertical: verticalScale(5),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: verticalScale(2) },
@@ -314,12 +351,12 @@ const profileStyles = StyleSheet.create({
     marginBottom: verticalScale(15),
   },
   moreSectionTitle: {
-    fontSize: fontR(14), // Slightly smaller font for section title
+    fontSize: fontR(14),
     color: Colors.textMuted || '#666',
     fontFamily: Fonts.SatoshiBold || 'System',
     fontWeight: 'bold',
     paddingHorizontal: scale(15),
-    marginBottom: verticalScale(8), // Reduced margin
+    marginBottom: verticalScale(8),
     marginTop: verticalScale(5),
   },
 });

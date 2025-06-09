@@ -74,17 +74,27 @@ const LoginScreen: React.FC = ({}) => {
     if (otpSent) {
       // Give React Native a moment to render the OTP section before measuring
       setTimeout(() => {
-        if (otpInputContainerRef.current && keyboardAwareScrollViewRef.current) {
+        if (
+          otpInputContainerRef.current &&
+          keyboardAwareScrollViewRef.current
+        ) {
           otpInputContainerRef.current.measureLayout(
             findNodeHandle(keyboardAwareScrollViewRef.current) as number, // Cast to number
             (x, y, width, height) => {
               // y is the top position of the otpInputContainerRef relative to the scroll view's content
               // We want to scroll to this position, adding a small offset for better visibility
               const offset = y + 20; // 20 pixels extra padding from the top
-              keyboardAwareScrollViewRef.current?.scrollToPosition(0, offset, true);
+              keyboardAwareScrollViewRef.current?.scrollToPosition(
+                0,
+                offset,
+                true,
+              );
             },
-            (error) => {
-              console.error('Measurement failed for OTP input container:', error);
+            error => {
+              console.error(
+                'Measurement failed for OTP input container:',
+                error,
+              );
             },
           );
         }
@@ -272,7 +282,6 @@ const LoginScreen: React.FC = ({}) => {
           result.data.verifyOtpAndRegister;
 
         if (success) {
-         
           setOtpSent(false);
           setOtp('');
           setCountdown(0);
@@ -290,34 +299,45 @@ const LoginScreen: React.FC = ({}) => {
             otpInputRef.current.clear();
           }
 
-          
-
           if (
             purpose === 'REGISTRATION_COMPLETE' ||
             purpose === 'otp_verified_for_existing_user' ||
-             purpose === 'LOGIN_SUCCESS'
+            purpose === 'LOGIN_SUCCESS'
           ) {
             try {
+              console.log(
+                'Value from backend for isProfileCompleted:',
+                user.isProfileCompleted,
+              );
+              console.log(
+                'Type of isProfileCompleted:',
+                typeof user.isProfileCompleted,
+              );
 
-       
-
-    // IMPORTANT: Immediately verify if the email was stored
-    console.log('MMKV: userEmail after set:', storage.getString('userEmail'));
-    console.log('MMKV: userId after set:', storage.getString('userId'));
-    console.log('MMKV: accessToken after set:', storage.getString('accessToken'));
-    console.log('MMKV: refreshToken after set:', storage.getString('refreshToken'));
+              // Apply the robust conversion for safety
+              const profileCompletedStatusToStore = !!user.isProfileCompleted; // Ensures it's a boolean
 
               storage.set('userEmail', user.email);
-              console.log( ' mmkv set stored' + user.email);
               storage.set('userId', user.id);
-         
               storage.set('role', user.role);
               storage.set('accessToken', accessToken);
               storage.set('refreshToken', refreshToken);
+
+              // This line is problematic:
+              // storage.set('isProfileCompleted', String(isProfileCompleted));
+              // ^^^ 'isProfileCompleted' is undefined here
+
+              // It should use 'profileCompletedStatusToStore' instead
+              storage.set(
+                'isProfileCompleted',
+                String(profileCompletedStatusToStore),
+              ); // Corrected line
+
+              console.log(
+                'MMKV: isProfileCompleted after set:',
+                storage.getBoolean('isProfileCompleted'),
+              );
               console.log('User data and tokens saved with MMKV!');
-             
-              console.log(storage.getString(accessToken));
-              console.log(storage.getString(refreshToken));
               replace('SuccessScreen');
             } catch (storageError) {
               console.error('Failed to save data to MMKV:', storageError);
@@ -330,13 +350,11 @@ const LoginScreen: React.FC = ({}) => {
               'Please provide additional details to complete your registration.',
             );
           } else {
-              
             replace('SuccessScreen'); // Fallback in case 'purpose' is unexpected
           }
         } else {
           Alert.alert('Error', message || 'OTP verification failed.');
           // If the backend explicitly says registration is required even on failure, set the state
-    
         }
       } else {
         Alert.alert('Error', 'OTP verification failed. Unexpected response.');
@@ -413,16 +431,19 @@ const LoginScreen: React.FC = ({}) => {
                     I agree to the{' '}
                     <Text
                       style={styles.linkText}
-                      onPress={() => openUrl('https://example.com/terms')}>
+                      onPress={() =>
+                        openUrl('https://kavyaagri.in/terms&conditions')
+                      }>
                       Terms and Conditions
                     </Text>{' '}
                     and{' '}
                     <Text
                       style={styles.linkText}
-                      onPress={() => openUrl('https://example.com/privacy')}>
+                      onPress={() =>
+                        openUrl('https://kavyaagri.in/refund-policy')
+                      }>
                       Privacy Notice
                     </Text>
-                    .
                   </>
                 }
               />
@@ -466,38 +487,36 @@ const LoginScreen: React.FC = ({}) => {
                     </Text>
                   </Text>
                 </TouchableOpacity>
-
-              
               </View>
             )}
 
-           <ButtonComp
-               onPress={otpSent ? onVerifyOtp : onRequestOtp}
-               buttonText={
-                 otpSent
-                   ? 'Verify OTP'
-                   : countdown > 0
-                   ? `Continue in ${countdown}s`
-                   : 'Continue'
-               }
-               containerStyle={styles.ButtonStyle}
-               disabled={
-                 loading ||
-                 (countdown > 0 && !otpSent) ||
-                 (emailError && !otpSent) ||
-                 (!acceptTerms && !otpSent) ||
-                 (otpSent &&
-                   isRegisteringNewUser &&
-                   (!password.trim() || !firstName.trim() || !lastName.trim())
-                   // Add a console log here to see this condition's value:
-                   // && console.log('DEBUG: Reg fields empty?', (!password.trim() || !firstName.trim() || !lastName.trim()))
-                   ) ||
-                 (otpSent && otp.length !== 5 && !isRegisteringNewUser
-                   // Add a console log here to see this condition's value:
-                   // && console.log('DEBUG: OTP length invalid?', otp.length !== 6, 'isRegisteringNewUser:', isRegisteringNewUser)
-                   )
-               }
-             />
+            <ButtonComp
+              onPress={otpSent ? onVerifyOtp : onRequestOtp}
+              buttonText={
+                otpSent
+                  ? 'Verify OTP'
+                  : countdown > 0
+                  ? `Continue in ${countdown}s`
+                  : 'Continue'
+              }
+              containerStyle={styles.ButtonStyle}
+              disabled={
+                loading ||
+                (countdown > 0 && !otpSent) ||
+                (emailError && !otpSent) ||
+                (!acceptTerms && !otpSent) ||
+                (otpSent &&
+                  isRegisteringNewUser &&
+                  (!password.trim() ||
+                    !firstName.trim() ||
+                    !lastName.trim())) ||
+                // Add a console log here to see this condition's value:
+                // && console.log('DEBUG: Reg fields empty?', (!password.trim() || !firstName.trim() || !lastName.trim()))
+                (otpSent && otp.length !== 5 && !isRegisteringNewUser)
+                // Add a console log here to see this condition's value:
+                // && console.log('DEBUG: OTP length invalid?', otp.length !== 6, 'isRegisteringNewUser:', isRegisteringNewUser)
+              }
+            />
             {loading && (
               <ActivityIndicator
                 size="small"

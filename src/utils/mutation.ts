@@ -1,3 +1,10 @@
+// src/utils/mutation.ts (or src/graphql/definitions.ts)
+
+// NOTE: These are plain string literals. If you are using Apollo Client,
+// it is generally recommended to use `gql` from '@apollo/client' to parse
+// these strings into ASTs (Abstract Syntax Trees) for better performance
+// and tooling integration. However, as requested, they are kept as strings.
+
 // Auth Mutations
 
 export const REQUEST_OTP_MUTATION = `
@@ -5,9 +12,6 @@ export const REQUEST_OTP_MUTATION = `
     requestOtp(input: { email: $email }) {
       success
       message
-      # No user, accessToken, or refreshToken expected here, as it's just an OTP request.
-      # If you added 'purpose' to AuthPayload for this, you could include it:
-      # purpose 
     }
   }
 `;
@@ -15,44 +19,34 @@ export const REQUEST_OTP_MUTATION = `
 export const VERIFY_OTP_MUTATION = `
   mutation VerifyOtpAndRegister(
     $email: String!,
-    $otp: String!,
-    # Add any other required input fields for registration/login here if needed.
-    # For example, if you collect app ID at this stage: $appId: String
+    $otp: String!
   ) {
     verifyOtpAndRegister(
       input: {
         email: $email,
-        otp: $otp,
-        # Map any other input variables here:
-        # appId: $appId
+        otp: $otp
       }
     ) {
       user {
         id
-        email # Correct: Query for 'email' as per schema, not 'emailId'
+        email
         role
-        # Include other user fields you want to receive:
-        # userId
-        # appId
-        # referralCode
-        # createdAt
-        # updatedAt
+        isProfileCompleted
       }
       success
       message
       accessToken
       refreshToken
-      purpose # Ensure this is an enum in your schema (e.g., LOGIN_COMPLETE, REGISTRATION_COMPLETE)
+      purpose
     }
   }
 `;
 
-// Profile Details Mutation
+// Profile Details Mutations
 
 export const CREATE_PROFILE_MUTATION = `
   mutation CreateOrUpdateProfileDetails($input: CreateProfileDetailsInput!) {
     createOrUpdateProfileDetails(input: $input) {
-      # It's good practice to query for 'id' as well, which maps to MongoDB's _id
       id
       userId
       salutation
@@ -60,7 +54,7 @@ export const CREATE_PROFILE_MUTATION = `
       lastName
       mobileNo
       whatsAppNumber
-      email # Correct: Query for 'email' as per schema, not 'emailId'
+      email
       dateOfBirth
       gender
       residenceCity
@@ -68,13 +62,26 @@ export const CREATE_PROFILE_MUTATION = `
       collegeName
       collegeCityVillage
       createdAt
-      updatedAt # Often useful to query for the updated timestamp too
+      updatedAt
     }
   }
 `;
 
-// --- (Optional) Refresh Token Mutation - Add this if you haven't already ---
-// This is the query string that was causing the 'emailId' error previously if not updated.
+export const MARK_PROFILE_COMPLETED_MUTATION = `
+  mutation MarkProfileAsCompleted($emailId: String!) {
+    markProfileAsCompleted(email: $emailId) {
+      success
+      message
+      user {
+        id
+        email
+        isProfileCompleted
+      }
+    }
+  }
+`;
+
+// Refresh Token Mutation
 export const REFRESH_TOKEN_MUTATION = `
   mutation RefreshAccessToken($input: RefreshTokenInput!) {
     refreshAccessToken(input: $input) {
@@ -84,20 +91,18 @@ export const REFRESH_TOKEN_MUTATION = `
       refreshToken
       user {
         id
-        email # Make sure this is 'email' to match your User type in the schema
+        email
         role
-        # Include other user fields you want to receive
-        # userId
-        # appId
       }
-      purpose # Ensure this is an enum in your schema (e.g., TOKEN_REFRESHED)
+      purpose
     }
   }
 `;
 
-
-export const GET_PROFILE_QUERY = `
-  query GetProfileDetails($userId: ID!) {
+// Profile Details Query (using email)
+// This is the one you provided and want to be exportable, using 'email'.
+export const GET_PROFILE_DETAILS_QUERY = `
+  query GetProfileDetails($userId: ID!) { # Or String! if your ID is a string
     getProfileDetails(userId: $userId) {
       id
       userId
@@ -119,3 +124,29 @@ export const GET_PROFILE_QUERY = `
   }
 `;
 
+// If GET_PROFILE_QUERY (by userId) was truly distinct and needed for some reason,
+// and you didn't mean for GET_PROFILE_DETAILS_QUERY to replace it, you'd keep it like this:
+/*
+export const GET_PROFILE_BY_USER_ID_QUERY = `
+  query GetProfileDetails($userId: ID!) {
+    getProfileDetails(userId: $userId) {
+      id
+      userId
+      salutation
+      firstName
+      lastName
+      mobileNo
+      whatsAppNumber
+      email
+      dateOfBirth
+      gender
+      residenceCity
+      education
+      collegeName
+      collegeCityVillage
+      createdAt
+      updatedAt
+    }
+  }
+`;
+*/
