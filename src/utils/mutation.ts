@@ -32,12 +32,15 @@ export const VERIFY_OTP_MUTATION = `
         email
         role
         isProfileCompleted
+        appId
+       
       }
       success
       message
       accessToken
       refreshToken
       purpose
+       
     }
   }
 `;

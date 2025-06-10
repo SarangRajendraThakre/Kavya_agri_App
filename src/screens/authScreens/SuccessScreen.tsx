@@ -108,7 +108,7 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
                         }
                         // Re-confirm isProfileCompleted and appId explicitly after successful fetch
                         storage.set('isProfileCompleted', true);
-                        storage.set('appId', profileData.userId); // Assuming 'userId' from profileData is the 'appId'
+              
 
                         console.log('Full profile details saved/refreshed to MMKV from SuccessScreen!');
                         replace('Parent'); // Navigate after successful fetch and storage
