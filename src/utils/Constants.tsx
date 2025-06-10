@@ -1,11 +1,12 @@
 // utils/theme.ts or constants/styles.ts
 
-export const API_GRAPHQL_ENDPOINT = 'http://192.168.11.188:3000/graphql';
-export const Backend_Main = 'http://192.168.11.188:3000';
+// export const API_GRAPHQL_ENDPOINT = 'http://192.168.45.188:3000/graphql';
+// export const Backend_Main = 'http://192.168.45.188:3000';
+// export const BACKEND_API_URL = 'https://192.168.45.188:3000/auth/userCreation';
 
-// export const API_GRAPHQL_ENDPOINT = 'https://api.kavyaagri.in/graphql';
-// export const Backend_Main = 'https://api.kavyaagri.in';
-
+export const API_GRAPHQL_ENDPOINT = 'https://api.kavyaagri.in/graphql';
+export const Backend_Main = 'https://api.kavyaagri.in';
+export const BACKEND_API_URL = 'https://api.kavyaagri.in/auth/userCreation';
 
 export enum Colors {
   primary = '#e695a4',

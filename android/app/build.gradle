@@ -85,7 +85,6 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
     
-
     namespace "com.kavya_agri_app"
     defaultConfig {
         applicationId "com.kavya_agri_app"
@@ -101,20 +100,40 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // --- ADD THIS NEW 'release' SIGNING CONFIGURATION ---
+        release {
+            // Ensure these properties are defined in your ~/.gradle/gradle.properties
+            // or android/gradle.properties (preferred for security)
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            } else {
+                // Handle the case where properties are not found (e.g., for local dev without secrets)
+                // You might want to throw an error or use a default if appropriate for your setup.
+                // For a proper release build, these properties *must* be set.
+                println "WARNING: Release keystore properties not found. Ensure MYAPP_RELEASE_STORE_FILE, MYAPP_RELEASE_STORE_PASSWORD, etc., are set in ~/.gradle/gradle.properties or your CI/CD environment."
+                // Fallback to debug signing for local testing if properties are missing, but this is NOT for production!
+                signingConfig signingConfigs.debug
+            }
+        }
+        // --- END NEW 'release' SIGNING CONFIGURATION ---
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // --- CHANGE THIS LINE TO USE YOUR NEW 'release' SIGNING CONFIG ---
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 }
+
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
