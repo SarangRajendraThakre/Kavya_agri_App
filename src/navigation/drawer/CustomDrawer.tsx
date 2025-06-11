@@ -160,7 +160,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
             @{appId} {/* <--- Display dynamic appId */}
           </Text>
         </View>
-        <TouchableOpacity style={profileStyles.editButton} onPress={() => showAlert('Edit Profile')}>
+        <TouchableOpacity style={profileStyles.editButton}  onPress={() => props.navigation.navigate('ProfileEditScreen')}>
           <Icon name="pencil" size={moderateScale(14)} color="#FFF" />
         </TouchableOpacity>
       </View>
@@ -189,12 +189,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
             title="Refer"
             onPress={() => showAlert('Navigate to Two-Factor Auth')}
           />
-          <CustomProfileMenuItem
-            iconName="logout"
-            title="Log Out"
-            isLastInGroup={true}
-            onPress={handleLogout}
-          />
+     
         </View>
 
         {/* More Section (using CustomProfileMenuItem) */}
@@ -210,6 +205,19 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
             title="About App"
             isLastInGroup={true}
             onPress={() => navigate('AboutUsScreen')}
+          />
+          <CustomProfileMenuItem
+            iconName="bookmark-outline"
+            title="FAQ"
+            onPress={() =>  navigate('FAQScreen') }
+          />
+
+
+          <CustomProfileMenuItem
+            iconName="logout"
+            title="Log Out"
+            isLastInGroup={true}
+            onPress={handleLogout}
           />
         </View>
       </DrawerContentScrollView>

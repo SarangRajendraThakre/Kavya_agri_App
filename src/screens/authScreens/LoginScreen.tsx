@@ -322,6 +322,7 @@ const LoginScreen: React.FC = ({}) => {
               storage.set('role', user.role);
               storage.set('accessToken', accessToken);
               storage.set('refreshToken', refreshToken);
+              storage.set('appId',user.appId);
 
               // This line is problematic:
               // storage.set('isProfileCompleted', String(isProfileCompleted));
@@ -562,7 +563,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   enterEmailText: {
-    fontSize: fontR(16),
+    fontSize: fontR(13),
     color: Colors.black60 || '#666',
     fontWeight: '500',
     marginTop: moderateScale(15),

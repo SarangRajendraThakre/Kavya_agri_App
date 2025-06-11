@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
   },
   welcomeText: {
-    fontSize: width * 0.08,
+    fontSize: width * 0.09,
     fontWeight: 'bold',
     color: '#000',
     marginTop: height * 0.02,

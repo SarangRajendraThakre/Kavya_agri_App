@@ -1,8 +1,8 @@
 // CustomTextInput.tsx
-import React from 'react'; // Import React
-import { View, TextInput, StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import React from 'react';
+import { View, TextInput, StyleSheet, TextStyle, ViewStyle, TouchableOpacity } from 'react-native'; // Import TouchableOpacity
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { moderateScale, verticalScale, fontR } from '../utils/Scaling'; // Ensure these are correctly imported
+import { moderateScale, verticalScale, fontR } from '../utils/Scaling';
 
 interface CustomTextInputProps {
   iconLeft?: string;
@@ -12,14 +12,15 @@ interface CustomTextInputProps {
   keyboardType?: 'default' | 'numeric' | 'email-address' | 'phone-pad';
   secureTextEntry?: boolean;
   maxLength?: number;
-  editable?: boolean; // Added editable prop
-  inputStyle?: TextStyle; // Style for the TextInput itself
-  containerStyle?: ViewStyle; // Style for the outer View
+  editable?: boolean;
+  inputStyle?: TextStyle;
+  containerStyle?: ViewStyle;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  pointerEvents?: 'none' | 'auto'; // Added pointerEvents
+  pointerEvents?: 'none' | 'auto';
+  iconRight?: string;
+  onPressIconRight?: () => void; // Added onPressIconRight prop
 }
 
-// Wrap the component with React.memo
 const CustomTextInput: React.FC<CustomTextInputProps> = React.memo(({
   iconLeft,
   placeholder,
@@ -28,11 +29,13 @@ const CustomTextInput: React.FC<CustomTextInputProps> = React.memo(({
   keyboardType = 'default',
   secureTextEntry = false,
   maxLength,
-  editable = true, // Default to true
+  editable = true,
   inputStyle,
   containerStyle,
   autoCapitalize = 'sentences',
   pointerEvents,
+  iconRight,
+  onPressIconRight // Destructure onPressIconRight
 }) => {
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -40,12 +43,12 @@ const CustomTextInput: React.FC<CustomTextInputProps> = React.memo(({
         <MaterialCommunityIcons
           name={iconLeft}
           size={moderateScale(20)}
-          color="#6A5ACD" // Adjust color as needed
+          color="#6A5ACD"
           style={styles.icon}
         />
       )}
       <TextInput
-        style={[styles.input, inputStyle, !editable && styles.disabledInputText]} // Apply disabled text style
+        style={[styles.input, inputStyle, !editable && styles.disabledInputText]}
         placeholder={placeholder}
         placeholderTextColor="#999"
         value={value}
@@ -55,8 +58,18 @@ const CustomTextInput: React.FC<CustomTextInputProps> = React.memo(({
         maxLength={maxLength}
         editable={editable}
         autoCapitalize={autoCapitalize}
-        pointerEvents={pointerEvents} // Apply pointerEvents
+        pointerEvents={pointerEvents}
       />
+      {iconRight && ( // Conditionally render iconRight
+        <TouchableOpacity onPress={onPressIconRight} disabled={!onPressIconRight}>
+          <MaterialCommunityIcons
+            name={iconRight}
+            size={moderateScale(20)}
+            color="#6A5ACD" // Adjust color as needed
+            style={styles.iconRight} // Add a style for the right icon
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 });
@@ -65,13 +78,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0', // Lighter background for input
+    backgroundColor: '#f0f0f0',
     borderRadius: 8,
     paddingHorizontal: moderateScale(10),
-    marginBottom: verticalScale(10), // Adjust spacing if needed, typically handled by parent FieldRenderer
+    marginBottom: verticalScale(10),
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    // Add subtle shadow for depth
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -83,14 +95,17 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: verticalScale(45), // Consistent height
+    height: verticalScale(45),
     fontSize: fontR(15),
-    color: '#333', // Darker text for readability
-    paddingVertical: 0, // Remove default vertical padding
+    color: '#333',
+    paddingVertical: 0,
   },
   disabledInputText: {
-    color: '#777', // Dim text when input is disabled
+    color: '#777',
   },
+  iconRight: {
+    marginLeft: moderateScale(10), // Add left margin for spacing
+    color :'#777'  },
 });
 
 export default CustomTextInput;

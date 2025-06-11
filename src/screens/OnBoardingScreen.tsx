@@ -37,7 +37,7 @@ const slides: SlideType[] = [
   },
   {
     id: '2',
-      image: require('../assets/images/img7.png'),
+      image: require('../assets/images/Onboarding/handshaking.png'),
     title: "Your Carrier Start's Here"
   
   },
