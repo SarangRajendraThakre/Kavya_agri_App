@@ -1,40 +1,41 @@
 // DrawerNavigator.tsx
-import { View, Text, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import React from 'react';
-import { createDrawerNavigator, DrawerContentComponentProps } from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  DrawerContentComponentProps,
+} from '@react-navigation/drawer';
 
-// Import your screen components
-import Main from './Main'; // Adjust path if needed
-import CustomDrawer from './CustomDrawer'; // Adjust path if needed
-
-// Import RootDrawerParamList from your types.ts file
-import { RootDrawerParamList } from '../types'; // Adjust path if types.ts is elsewhere
-import { Colors, Fonts } from '../../utils/Constants';
-import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen';
+import {RootDrawerParamList} from '../types'; // Adjust path if types.ts is elsewhere
+import {Colors, Fonts} from '../../utils/Constants';
+import CustomDrawer from './CustomDrawer';
+import Main from './Main';
+import AboutUsScreen from '../../screens/DrawerScreens/AboutUsScreen';
 import CourseListScreen from '../../screens/paymentScreens/CourseListScreen';
-import AboutUsScreen from '../../screens/AboutUsScreen';
-import ProfileEditScreen from '../../screens/ProfileEditScreen';
-import CareerAdda from '../bottom/CareerAdda';
+import LeadersCornerScreen from '../../screens/home/LeadersCornerScreen';
+import CertificateScreen from '../../screens/DrawerScreens/CertificateScreen';
+import ReferralScreen from '../../screens/DrawerScreens/ReferralScreen';
+import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen';
+import WalletPointsScreen from '../../screens/DrawerScreens/WalletPointsScreen';
+import ProfileEditScreen from '../../screens/DrawerScreens/ProfileEditScreen';
 import ChooseCareerScreen from '../../screens/carrerAddaScreens/ChooseCareerScreen';
 import GoalSettingScreen from '../../screens/carrerAddaScreens/GoalSettingScreen';
 import ResumeBuilderScreen from '../../screens/carrerAddaScreens/ResumeBuilderScreen';
 import InterviewPrepScreen from '../../screens/carrerAddaScreens/InterviewPrepScreen';
-import CareerDetailScreen from '../../components/CareerDetailScreen';
 import RegistrationFormScreen from '../../screens/homePageSlider2/RegistrationFormScreen';
 import MMkvDetails from '../../screens/MMkvDetails';
-import FAQScreen from '../../screens/FAQScreen';
-import WalletPointsScreen from '../../screens/WalletPointsScreen';
-import CertificateScreen from '../../screens/CertificateScreen';
-import ReferralScreen from '../../screens/ReferralScreen';
+import CareerAdda from '../bottom/CareerAdda';
+import CareerDetailScreen from '../../components/CareerDetailScreen';
+import FAQScreen from '../../screens/DrawerScreens/FAQScreen';
+import PastEvents from '../../screens/home/PastEvents';
+import ProgramBenefit from '../../screens/home/ProgramBenefit';
 
-// Create a Drawer Navigator instance, explicitly typing it with RootDrawerParamList
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
 const DrawerNavigator: React.FC = () => {
   return (
     <Drawer.Navigator
       initialRouteName="Main"
-      // CORRECTED: drawerContent prop type uses DrawerContentComponentProps directly
       drawerContent={(props: DrawerContentComponentProps) => (
         <CustomDrawer {...props} />
       )}
@@ -49,144 +50,150 @@ const DrawerNavigator: React.FC = () => {
         },
         drawerActiveTintColor: Colors.primary,
         drawerInactiveTintColor: Colors.inactive,
-      }}
-    >
+      }}>
       <Drawer.Screen
-        name='Main'
+        name="Main"
         component={Main}
         options={{
           headerShown: false,
-          title: '',
-          headerStyle: {
-            backgroundColor: Colors.backgroundDark,
-          },
-          headerTintColor: Colors.text,
-          headerTitleStyle: {
-            fontFamily: Fonts.SatoshiBold,
-            fontSize: 20,
-          }
+          title: 'Home',
         }}
       />
 
-         <Drawer.Screen
-        name='AboutUsScreen'
+      <Drawer.Screen
+        name="AboutUsScreen"
         component={AboutUsScreen}
         options={{
           headerShown: false,
-          title: 'false',
-          headerStyle: {
-            backgroundColor: Colors.backgroundDark,
-          },
-          headerTintColor: Colors.text,
-          headerTitleStyle: {
-            fontFamily: Fonts.SatoshiBold,
-            fontSize: 20,
-          }
+          title: 'About Us',
         }}
       />
-        <Drawer.Screen
+
+      <Drawer.Screen
         name="CourseList"
         component={CourseListScreen}
-        options={{ title: 'All Courses' }}
-      />
-
-     <Drawer.Screen
-        name="CertificateScreen"
-        component={CertificateScreen}
-         options={({ route }) => ({
-          title: ' CertificateScreen',
-          headerShown: false, // Ensure header is visible
-        })}
+        options={{title: 'All Courses'}}
       />
 
          <Drawer.Screen
+        name="ProgramBenefit"
+        component={ProgramBenefit}
+        options={{title: 'All Courses'}}
+      />
+
+      <Drawer.Screen
+        name="LeadersCornerScreen"
+        component={LeadersCornerScreen}
+        options={{
+          title: 'Leaders Corner',
+          headerShown: false,
+        }}
+      />
+
+      <Drawer.Screen
+        name="PastEvents"
+        component={PastEvents}
+        options={{
+          title: 'Leaders Corner',
+          headerShown: false,
+        }}
+      />
+
+      <Drawer.Screen
+        name="CertificateScreen"
+        component={CertificateScreen}
+        options={{
+          title: 'My Certificates',
+          headerShown: false,
+        }}
+      />
+
+      <Drawer.Screen
         name="ReferralScreen"
         component={ReferralScreen}
-         options={({ route }) => ({
-          title: ' CertificateScreen',
-          headerShown: false, // Ensure header is visible
-        })}
+        options={{
+          title: 'Refer & Earn',
+          headerShown: false,
+        }}
       />
 
       <Drawer.Screen
         name="CourseDetail"
         component={CourseDetailScreen}
-        options={({ route }) => ({
+        options={({route}) => ({
           title: route.params?.course?.title ?? 'Course Details',
-          headerShown: false, // Ensure header is visible
+          headerShown: false,
         })}
       />
 
-       <Drawer.Screen
+      <Drawer.Screen
         name="WalletPointsScreen"
         component={WalletPointsScreen}
-       options={({ route }) => ({
-          title: 'Profile Edit',
-          headerShown: false, // Ensure header is visible
-        })}
+        options={{
+          title: 'My Wallet',
+          headerShown: false,
+        }}
       />
-
 
       <Drawer.Screen
         name="ProfileEditScreen"
         component={ProfileEditScreen}
-        options={({ route }) => ({
-          title: 'Profile Edit',
-          headerShown: false, // Ensure header is visible
-        })}
+        options={{
+          title: 'Edit Profile',
+          headerShown: false,
+        }}
       />
-         <Drawer.Screen
+      <Drawer.Screen
         name="CareerDetail"
         component={CareerDetailScreen}
-        options={({ route }) => ({
-          title: 'Profile Edit',
-          headerShown: false, // Ensure header is visible
-        })}
+        options={{
+          title: 'Career Details',
+          headerShown: false,
+        }}
       />
-         <Drawer.Screen
-          name="CareerPathScreen"
-          component={CareerAdda}
-          options={{ headerShown: false }} // You can choose to show/hide header
-        />
+      <Drawer.Screen
+        name="CareerPathScreen"
+        component={CareerAdda}
+        options={{headerShown: false}}
+      />
 
-        {/* Add the target screens that cards will navigate to */}
-        <Drawer.Screen
-          name="ChooseCareerScreen"
-          component={ChooseCareerScreen} // Create this component file
-          options={{ title: 'Choose Career', headerShown: false }}
-        />
-          <Drawer.Screen
-          name="FAQScreen"
-          component={FAQScreen} // Create this component file
-          options={{ title: 'Choose Career', headerShown: false }}
-        />
-        <Drawer.Screen
-          name="GoalSettingScreen"
-          component={GoalSettingScreen} // Create this component file
-          options={{ title: 'Goal Setting', headerShown: false }}
-        />
-        <Drawer.Screen
-          name="ResumeBuilderScreen"
-          component={ResumeBuilderScreen} // Create this component file
-          options={{ title: 'Resume Builder', headerShown: false }}
-        />
-        <Drawer.Screen
-          name="InterviewPrepScreen"
-          component={InterviewPrepScreen} // Create this component file
-          options={{ title: 'Interview Prep', headerShown: false }}
-        />
-          <Drawer.Screen
-          name="RegistrationFormScreen"
-          component={RegistrationFormScreen} // Create this component file
-          options={{ title: 'Interview Prep', headerShown: false }}
-        />
-        <Drawer.Screen
-          name="MMkvDetails"
-          component={MMkvDetails} // Create this component file
-          options={{ title: 'Interview Prep', headerShown: false }}
-        />
+      <Drawer.Screen
+        name="ChooseCareerScreen"
+        component={ChooseCareerScreen}
+        options={{title: 'Choose Career', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="FAQScreen"
+        component={FAQScreen}
+        options={{title: 'FAQs', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="GoalSettingScreen"
+        component={GoalSettingScreen}
+        options={{title: 'Goal Setting', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="ResumeBuilderScreen"
+        component={ResumeBuilderScreen}
+        options={{title: 'Resume Builder', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="InterviewPrepScreen"
+        component={InterviewPrepScreen}
+        options={{title: 'Interview Prep', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="RegistrationFormScreen"
+        component={RegistrationFormScreen}
+        options={{title: 'Register', headerShown: false}}
+      />
+      <Drawer.Screen
+        name="MMkvDetails"
+        component={MMkvDetails}
+        options={{title: 'KV Details', headerShown: false}}
+      />
     </Drawer.Navigator>
   );
-}
+};
 
 export default DrawerNavigator;

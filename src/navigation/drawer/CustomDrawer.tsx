@@ -221,7 +221,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
             iconName="magnify" // Icon for Explore (search/discovery)
             title="Explore"
             onPress={() =>
-              props.navigation.navigate('MainTabs', {screen: 'Explore'})
+                  navigate('CareerAdda')
             }
           />
            <CustomProfileMenuItem
@@ -249,7 +249,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
           <CustomProfileMenuItem
             iconName="lifebuoy" // Icon for Help & Support
             title="Help & Support"
-            onPress={() => showAlert('Navigate to Help & Support')}
+            onPress={() =>  navigate('ContactUs')  }
           />
           <CustomProfileMenuItem
             iconName="information-outline" // Icon for About App

@@ -91,7 +91,7 @@ const CertificateScreen = () => {
         {/* Lottie Animation (Confetti/Sparkle) */}
         <LottieView
           ref={lottieRef}
-          source={require('../assets/animation/Celebration.json')} // Adjust path to your Lottie file
+          source={require('../../assets/animation/Celebration.json')} // Adjust path to your Lottie file
           autoPlay={false} // We'll control playback with useFocusEffect
           loop={true} // Loop the animation
           style={styles.lottieAnimation}
@@ -108,7 +108,7 @@ const CertificateScreen = () => {
           ]}
         >
           <Image
-            source={require('../assets/pdf/certificate.jpg')} // Adjust path to your certificate image
+            source={require('../../assets/pdf/certificate.jpg')} // Adjust path to your certificate image
             style={styles.certificateImage}
             resizeMode="contain"
           />

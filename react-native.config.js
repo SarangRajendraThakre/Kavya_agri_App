@@ -8,7 +8,7 @@ module.exports = {
   // Extend the assets array to include both fonts and images
   assets: [
     './src/assets/fonts',    // Your existing font path
-    './src/assets/images',   // <-- Add this line for your images
+ 
   ],
   // Keep these lines if you are still relying on react-native-typescript-transformer
   // but be aware that for modern RN projects, they might not be necessary.

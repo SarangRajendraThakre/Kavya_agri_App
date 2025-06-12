@@ -6,7 +6,7 @@ import Toast from 'react-native-toast-message'; // Import Toast
 const App = () => {
   return (
     <View style={styles.container}>
-      {/* Set your desired default StatusBar style here */}
+      
       <StatusBar
         backgroundColor="black"   // Sets the background color of the status bar to black
         barStyle="light-content"  // Makes the icons (time, battery, etc.) white for visibility on a dark background

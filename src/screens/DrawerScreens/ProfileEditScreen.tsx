@@ -28,15 +28,15 @@ import {
     moderateScale,
     moderateScaleVertical,
     screenWidth,
-} from '../utils/Scaling';
+} from '../../utils/Scaling';
 
-import CustomCheckbox from '../components/CustomCheckbox';
-import { storage } from '../utils/storage';
-import { API_GRAPHQL_ENDPOINT, PRESIGNED_URL_BACKEND_ENDPOINT } from '../utils/Constants'; // Import PRESIGNED_URL_BACKEND_ENDPOINT
-import { CREATE_PROFILE_MUTATION, GET_PROFILE_DETAILS_QUERY, } from '../utils/mutation';
-import { goBack } from '../utils/NavigationUtils';
-import CustomTextInput from '../components/CustomTextInput';
-import DropdownComponent from '../components/DropdownComponent';
+import CustomCheckbox from '../../components/CustomCheckbox';
+import { storage } from '../../utils/storage';
+import { API_GRAPHQL_ENDPOINT, PRESIGNED_URL_BACKEND_ENDPOINT } from '../../utils/Constants'; // Import PRESIGNED_URL_BACKEND_ENDPOINT
+import { CREATE_PROFILE_MUTATION, GET_PROFILE_DETAILS_QUERY, } from '../../utils/mutation';
+import { goBack } from '../../utils/NavigationUtils';
+import CustomTextInput from '../../components/CustomTextInput';
+import DropdownComponent from '../../components/DropdownComponent';
 
 const { width, height } = Dimensions.get('window');
 

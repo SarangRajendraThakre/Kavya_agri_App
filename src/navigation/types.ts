@@ -4,29 +4,32 @@
 export type RootTabParamList = {
   Home: undefined;
   CareerAdda: undefined;
-  Share: undefined;
+  ContactUs: undefined;
 };
 
 // 2. RootDrawerParamList (for DrawerNavigator)
 // The 'Main' screen will render your BottomNavigator.
 // We indicate that 'Main' might receive parameters, specifically for nested navigation.
+// Updated types.ts (if you use the nested stack approach)
+export type GalleryStackParamList = {
+  EventGallery: undefined;
+  ImageViewer: { uri: string };
+};
+
 export type RootDrawerParamList = {
-  Main: {
-    screen: keyof RootTabParamList; // This indicates that 'Main' can receive a 'screen' param from RootTabParamList
-    params?: any; // Optional: if tabs themselves take params
-  } | undefined; // 'Main' can also be navigated to without any params (e.g., as the initial route)
+  Main: { screen: keyof RootTabParamList; params?: any; } | undefined;
   ProfileEditScreen: undefined;
   AboutUsScreen: undefined;
   CourseList: undefined;
-  CourseDetail: { course: any }; // Example, adjust 'any' to your actual course type
+  CourseDetail: { course: any };
   CareerDetail: undefined;
-  // Add other screens directly accessible from the drawer
-  Explore : undefined;
-
-    CareerPathScreen: undefined; // This is the screen that will contain the 4 cards
-  ChooseCareerScreen: undefined; // Target screen for 'Choose Your Career'
-  GoalSettingScreen: undefined; // Target screen for 'Goal Setting'
-  ResumeBuilderScreen: undefined; // Target screen for 'Resume Builder'
+  // --- MODIFIED: 'Explore' can now receive an optional 'scrollToSection' parameter ---
+  Explore: { scrollToSection?: 'programBenefits' } | undefined;
+  // --- END MODIFIED ---
+  CareerPathScreen: undefined;
+  ChooseCareerScreen: undefined;
+  GoalSettingScreen: undefined;
+  ResumeBuilderScreen: undefined;
   InterviewPrepScreen: undefined;
   CardsSliderScreen:undefined;
   RegistrationFormScreen:undefined;
@@ -34,9 +37,18 @@ export type RootDrawerParamList = {
   WalletPointsScreen:undefined;
   CertificateScreen:undefined;
   ReferralScreen:undefined;
+  LeadersCornerScreen:undefined;
+  // This is the new entry for the nested stack
+  Gallery: undefined; // The name of the Drawer.Screen that holds your GalleryStack
+  // Remove EventGalleryScreen and ImageViewerScreen from here if they are only in the nested stack
+  EventGalleryScreen:undefined;
+  ImageViewerScreen: { uri: string };
+  EventGallery:undefined;
+  ImageViewer:undefined;
+  PastEvents:undefined;
+  ProgramBenefit:undefined;
 
 };
-
 
 // 3. RootStackParamList (for AppNavigator)
 // This is your top-level stack.

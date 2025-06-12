@@ -1,3 +1,4 @@
+
 // screens/CourseDetailScreen.tsx
 import React from 'react';
 import { View, Text, Image, StyleSheet, Alert, ScrollView, Button } from 'react-native'; // Added ScrollView for better layout

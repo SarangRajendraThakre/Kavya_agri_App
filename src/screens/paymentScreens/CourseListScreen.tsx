@@ -20,41 +20,7 @@ const DUMMY_COURSES: Course[] = [
     price: 2,
     imageUrl: 'https://huroorkee.ac.in/blog/wp-content/uploads/2024/03/Govt-Jobs-After-B.Sc_.-Agriculture.jpg',
   },
-  {
-    id: '2',
-    title: 'Advanced JavaScript',
-    description: 'Dive deep into JavaScript concepts like closures, promises, async/await, and functional programming.',
-    price: 2,
-    imageUrl: 'https://cdn.pixabay.com/photo/2015/04/23/17/41/javascript-736400_1280.png',
-  },
-  {
-    id: '3',
-    title: 'Full Stack Development',
-    description: 'Master building end-to-end web applications using MERN stack (MongoDB, Express, React, Node.js).',
-    price: 2,
-    imageUrl: 'https://d2ms8rpfqc4h24.cloudfront.net/Guide_to_Full_Stack_Development_000eb0b2d0.jpg',
-  },
-   {
-    id: '4',
-    title: 'Python for Data Science',
-    description: 'An introduction to Python programming for data analysis, manipulation, and visualization.',
-    price: 1,
-    imageUrl: 'https://www.ku.edu.bh/wp-content/uploads/2023/06/Python-e1687965207655.gif',
-  },
-  {
-    id: '5',
-    title: 'AWS Cloud Practitioner',
-    description: 'Prepare for the AWS Certified Cloud Practitioner exam and understand core AWS services.',
-    price: 1,
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpcUZNRONjFQplFMKLMepyQbPnhy7TfkijKg&s',
-  },
-  {
-    id: '6',
-    title: 'Mobile App UI/UX Design',
-    description: 'Learn principles of user interface and user experience design specifically for mobile applications.',
-    price: 1,
-    imageUrl: 'https://existek3-838c.kxcdn.com/wp-content/uploads/2022/08/5-6.webp',
-  },
+  
 ];
 
 const CourseListScreen: React.FC = () => {

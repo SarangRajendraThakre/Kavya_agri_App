@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons'; // For icons, if you have it installed
 import Toast from 'react-native-toast-message'; // Import Toast
-import { storage } from '../utils/storage';
+import { storage } from '../../utils/storage';
 
 const ReferralScreen = () => {
   const navigation = useNavigation();

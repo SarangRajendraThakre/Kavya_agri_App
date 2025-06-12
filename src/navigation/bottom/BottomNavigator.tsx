@@ -8,7 +8,9 @@ import { RootTabParamList } from '../types'; // Adjust path as needed
 
 import Home from './Home';
 import Explore from './CareerAdda';
-import Share from './Share';
+import Share from './ContactUs';
+import ContactUs from './ContactUs';
+import CareerAdda from './CareerAdda';
 
 const Colors = {
   primary: '#007AFF',
@@ -57,10 +59,10 @@ const BottomNavigator: React.FC = () => {
         }}
       />
       <Bottom.Screen
-        name='Explore'
-        component={Explore}
+        name='CareerAdda'
+        component={CareerAdda}
         options={{
-          title: 'Explore',
+          title: 'CareerAdda',
           headerShown: false,
           tabBarIcon: ({ focused, color, size }) => (
             <Text style={{ color: color, fontSize: size }}>🔍</Text>
@@ -68,10 +70,10 @@ const BottomNavigator: React.FC = () => {
         }}
       />
       <Bottom.Screen
-        name='Share'
-        component={Share}
+        name='ContactUs'
+        component={ContactUs}
         options={{
-          title: 'Share',
+          title: 'ContactUs',
           headerShown: false,
           tabBarIcon: ({ focused, color, size }) => (
             <Text style={{ color: color, fontSize: size }}>📤</Text>
