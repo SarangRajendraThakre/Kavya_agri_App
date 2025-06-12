@@ -28,6 +28,7 @@ interface ProfileDetailsType {
     gender: string;
     residenceCity: string;
     education: string;
+
     collegeName: string;
     collegeCityVillage: string;
     createdAt: string;
@@ -61,6 +62,8 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
             const isProfileCompleted = storage.getString('isProfileCompleted');
             const userId = storage.getString('userId'); // Get userId from MMKV
             const accessToken = storage.getString('accessToken'); // Get accessToken from MMKV
+ 
+             console.log(userId);
 
             console.log(isProfileCompleted);
             // Ensure isProfileCompleted is a boolean, default to false if not found

@@ -52,6 +52,31 @@ export const CREATE_PROFILE_MUTATION = `
     createOrUpdateProfileDetails(input: $input) {
       id
       userId
+      profileImage
+      salutation
+      firstName
+      lastName
+      mobileNo
+      whatsAppNumber
+      email
+      dateOfBirth
+      gender
+      residenceCity
+      education
+      collegeName
+      collegeCityVillage
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_PROFILE_DETAILS_QUERY = `
+  query GetProfileDetails($userId: ID!) { # Or String! if your ID is a string
+    getProfileDetails(userId: $userId) {
+      id
+      userId
+      profileImage
       salutation
       firstName
       lastName
@@ -104,28 +129,7 @@ export const REFRESH_TOKEN_MUTATION = `
 
 // Profile Details Query (using email)
 // This is the one you provided and want to be exportable, using 'email'.
-export const GET_PROFILE_DETAILS_QUERY = `
-  query GetProfileDetails($userId: ID!) { # Or String! if your ID is a string
-    getProfileDetails(userId: $userId) {
-      id
-      userId
-      salutation
-      firstName
-      lastName
-      mobileNo
-      whatsAppNumber
-      email
-      dateOfBirth
-      gender
-      residenceCity
-      education
-      collegeName
-      collegeCityVillage
-      createdAt
-      updatedAt
-    }
-  }
-`;
+
 
 // If GET_PROFILE_QUERY (by userId) was truly distinct and needed for some reason,
 // and you didn't mean for GET_PROFILE_DETAILS_QUERY to replace it, you'd keep it like this:

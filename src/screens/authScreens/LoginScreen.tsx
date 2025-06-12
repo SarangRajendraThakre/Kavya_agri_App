@@ -323,6 +323,7 @@ const LoginScreen: React.FC = ({}) => {
               storage.set('accessToken', accessToken);
               storage.set('refreshToken', refreshToken);
               storage.set('appId',user.appId);
+              console.log(  storage.set('appId',user.appId));
 
               // This line is problematic:
               // storage.set('isProfileCompleted', String(isProfileCompleted));

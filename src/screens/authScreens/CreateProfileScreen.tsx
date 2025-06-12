@@ -63,8 +63,8 @@ const CreateProfileScreen: React.FC = ({}) => {
 
   const translateXResidenceCity = useSharedValue(width);
   const translateXEducation = useSharedValue(width);
-  translateXCollegeName = useSharedValue(width); // Corrected: Must be a const
-  translateXCollegeCityVillage = useSharedValue(width); // Corrected: Must be a const
+  const translateXCollegeName = useSharedValue(width); // Corrected: Must be a const
+ const  translateXCollegeCityVillage = useSharedValue(width); // Corrected: Must be a const
 
 
   const [showAdditionalFields, setShowAdditionalFields] = useState<boolean>(false);

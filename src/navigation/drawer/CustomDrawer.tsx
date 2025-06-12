@@ -1,16 +1,27 @@
 // CustomDrawer.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Platform, Alert } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Switch,
+  Platform,
+  Alert,
+} from 'react-native';
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 
 // Import your RootDrawerParamList and other types from types.ts
-import { RootDrawerParamList } from '../types'; // Adjust path as needed
+import {RootDrawerParamList} from '../types'; // Adjust path as needed
+
+import defaultProfileImage from '../../assets/images/profileImage.png'; // Make sure the path is correct and uses /
 
 // Import your constants
-import { Colors, Fonts } from '../../utils/Constants'; // Adjust path
+import {Colors, Fonts} from '../../utils/Constants'; // Adjust path
 import Sidemenusection from '../../components/Sidemenusection'; // Adjust path if needed
 
 // Import your responsive utilities
@@ -22,9 +33,9 @@ import {
   verticalScale,
   moderateScale,
 } from '../../utils/Scaling'; // Adjust path
-import { navigate, resetAndNavigate } from '../../utils/NavigationUtils';
-import { storage } from '../../utils/storage'; // Assuming 'storage' is your MMKV instance
-import { CommonActions } from '@react-navigation/native';
+import {navigate, resetAndNavigate} from '../../utils/NavigationUtils';
+import {storage} from '../../utils/storage'; // Assuming 'storage' is your MMKV instance
+import {CommonActions} from '@react-navigation/native';
 
 // --- ProfileMenuItem (Optimized for Drawer) ---
 interface ProfileMenuItemProps {
@@ -57,10 +68,13 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
         isLastInGroup && profileStyles.noBorderBottom,
       ]}
       activeOpacity={0.7}
-      onPress={onPress}
-    >
+      onPress={onPress}>
       <View style={profileStyles.menuItemLeft}>
-        <Icon name={iconName} size={moderateScale(20)} color={Colors.primary || '#6C63FF'} />
+        <Icon
+          name={iconName}
+          size={moderateScale(20)}
+          color={Colors.primary || '#6C63FF'}
+        />
         <View style={profileStyles.menuItemTextContainer}>
           <Text style={profileStyles.menuItemTitle}>{title}</Text>
           {description && (
@@ -70,19 +84,38 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
       </View>
       <View style={profileStyles.menuItemRight}>
         {showWarning && (
-          <Icon name="alert-circle-outline" size={moderateScale(20)} color={Colors.warning || '#FF6347'} style={profileStyles.warningIcon} />
+          <Icon
+            name="alert-circle-outline"
+            size={moderateScale(20)}
+            color={Colors.warning || '#FF6347'}
+            style={profileStyles.warningIcon}
+          />
         )}
         {isSwitch ? (
           <Switch
-            trackColor={{ false: Colors.inactive || '#D3D3D3', true: Colors.primaryLighter || '#8E9DFF'} /* Keep colors if they are correct */ }
-            thumbColor={switchValue ? Colors.primary || '#6C63FF' : Colors.backgroundLight || '#f4f3f4'}
+            trackColor={{
+              false: Colors.inactive || '#D3D3D3',
+              true: Colors.primaryLighter || '#8E9DFF',
+            }}
+            thumbColor={
+              switchValue
+                ? Colors.primary || '#6C63FF'
+                : Colors.backgroundLight || '#f4f3f4'
+            }
             ios_backgroundColor={Colors.backgroundLight || '#E0E0E0'}
             onValueChange={onSwitchChange}
             value={switchValue}
-            transform={[{ scaleX: moderateScale(0.8) }, { scaleY: moderateScale(0.8) }]}
+            transform={[
+              {scaleX: moderateScale(0.8)},
+              {scaleY: moderateScale(0.8)},
+            ]}
           />
         ) : (
-          <Icon name="chevron-right" size={moderateScale(20)} color={Colors.inactive || '#A0A0A0'} />
+          <Icon
+            name="chevron-right"
+            size={moderateScale(20)}
+            color={Colors.inactive || '#A0A0A0'}
+          />
         )}
       </View>
     </TouchableOpacity>
@@ -92,13 +125,13 @@ const CustomProfileMenuItem: React.FC<ProfileMenuItemProps> = ({
 // --- CustomDrawer Component ---
 type CustomDrawerProps = DrawerContentComponentProps;
 
-const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
-  const [faceIdEnabled, setFaceIdEnabled] = useState(false);
+const CustomDrawer: React.FC<CustomDrawerProps> = props => {
   // State variables to hold the dynamic data
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [appId, setAppId] = useState<string>(''); // For the profile handle
-
+  // Changed state variable name for clarity and type for Image source
+  const [profileImageSource, setProfileImageSource] = useState<any>(defaultProfileImage);
 
   // A simple alert function (for demonstration)
   const showAlert = (message: string) => {
@@ -111,7 +144,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
       'Log Out',
       'Are you sure you want to log out?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Log Out',
           onPress: () => {
@@ -124,24 +157,34 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
           style: 'destructive',
         },
       ],
-      { cancelable: true }
+      {cancelable: true},
     );
   };
 
-  // --- MODIFIED useEffect to load data from MMKV using direct keys ---
+  // --- MODIFIED useEffect to load data from MMKV using direct keys and handle image source ---
   useEffect(() => {
     const loadProfileDirectly = () => {
       // Retrieve values directly using their specific keys
       setFirstName(storage.getString('firstName') || 'Guest');
-      console.log(firstName);
+      // console.log("Fetched firstName:", storage.getString('firstName')); // For debugging
       setLastName(storage.getString('lastName') || 'User');
-      setAppId(storage.getString('appId') || 'unknown'); // Use a specific key for appId/username
+      setAppId(storage.getString('appId') || 'unknown');
+
+      const storedProfileImage = storage.getString('profileImage'); // Get the stored value (should be a URL string)
+
+      if (storedProfileImage) {
+        // If a stored image URI exists, format it for Image component
+        setProfileImageSource({ uri: storedProfileImage });
+      } else {
+        // Use the imported default image
+        setProfileImageSource(defaultProfileImage);
+      }
     };
 
     loadProfileDirectly();
-    // No dependencies means this runs once after initial render.
-    // If these values can change while the drawer is open and you want it to update,
-    // you might need a way to trigger this effect (e.g., a context update).
+    // Re-run this effect if the storage instance itself might change (unlikely for MMKV)
+    // or if you have a mechanism to signal profile data updates.
+    // For now, keep it empty to run once on component mount.
   }, []);
 
   return (
@@ -149,18 +192,19 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
       {/* Drawer Header (Profile Card style - optimized) */}
       <View style={profileStyles.profileCardCustomDrawer}>
         <Image
-          source={require('../../assets/images/SARANGTHAKRE.jpg')} // Keep this static for now, or make dynamic later
+          source={profileImageSource} // Use the state variable that holds the correctly formatted source
           style={profileStyles.profileImage}
         />
         <View style={profileStyles.profileInfo}>
           <Text style={profileStyles.profileName}>
-            {firstName} {lastName} {/* <--- Display dynamic first and last name */}
+            {firstName} {lastName}{' '}
+            {/* <--- Display dynamic first and last name */}
           </Text>
-          <Text style={profileStyles.profileHandle}>
-            @{appId} {/* <--- Display dynamic appId */}
-          </Text>
+          <Text style={profileStyles.profileHandle}>@{appId}</Text>
         </View>
-        <TouchableOpacity style={profileStyles.editButton}  onPress={() => props.navigation.navigate('ProfileEditScreen')}>
+        <TouchableOpacity
+          style={profileStyles.editButton}
+          onPress={() => props.navigation.navigate('ProfileEditScreen')}>
           <Icon name="pencil" size={moderateScale(14)} color="#FFF" />
         </TouchableOpacity>
       </View>
@@ -169,52 +213,52 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
         {/* Main Menu Section (using CustomProfileMenuItem) */}
         <View style={profileStyles.menuSectionCustomDrawer}>
           <CustomProfileMenuItem
-            iconName="account-outline"
+            iconName="account-outline" // Icon for My Profile
             title="My Profile"
             onPress={() => props.navigation.navigate('ProfileEditScreen')}
           />
           <CustomProfileMenuItem
-            iconName="bookmark-outline"
+            iconName="magnify" // Icon for Explore (search/discovery)
             title="Explore"
-            onPress={() => props.navigation.navigate('MainTabs', { screen: 'Explore' })}
+            onPress={() =>
+              props.navigation.navigate('MainTabs', {screen: 'Explore'})
+            }
           />
 
           <CustomProfileMenuItem
-            iconName="shield-lock-outline"
+            iconName="certificate-outline" // Icon for Certificate
             title="Certificate"
-            onPress={() => showAlert('Navigate to Two-Factor Auth')}
+            onPress={() => showAlert('Navigate to Certificate')}
           />
           <CustomProfileMenuItem
-            iconName="shield-lock-outline"
+            iconName="share-variant-outline" // Icon for Refer
             title="Refer"
-            onPress={() => showAlert('Navigate to Two-Factor Auth')}
+            isLastInGroup={true} // Assuming this is the last in this group
+            onPress={() => showAlert('Navigate to Refer')}
           />
-     
         </View>
 
         {/* More Section (using CustomProfileMenuItem) */}
         <View style={profileStyles.moreSectionCustomDrawer}>
           <Text style={profileStyles.moreSectionTitle}>More</Text>
           <CustomProfileMenuItem
-            iconName="bell-outline"
+            iconName="lifebuoy" // Icon for Help & Support
             title="Help & Support"
             onPress={() => showAlert('Navigate to Help & Support')}
           />
           <CustomProfileMenuItem
-            iconName="information-outline"
+            iconName="information-outline" // Icon for About App
             title="About App"
-            isLastInGroup={true}
             onPress={() => navigate('AboutUsScreen')}
           />
           <CustomProfileMenuItem
-            iconName="bookmark-outline"
+            iconName="comment-question-outline" // Icon for FAQ
             title="FAQ"
-            onPress={() =>  navigate('FAQScreen') }
+            onPress={() => navigate('FAQScreen')}
           />
 
-
           <CustomProfileMenuItem
-            iconName="logout"
+            iconName="logout" // Icon for Log Out
             title="Log Out"
             isLastInGroup={true}
             onPress={handleLogout}
@@ -231,7 +275,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = (props) => {
 };
 
 export default CustomDrawer;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -265,7 +308,7 @@ const profileStyles = StyleSheet.create({
     marginVertical: verticalScale(15),
     padding: moderateScale(15),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: verticalScale(4) },
+    shadowOffset: {width: 0, height: verticalScale(4)},
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(8),
     elevation: 6,
@@ -277,19 +320,23 @@ const profileStyles = StyleSheet.create({
     marginRight: scale(15),
     borderWidth: moderateScale(2),
     borderColor: '#FFF',
+    backgroundColor: Colors.backgroundLight || '#FFFFFF', // Added background for empty image space
+    overflow: 'hidden', // Ensures the image respects the border radius and hides overflow
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     fontSize: fontR(17),
-    fontWeight: 'bold',
+    fontWeight: 'bold', // Kept this for consistency as you used 'bold'
     color: Colors.textLight || '#FFF',
+    fontFamily: Fonts.SatoshiBold || 'System', // Added SatoshiBold for consistency
   },
   profileHandle: {
     fontSize: fontR(13),
     color: Colors.primaryLighter || '#E0E0FF',
     marginTop: verticalScale(2),
+    fontFamily: Fonts.SatoshiRegular || 'System', // Added SatoshiRegular for consistency
   },
   editButton: {
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -302,7 +349,7 @@ const profileStyles = StyleSheet.create({
     borderRadius: moderateScale(12),
     paddingVertical: verticalScale(5),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: verticalScale(2) },
+    shadowOffset: {width: 0, height: verticalScale(2)},
     shadowOpacity: 0.05,
     shadowRadius: moderateScale(4),
     elevation: 3,
@@ -323,9 +370,11 @@ const profileStyles = StyleSheet.create({
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1, // Ensure text wraps if too long
   },
   menuItemTextContainer: {
     marginLeft: scale(15),
+    flex: 1, // Ensure text wraps if too long
   },
   menuItemTitle: {
     fontSize: fontR(15),
@@ -342,6 +391,7 @@ const profileStyles = StyleSheet.create({
   menuItemRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: scale(10), // Add some space from text
   },
   warningIcon: {
     marginRight: scale(8),
@@ -352,7 +402,7 @@ const profileStyles = StyleSheet.create({
     borderRadius: moderateScale(12),
     paddingVertical: verticalScale(5),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: verticalScale(2) },
+    shadowOffset: {width: 0, height: verticalScale(2)},
     shadowOpacity: 0.05,
     shadowRadius: moderateScale(4),
     elevation: 3,
