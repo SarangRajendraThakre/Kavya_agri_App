@@ -23,6 +23,9 @@ import CareerDetailScreen from '../../components/CareerDetailScreen';
 import RegistrationFormScreen from '../../screens/homePageSlider2/RegistrationFormScreen';
 import MMkvDetails from '../../screens/MMkvDetails';
 import FAQScreen from '../../screens/FAQScreen';
+import WalletPointsScreen from '../../screens/WalletPointsScreen';
+import CertificateScreen from '../../screens/CertificateScreen';
+import ReferralScreen from '../../screens/ReferralScreen';
 
 // Create a Drawer Navigator instance, explicitly typing it with RootDrawerParamList
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
@@ -86,6 +89,25 @@ const DrawerNavigator: React.FC = () => {
         component={CourseListScreen}
         options={{ title: 'All Courses' }}
       />
+
+     <Drawer.Screen
+        name="CertificateScreen"
+        component={CertificateScreen}
+         options={({ route }) => ({
+          title: ' CertificateScreen',
+          headerShown: false, // Ensure header is visible
+        })}
+      />
+
+         <Drawer.Screen
+        name="ReferralScreen"
+        component={ReferralScreen}
+         options={({ route }) => ({
+          title: ' CertificateScreen',
+          headerShown: false, // Ensure header is visible
+        })}
+      />
+
       <Drawer.Screen
         name="CourseDetail"
         component={CourseDetailScreen}
@@ -94,6 +116,17 @@ const DrawerNavigator: React.FC = () => {
           headerShown: false, // Ensure header is visible
         })}
       />
+
+       <Drawer.Screen
+        name="WalletPointsScreen"
+        component={WalletPointsScreen}
+       options={({ route }) => ({
+          title: 'Profile Edit',
+          headerShown: false, // Ensure header is visible
+        })}
+      />
+
+
       <Drawer.Screen
         name="ProfileEditScreen"
         component={ProfileEditScreen}

@@ -1,4 +1,4 @@
-// src/services/token.ts (or authApi.ts)
+// src/services/token.ts 
 import axios from 'axios';
 import { API_GRAPHQL_ENDPOINT } from '../utils/Constants';
 // import { storage } from '../utils/storage'; // Assuming MMKV is accessible, if still needed here

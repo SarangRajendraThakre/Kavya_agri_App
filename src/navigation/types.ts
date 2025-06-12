@@ -31,6 +31,9 @@ export type RootDrawerParamList = {
   CardsSliderScreen:undefined;
   RegistrationFormScreen:undefined;
   MMkvDetails:undefined;
+  WalletPointsScreen:undefined;
+  CertificateScreen:undefined;
+  ReferralScreen:undefined;
 
 };
 

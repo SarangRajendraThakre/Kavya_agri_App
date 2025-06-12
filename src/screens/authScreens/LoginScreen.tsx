@@ -323,6 +323,7 @@ const LoginScreen: React.FC = ({}) => {
               storage.set('accessToken', accessToken);
               storage.set('refreshToken', refreshToken);
               storage.set('appId',user.appId);
+              storage.set('referralCode',user.referralCode);
               console.log(  storage.set('appId',user.appId));
 
               // This line is problematic:

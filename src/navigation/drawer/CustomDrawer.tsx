@@ -224,17 +224,22 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
               props.navigation.navigate('MainTabs', {screen: 'Explore'})
             }
           />
+           <CustomProfileMenuItem
+            iconName="magnify" // Icon for Explore (search/discovery)
+            title="Wallet points"
+                onPress={() => navigate('WalletPointsScreen')}
+          />
 
           <CustomProfileMenuItem
             iconName="certificate-outline" // Icon for Certificate
             title="Certificate"
-            onPress={() => showAlert('Navigate to Certificate')}
+            onPress={() => navigate('CertificateScreen')}
           />
           <CustomProfileMenuItem
             iconName="share-variant-outline" // Icon for Refer
             title="Refer"
             isLastInGroup={true} // Assuming this is the last in this group
-            onPress={() => showAlert('Navigate to Refer')}
+              onPress={() => navigate('ReferralScreen')}
           />
         </View>
 

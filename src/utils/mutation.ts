@@ -33,6 +33,8 @@ export const VERIFY_OTP_MUTATION = `
         role
         isProfileCompleted
         appId
+        referralCode
+
        
       }
       success

@@ -6,17 +6,14 @@ import {NavigationContainer} from '@react-navigation/native';
 // Import your screen components
 import Splash from './normal/Splash';
 import Parent from './normal/Parent';
-import PlayGame from '../screens/PlayGame';
 import OnboardingScreen from '../screens/OnBoardingScreen';
 
 import LoginScreen from '../screens/authScreens/LoginScreen';
 
 // Import your RootStackParamList from types.ts
 import {RootStackParamList} from './types';
-import CreateProfile from '../screens/authScreens/CreateProfileScreen';
-import OtpScreen from '../screens/authScreens/OtpScreen';
 import SuccessScreen from '../screens/authScreens/SuccessScreen';
-import { navigationRef } from '../utils/NavigationUtils';
+import {navigationRef} from '../utils/NavigationUtils';
 import CreateProfileScreen from '../screens/authScreens/CreateProfileScreen';
 import ProfileSuccessfulScreen from '../screens/authScreens/ProfileSuccessfulScreen';
 
@@ -31,7 +28,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
   return (
-    <NavigationContainer   ref={navigationRef} >
+    <NavigationContainer ref={navigationRef}>
       {/* initialRouteName is now fixed to 'Splash' */}
       <Stack.Navigator initialRouteName="Splash">
         {/* All screens are unconditionally rendered now */}
@@ -51,8 +48,14 @@ const AppNavigator: React.FC = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="PlayGame"
-          component={PlayGame}
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{headerShown: false}}
+        />
+
+        <Stack.Screen
+          name="SuccessScreen"
+          component={SuccessScreen}
           options={{headerShown: false}}
         />
         <Stack.Screen
@@ -60,19 +63,12 @@ const AppNavigator: React.FC = () => {
           component={CreateProfileScreen}
           options={{headerShown: false}}
         />
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
+
         <Stack.Screen
           name="ProfileSuccessfulScreen"
           component={ProfileSuccessfulScreen}
           options={{headerShown: false}}
         />
-
-        <Stack.Screen name='OtpScreen' component={OtpScreen}    options={{headerShown: false}}  />
-        <Stack.Screen  name='SuccessScreen' component={SuccessScreen}    options={{headerShown: false}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
