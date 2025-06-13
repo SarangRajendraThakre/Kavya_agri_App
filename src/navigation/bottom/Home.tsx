@@ -50,63 +50,69 @@ interface IndustryDataItem {
   fullDescription: string;
 }
 
-const industryData: IndustryDataItem[] = [
+const industryData = [
   {
     key: 'agri-inputs',
     title: 'Agri Inputs',
     shortDescription: 'From seeds to crop protection, explore a thriving sector.',
     icon: 'sprout',
-    image: require('../../assets/images/CarrierTopics/AgriInput.jpg'),
-    fullDescription: `Agri Input is one ...`, // Truncated for brevity
+    // ASSUMPTION: All images are in a folder like `assets/images/cards/`
+    // You MUST VERIFY these paths relative to THIS `ExploreScreen.tsx` file.
+    // If ExploreScreen.tsx is in `src/screens`, then `../../assets` goes to `src/assets`.
+    // So, if your images are in `YourProject/assets/images/CareerTopics/`, the path would be:
+    // require('../../assets/images/CareerTopics/AgriInput.jpg')
+    // If your image `Career Adda.jpg` is actually the first one, ensure its path is correct.
+    image: require('../../assets/images/CarrierTopics/AgriInput.jpg'), // Placeholder - use your actual image for this
+    fullDescription: `Agri Input is one of the fastest growing industries in the Agriculture field. In the last few years, most companies have moved into Agri Input Business. These companies run their business through online channels and corporate offices, making Agri Input business very time-saving compared to field business. Different teams are responsible for running this business within an internal organization. Agri Input Business is dedicated to B2C & B2B Customers and is mainly categorized into 4 categories: Seed, Crop Nutrition, Crop Protection, & Hardware. People can explore their careers in various roles across multiple departments within this industry.`,
   },
   {
     key: 'private-agri-banking',
     title: 'Private Agri Banking',
     shortDescription: 'Combine agriculture with finance for rewarding careers.',
     icon: 'bank',
-    image: require('../../assets/images/CarrierTopics/PrivateBanking.jpg'),
-    fullDescription: `The private agri-banking industry ...`, // Truncated for brevity
+    image: require('../../assets/images/CarrierTopics/PrivateBanking.jpg'), // Placeholder
+    fullDescription: `The private agri-banking industry plays an important role in farming by offering financial support to farmers, agribusinesses, and rural entrepreneurs. For agriculture aspirants, this industry presents diverse and rewarding career opportunities that combine agriculture with finance & Agri business.`,
   },
   {
     key: 'organic-certification',
     title: 'Organic Certification',
     shortDescription: 'Ensure sustainable and authentic organic practices.',
     icon: 'leaf',
-    image: require('../../assets/images/CarrierTopics/OrganicCertification.jpg'),
-    fullDescription: `The organic certification industry ...`, // Truncated for brevity
+    image: require('../../assets/images/CarrierTopics/OrganicCertification.jpg'), // Placeholder
+    fullDescription: `The organic certification industry involves the inspection, verification, and certification of farms, food processors, and businesses that follow organic farming standards. These standards typically ban synthetic fertilizers, pesticides, GMOs, and antibiotics, and promote practices like crop rotation, composting, and biodiversity. For Agriculture Aspirants and professionals interested in agriculture, the organic certification sector offers unique and meaningful career opportunities, especially in: Organic Farm Inspector, Certification Executive, Organic Extension Officer, Quality Assurance Assistant, Sustainability Associate.`,
   },
   {
     key: 'agronomy',
     title: 'Agronomy',
     shortDescription: 'Impact food quality, farm productivity, and environmental sustainability.',
     icon: 'seed',
-    image: require('../../assets/images/CarrierTopics/Agronomy.jpg'),
-    fullDescription: `The agronomy industry ...`, // Truncated for brevity
+    image: require('../../assets/images/CarrierTopics/Agronomy.jpg'), // Placeholder
+    fullDescription: `The agronomy industry revolves around improving farm productivity while ensuring sustainability. Key focus areas include Crop Production, Soil Health, Water Management, Weed & Pest Control, Climate-Smart Farming. Agronomy is a core discipline in agriculture. For Agriculture Aspirants, it opens the door to a variety of meaningful careers where they can directly impact farmers' productivity, food quality, and environmental sustainability.`,
   },
   {
     key: 'post-harvest-management',
     title: 'Post-Harvest Management',
     shortDescription: 'Reduce loss and add value to crops after harvesting.',
     icon: 'grain',
-    image: require('../../assets/images/CarrierTopics/PostHarvest.jpg'),
-    fullDescription: `The post-harvest industry ...`, // Truncated for brevity
+    image: require('../../assets/images/CarrierTopics/PostHarvest.jpg'), // Placeholder
+    fullDescription: `The post-harvest industry refers to all the processes that occur after crops are harvested — to maintain quality, reduce loss, and add value before products reach the market or consumers. The post-harvest industry offers a wide variety of roles across technical, managerial, and research fields.`,
   },
   {
     key: 'horticulture',
     title: 'Horticulture',
     shortDescription: 'High-value crops, innovation, and agribusiness in plant cultivation.',
     icon: 'flower',
-    image: require('../../assets/images/CarrierTopics/Horticulture.jpg'),
-    fullDescription: `Horticulture is a branch ...`, // Truncated for brevity
+    image: require('../../assets/images/CarrierTopics/Horticulture.jpg'), // Placeholder
+    fullDescription: `Horticulture is a branch of agriculture that focuses on the cultivation of fruits, vegetables, flowers, spices, plantation crops, and medicinal plants. It also includes landscaping, nursery management, and protected cultivation (like polyhouses and greenhouses). Horticulture offers a wide variety of career opportunities that go beyond traditional farming. It's ideal for those who are interested in high-value crops, innovation, and agribusiness.`,
   },
-  {
+   {
     key: 'seedproduction',
     title: 'Seed Production',
     shortDescription: 'High-value crops, innovation, and agribusiness in plant cultivation.',
-    icon: 'flower',
+    icon: 'flower', // Assuming 'flower' maps to an icon like FontAwesome or MaterialCommunityIcons
     image: require('../../assets/images/CarrierTopics/seedproducton.jpg'),
-    fullDescription: `Horticulture is a branch ...`, // Truncated for brevity
-  },
+    fullDescription: `Horticulture is a branch of agriculture that deals with the art, science, technology, and business of growing plants. It includes the cultivation of fruits, vegetables, flowers, ornamental plants, and landscape design. It's a high-value sector known for innovation and agribusiness opportunities.`,
+  }
 ];
 
 const Home = ({ navigation }: any) => {

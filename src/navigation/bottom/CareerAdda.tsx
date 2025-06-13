@@ -18,6 +18,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import LinearGradient from 'react-native-linear-gradient';
 import { navigate } from '../../utils/NavigationUtils';
 import { RootDrawerParamList } from '../types';
+import PaymentDetail from '../../screens/paymentScreens/PaymentDetail';
 
 // --- MODIFIED: Import RootDrawerParamList from your types file ---
 // --- END MODIFIED ---
@@ -205,7 +206,7 @@ const CareerAdda: React.FC<ExploreScreenProps> = ({ navigation, route }) => { //
           <Text style={styles.heroTagline}>
             This program helps you find your right career direction, build strong knowledge, and take confident steps toward your future. Through live industry insights, expert mentorship, goal setting, and Interview preparation support.
           </Text>
-          <TouchableOpacity style={styles.ctaButton} onPress={handleExploreCourses}>
+          <TouchableOpacity style={styles.ctaButton} onPress={()=>{navigate('PaymentDetail')}}>
             <Animated.Text style={[styles.ctaButtonText, { transform: [{ scale: ctaPulse }] }]}>
               Enroll Now!
             </Animated.Text>

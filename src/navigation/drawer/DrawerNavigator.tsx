@@ -9,13 +9,13 @@ import {
 import {RootDrawerParamList} from '../types'; // Adjust path if types.ts is elsewhere
 import {Colors, Fonts} from '../../utils/Constants';
 import CustomDrawer from './CustomDrawer';
-import Main from './Main';
+import Main from './Main'; // This is likely your Tab Navigator wrapped in a stack
 import AboutUsScreen from '../../screens/DrawerScreens/AboutUsScreen';
-import CourseListScreen from '../../screens/paymentScreens/CourseListScreen';
+import CourseListScreen from '../../screens/paymentScreens/CourseListScreen'; // Keep if accessible from drawer
 import LeadersCornerScreen from '../../screens/home/LeadersCornerScreen';
 import CertificateScreen from '../../screens/DrawerScreens/CertificateScreen';
 import ReferralScreen from '../../screens/DrawerScreens/ReferralScreen';
-import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen';
+// import CourseDetailScreen from '../../screens/paymentScreens/CourseDetailScreen'; // REMOVED - belongs in RootStack
 import WalletPointsScreen from '../../screens/DrawerScreens/WalletPointsScreen';
 import ProfileEditScreen from '../../screens/DrawerScreens/ProfileEditScreen';
 import ChooseCareerScreen from '../../screens/carrerAddaScreens/ChooseCareerScreen';
@@ -24,11 +24,13 @@ import ResumeBuilderScreen from '../../screens/carrerAddaScreens/ResumeBuilderSc
 import InterviewPrepScreen from '../../screens/carrerAddaScreens/InterviewPrepScreen';
 import RegistrationFormScreen from '../../screens/homePageSlider2/RegistrationFormScreen';
 import MMkvDetails from '../../screens/MMkvDetails';
-import CareerAdda from '../bottom/CareerAdda';
+import CareerAdda from '../bottom/CareerAdda'; // This might be a screen or part of Main
 import CareerDetailScreen from '../../components/CareerDetailScreen';
 import FAQScreen from '../../screens/DrawerScreens/FAQScreen';
 import PastEvents from '../../screens/home/PastEvents';
 import ProgramBenefit from '../../screens/home/ProgramBenefit';
+// import PaymentDetail from '../../screens/paymentScreens/PaymentDetail'; // REMOVED - belongs in RootStack
+// import PaymentSuccessScreen from '../../screens/paymentScreens/PaymentSuccessScreen'; // REMOVED - belongs in RootStack
 
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
@@ -75,10 +77,10 @@ const DrawerNavigator: React.FC = () => {
         options={{title: 'All Courses'}}
       />
 
-         <Drawer.Screen
+      <Drawer.Screen
         name="ProgramBenefit"
         component={ProgramBenefit}
-        options={{title: 'All Courses'}}
+        options={{title: 'Program Benefits'}} // Changed title for clarity
       />
 
       <Drawer.Screen
@@ -94,10 +96,23 @@ const DrawerNavigator: React.FC = () => {
         name="PastEvents"
         component={PastEvents}
         options={{
-          title: 'Leaders Corner',
+          title: 'Past Events', // Changed title for clarity
           headerShown: false,
         }}
       />
+      {/*
+        <Drawer.Screen
+          name="PaymentDetail"
+          component={PaymentDetail}
+          options={{
+            title: 'Payment', // Appropriate title
+            headerShown: false,
+          }}
+        />
+        // REMOVED: This screen should be part of RootStackParamList
+        // and navigated to from other screens in your app, appearing
+        // above the drawer.
+      */}
 
       <Drawer.Screen
         name="CertificateScreen"
@@ -117,14 +132,19 @@ const DrawerNavigator: React.FC = () => {
         }}
       />
 
-      <Drawer.Screen
-        name="CourseDetail"
-        component={CourseDetailScreen}
-        options={({route}) => ({
-          title: route.params?.course?.title ?? 'Course Details',
-          headerShown: false,
-        })}
-      />
+      {/*
+        <Drawer.Screen
+          name="CourseDetail"
+          component={CourseDetailScreen}
+          options={({route}) => ({
+            title: route.params?.course?.title ?? 'Course Details',
+            headerShown: false,
+          })}
+        />
+        // REMOVED: This screen should be part of RootStackParamList
+        // and navigated to from other screens in your app, appearing
+        // above the drawer.
+      */}
 
       <Drawer.Screen
         name="WalletPointsScreen"
@@ -152,9 +172,9 @@ const DrawerNavigator: React.FC = () => {
         }}
       />
       <Drawer.Screen
-        name="CareerPathScreen"
+        name="CareerPathScreen" // This might be a placeholder. If CareerAdda is a tab, it shouldn't be a drawer item directly.
         component={CareerAdda}
-        options={{headerShown: false}}
+        options={{headerShown: false, title: 'Career Paths'}} // Added title
       />
 
       <Drawer.Screen
@@ -162,6 +182,16 @@ const DrawerNavigator: React.FC = () => {
         component={ChooseCareerScreen}
         options={{title: 'Choose Career', headerShown: false}}
       />
+      {/*
+        <Drawer.Screen
+          name="PaymentSuccessScreen"
+          component={PaymentSuccessScreen}
+          options={{title: 'Payment Success', headerShown: false}} // Appropriate title
+        />
+        // REMOVED: This screen should be part of RootStackParamList
+        // and navigated to from other screens in your app, appearing
+        // above the drawer.
+      */}
       <Drawer.Screen
         name="FAQScreen"
         component={FAQScreen}

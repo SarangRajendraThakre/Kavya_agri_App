@@ -1,38 +1,27 @@
 // screens/CourseListScreen.tsx
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, SafeAreaView, Platform, StatusBar } from 'react-native';
-// We no longer need useNavigation or specific StackNavigationProp imports here
-// because we're using the centralized navigation service.
-// import { useNavigation } from '@react-navigation/native';
-// import { StackNavigationProp } from '@react-navigation/stack';
-
-import { Course } from '../../navigation/types'; // Import your Course type
+import { Course } from '../../navigation/types';
 import { navigate } from '../../utils/NavigationUtils';
 import CourseCard from './CourseCard';
 
 // --- Dummy Course Data ---
-// In a real application, this data would typically come from an API call.
 const DUMMY_COURSES: Course[] = [
   {
     id: '1',
-    title: 'React Native Basics',
-    description: 'Learn the fundamentals of building mobile apps with React Native, covering components, styling, and navigation.',
-    price: 2,
-    imageUrl: 'https://huroorkee.ac.in/blog/wp-content/uploads/2024/03/Govt-Jobs-After-B.Sc_.-Agriculture.jpg',
+    title: 'Agri Support Program', // Updated title
+    description:
+      'Comprehensive support program for modern agriculture techniques, crop management, and market insights.',
+    price: 1, // Updated price
+    imageUrl:
+      'https://kavyaprofiles.s3.ap-south-1.amazonaws.com/profile-images/684bfc3e8146395cc72f4a5a/1749822162124-250668b1-db97-486e-8891-82eb27957bd0-0a806856-a85e-4870-a993-e8624a12932b.jpg',
   },
-  
 ];
 
 const CourseListScreen: React.FC = () => {
-  // The CourseListScreenProps type is useful if this component receives props directly from the navigator.
-  // However, since we're using a navigation service to trigger navigation actions,
-  // the component itself doesn't explicitly need those props unless it needs to access route.params or navigation methods directly.
-  // For this component, React.FC<object> or just React.FC is sufficient for now.
-
   const handleCardPress = (course: Course) => {
-    // Use the centralized navigation service to navigate to CourseDetail.
-    // Ensure 'CourseDetail' is correctly defined in your RootDrawerParamList (or relevant ParamList).
-  navigate('CourseDetail', { course: course });
+    // Navigate to PaymentDetail screen, passing the course object
+    navigate('PaymentDetail', { course: course });
   };
 
   return (
@@ -55,12 +44,12 @@ const CourseListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F5F5', // Light background for the safe area
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Handle Android status bar
+    backgroundColor: '#F5F5F5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5', // Consistent background
+    backgroundColor: '#F5F5F5',
   },
   header: {
     fontSize: 28,
@@ -70,7 +59,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 15,
     textAlign: 'center',
-    backgroundColor: '#FFFFFF', // Header background for better separation
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },

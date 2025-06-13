@@ -174,14 +174,14 @@ const CarouselHomeMain: React.FC<CarouselHomeMainProps> = ({ navigation, onExplo
         navigate('CareerAdda', { scrollToSection: 'programBenefits' }); // 'Explore' should be the screen name in your navigator
         // --- END MODIFIED ---
         break;
-      case 'Register Now':
-        navigate('PaymentDetail');
-        break;
+     
+      
       case 'Certificates':
         navigate('CertificateScreen');
         break;
       default:
         console.log(`No specific route for explore button on: ${item.title}`);
+          navigate('PaymentDetail');
         break;
     }
     // --- MODIFIED: Add 'Explore' to dependencies because 'navigate' is used with it

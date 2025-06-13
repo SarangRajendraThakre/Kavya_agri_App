@@ -95,9 +95,9 @@ const LeadersCornerScreen = () => {
           {/* Render bullet points */}
           {renderPoint('6+ years of specialized industry experience')}
           {renderPoint('Experts in Agri Input, Private Banking, Organic Certification, Agronomy, Post-harvest Management, Horticulture, and more')}
-          {renderPoint('Proven track record of working with leading agri-companies, startups, and government programs')}
+          {renderPoint("Proven track record of working with leading agri-companies, startups, and MNC's ")}
           {renderPoint('Strong focus on real-life case studies, practical field knowledge, and job-oriented training')}
-          {renderPoint('Committed to helping you become industry-ready and confident')}
+          {renderPoint('Helping you to become industry-ready and confident')}
         </View>
 
         {/* Optional: Add more engaging sections here if desired, e.g., "Our Philosophy" */}

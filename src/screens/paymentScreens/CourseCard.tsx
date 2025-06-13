@@ -18,7 +18,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onPress }) => {
       <Image source={{ uri: course.imageUrl }} style={styles.image} />
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{course.title}</Text>
-        <Text style={styles.description} numberOfLines={2}> {/* Limit description to 2 lines */}
+        <Text style={styles.description} numberOfLines={2}>
+          {' '}
+          {/* Limit description to 2 lines */}
           {course.description}
         </Text>
         <Text style={styles.price}>₹{course.price}</Text>
