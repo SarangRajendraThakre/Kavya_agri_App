@@ -1,5 +1,5 @@
-// screens/PaymentDetail.tsx (or forms/PaymentDetailForm.tsx if you prefer)
-import React, { useState } from 'react';
+// screens/PaymentDetail.tsx (Modified to fetch course)
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,37 +11,60 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator, // Add ActivityIndicator for loading state
 } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, Course } from '../../navigation/types'; // Adjust path as needed
-import { navigate } from '../../utils/NavigationUtils'; // Assuming you have this utility
+import { StackNavigationProp, RouteProp } from '@react-navigation/stack'; // Import RouteProp
+import { RootStackParamList, Course } from '../../navigation/types';
+import { navigate } from '../../utils/NavigationUtils';
+import {  Backend_Main } from '../../utils/Constants'; // Assuming Constants has Backend_Main
 
+// Update the type to include route
+type PaymentDetailScreenRouteProp = RouteProp<RootStackParamList, 'PaymentDetail'>;
 type PaymentDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'PaymentDetail'>;
 
 interface PaymentDetailProps {
+  route: PaymentDetailScreenRouteProp; // Add route prop
   navigation: PaymentDetailScreenNavigationProp;
 }
 
-// Define the single course data directly here
-const SINGLE_AGRI_COURSE: Course = {
-  id: '1',
-  title: 'Agri Support Program',
-  description: 'Comprehensive support program for modern agriculture techniques, crop management, and market insights. This program provides essential knowledge and tools for optimizing yields and sustainable farming practices.',
-  price: 4,
-  // --- CHANGE THIS IMAGE URL ---
-  // Option 1: Provide a new public image URL
-  imageUrl: 'https://kavyaprofiles.s3.ap-south-1.amazonaws.com/profile-images/684bfc3e8146395cc72f4a5a/1749819312098-8c61978c-5708-44f5-a43a-57655bc81e89-646f80aa-2d7b-4d57-9e42-12b54510b87c.jpg', // Example new image URL
-  // Option 2: Use a local image if you have one imported (e.g., if you added it to assets)
-  // imageUrl: require('../../assets/images/my_new_agri_image.jpg'), // Uncomment and adjust path if using local image
-  // Option 3: Leave it empty if you don't want an image
-  // imageUrl: '',
-};
-
-const PaymentDetail: React.FC<PaymentDetailProps> = () => {
+const PaymentDetail: React.FC<PaymentDetailProps> = ({ route }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState<{ name?: string; email?: string; contact?: string }>({});
+  const [course, setCourse] = useState<Course | null>(null); // State to hold fetched course
+  const [loadingCourse, setLoadingCourse] = useState(true); // Loading state for course fetch
+  const [fetchError, setFetchError] = useState<string | null>(null); // Error state for course fetch
+
+  const courseId = 'AGRI001';
+  // Effect to fetch course details when component mounts or courseId changes
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      if (!courseId) {
+        setFetchError('No course ID provided.');
+        setLoadingCourse(false);
+        return;
+      }
+
+      setLoadingCourse(true);
+      setFetchError(null);
+      try {
+        const response = await fetch(`${Backend_Main}/api/courses/${courseId}`); // Adjust this API endpoint
+        if (!response.ok) {
+          throw new Error(`Failed to fetch course: ${response.statusText}`);
+        }
+        const data: Course = await response.json();
+        setCourse(data);
+      } catch (error: any) {
+        console.error('Error fetching course details:', error);
+        setFetchError(`Could not load course: ${error.message}`);
+      } finally {
+        setLoadingCourse(false);
+      }
+    };
+
+    fetchCourseDetails();
+  }, [courseId]); // Re-run if courseId changes
 
   const validateForm = () => {
     let newErrors: { name?: string; email?: string; contact?: string } = {};
@@ -63,7 +86,7 @@ const PaymentDetail: React.FC<PaymentDetailProps> = () => {
     if (!contact.trim()) {
       newErrors.contact = 'Contact Number is required.';
       isValid = false;
-    } else if (!/^\d{10}$/.test(contact)) { // Basic 10-digit phone number validation
+    } else if (!/^\d{10}$/.test(contact)) {
       newErrors.contact = 'Contact number must be 10 digits.';
       isValid = false;
     }
@@ -73,10 +96,14 @@ const PaymentDetail: React.FC<PaymentDetailProps> = () => {
   };
 
   const handleProceedToPayment = () => {
+    if (!course) {
+      Alert.alert('Error', 'Course details are not loaded yet. Please wait or try again.');
+      return;
+    }
     if (validateForm()) {
-      // Navigate to CourseDetail, passing the hardcoded course and collected prefill data
+      // Navigate to CourseDetail, passing the dynamically fetched course and collected prefill data
       navigate('CourseDetail', {
-        course: SINGLE_AGRI_COURSE,
+        course: course, // <--- KEY CHANGE: Pass the fetched course object
         prefillEmail: email,
         prefillContact: contact,
         prefillName: name,
@@ -86,6 +113,33 @@ const PaymentDetail: React.FC<PaymentDetailProps> = () => {
     }
   };
 
+  if (loadingCourse) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text style={styles.loadingText}>Loading course details...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <Text style={styles.errorText}>{fetchError}</Text>
+        {/* You might want a "Retry" button here */}
+      </SafeAreaView>
+    );
+  }
+
+  if (!course) {
+    // This case should ideally be caught by fetchError, but as a fallback
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <Text style={styles.errorText}>Course not found.</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -93,7 +147,7 @@ const PaymentDetail: React.FC<PaymentDetailProps> = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.header}>Enroll in {SINGLE_AGRI_COURSE.title}</Text>
+          <Text style={styles.header}>Enroll in {course.title}</Text> {/* Use fetched course.title */}
           <Text style={styles.subHeader}>
             Please provide your details to proceed with your enrollment.
           </Text>
@@ -137,8 +191,8 @@ const PaymentDetail: React.FC<PaymentDetailProps> = () => {
           </View>
 
           <View style={styles.priceContainer}>
-            <Text style={styles.originalPrice}>Original Price: ₹1499</Text>
-            <Text style={styles.currentPrice}>Current Price: ₹{SINGLE_AGRI_COURSE.price}</Text>
+            <Text style={styles.originalPrice}>Original Price: ₹1499</Text> {/* You might want to fetch original price too */}
+            <Text style={styles.currentPrice}>Current Price: ₹{course.price}</Text> {/* Use fetched course.price */}
             <Text style={styles.discountText}>🎉 Great discount applied!</Text>
           </View>
 
@@ -268,6 +322,17 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: 'bold',
     letterSpacing: 0.5,
+  },
+  loadingContainer: { // New style for loading state
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f4f8',
+  },
+  loadingText: { // New style for loading text
+    marginTop: 15,
+    fontSize: 18,
+    color: '#555',
   },
 });
 

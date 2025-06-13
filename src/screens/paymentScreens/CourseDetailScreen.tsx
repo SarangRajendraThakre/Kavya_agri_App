@@ -1,45 +1,50 @@
-// screens/CourseDetailScreen.tsx
+// screens/CourseDetailScreen.tsx (Corrected)
 import React from 'react';
 import { View, Text, Image, StyleSheet, Alert, ScrollView, Button } from 'react-native';
-import { CourseDetailScreenProps, Course } from '../../navigation/types'; // Adjust path if needed
+import { CourseDetailScreenProps, Course } from '../../navigation/types';
 import { goBack } from '../../utils/NavigationUtils';
 import { Backend_Main } from '../../utils/Constants';
 import RazorpayButton from './RazorpayButton';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 
 const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
-  const navigation = useNavigation<CourseDetailScreenProps['navigation']>(); // Get navigation object
+  const navigation = useNavigation<CourseDetailScreenProps['navigation']>();
 
-  const course: Course = route.params?.course;
+  const course: Course | undefined = route.params?.course; // Ensure it can be undefined
   const prefillEmail = route.params?.prefillEmail || '';
   const prefillContact = route.params?.prefillContact || '';
   const prefillName = route.params?.prefillName || '';
 
-  console.log('Course Image URL:', course?.imageUrl);
+  // console.log('Course Image URL:', course?.imageUrl); // For debugging
+  // console.log('Course object received in CourseDetailScreen:', course); // Add this for debugging
 
-  // --- MODIFIED handlePaymentSuccess ---
+  // --- CRITICAL CORRECTION HERE ---
+  // Change !course.id to !course._id
+  if (!course || !course._id) { // Use _id as per your Course type
+    console.error('Course object or its _id is missing in CourseDetailScreen:', course); // Log the issue
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Course details not found. Please go back.</Text>
+        <Button title="Go Back" onPress={() => goBack()} />
+      </View>
+    );
+  }
+  // --- END CRITICAL CORRECTION ---
+
   const handlePaymentSuccess = (paymentId: string, orderId: string, signature: string) => {
     console.log('Payment successful in CourseDetailScreen:', { paymentId, orderId, signature });
 
-    // Navigate to PaymentSuccessScreen with all required details
-    navigation.replace('PaymentSuccess', { // Using replace to remove CourseDetailScreen from stack
+    navigation.replace('PaymentSuccess', {
       courseName: course.title,
       amountPaid: course.price * 100, // Amount in paisa
       paymentId: paymentId,
       orderId: orderId,
-      paymentDate: new Date().toISOString(), // Current date/time as ISO string
+      paymentDate: new Date().toISOString(),
       userName: prefillName,
       userEmail: prefillEmail,
       userContact: prefillContact,
     });
-
-    // You can remove the Alert here if you want to go directly to the success screen
-    // Alert.alert(
-    //   'Payment Complete!',
-    //   `You have successfully purchased ${course.title}. Payment ID: ${paymentId}. You will receive a confirmation email shortly.`
-    // );
   };
-  // --- END MODIFIED handlePaymentSuccess ---
 
   const handlePaymentError = (code: string, description: string, reason?: string) => {
     console.error('Payment failed in CourseDetailScreen:', { code, description, reason });
@@ -54,26 +59,23 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
     Alert.alert('Payment Failed', errorMessage);
   };
 
-  if (!course || !course.id) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Course details not found. Please go back.</Text>
-        <Button title="Go Back" onPress={() => goBack()} />
-      </View>
-    );
-  }
-
   const order_creation_rz_url = Backend_Main + '/payment/razorpay/create-order';
   const verfiy_rz_url = Backend_Main + '/payment/razorpay/verify-payment';
 
   return (
     <ScrollView style={styles.scrollViewContainer} contentContainerStyle={styles.contentContainer}>
-      {course.imageUrl && <Image source={{ uri: course.imageUrl }} style={styles.banner} />}
+      {course.imageUrl ? ( // Conditional render for image to avoid broken image icon
+        <Image source={{ uri: course.imageUrl }} style={styles.banner} />
+      ) : (
+        <View style={styles.noImageBanner}>
+          <Text style={styles.noImageText}>No Image Available</Text>
+        </View>
+      )}
       <Text style={styles.title}>{course.title}</Text>
       <Text style={styles.description}>{course.description}</Text>
 
       <View style={styles.priceContainer}>
-        <Text style={styles.originalPrice}>Original Price: ₹1499</Text>
+        <Text style={styles.originalPrice}>Original Price: ₹1499</Text> {/* You might want to pass this from backend too */}
         <Text style={styles.currentPrice}>Special Price: ₹{course.price}</Text>
         <Text style={styles.discountMessage}>Don't miss this limited-time offer!</Text>
       </View>
@@ -94,7 +96,7 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
         prefillEmail={prefillEmail}
         prefillContact={prefillContact}
         prefillName={prefillName}
-        onPaymentSuccess={handlePaymentSuccess} // This will now navigate
+        onPaymentSuccess={handlePaymentSuccess}
         onPaymentError={handlePaymentError}
       />
     </ScrollView>
@@ -121,6 +123,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
+  },
+  noImageBanner: {
+    width: '100%',
+    height: 250,
+    marginBottom: 25,
+    borderRadius: 15,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noImageText: {
+    color: '#666',
+    fontSize: 18,
+    fontStyle: 'italic',
   },
   title: {
     fontSize: 30,

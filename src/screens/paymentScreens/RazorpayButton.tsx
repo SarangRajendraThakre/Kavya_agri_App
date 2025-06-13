@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import RazorpayCheckout from 'react-native-razorpay';
-import { Course } from '../../navigation/types'; // Adjust path based on your project structure
+import { Course } from '../../navigation/types';
 
 interface RazorpayButtonProps {
   course: Course;
   razorpayKeyId: string;
   backendOrderCreationUrl: string;
   backendPaymentVerificationUrl: string;
-  prefillEmail: string;    // Already handled with `|| ''` in parent
-  prefillContact: string;  // Already handled with `|| ''` in parent
-  prefillName: string;     // Already handled with `|| ''` in parent
+  prefillEmail: string;
+  prefillContact: string;
+  prefillName: string;
   onPaymentSuccess: (paymentId: string, orderId: string, signature: string) => void;
   onPaymentError: (code: string, description: string, reason?: string) => void;
 }
@@ -31,19 +31,35 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
   const handlePayment = async () => {
     setLoading(true);
 
+    // Basic validation for course object itself
+    if (!course || (!course._id && !course.courseId)) { // Ensure at least one ID exists
+      Alert.alert('Error', 'Course data is incomplete for payment. Please go back and try again.');
+      setLoading(false);
+      return;
+    }
+
     try {
       // 1. Create Order on Your Backend
       const amountInPaisa = Math.round(course.price * 100); // Razorpay expects amount in smallest unit (paisa for INR)
 
+      // --- CRITICAL CORRECTION HERE ---
+      // Use course.courseId (your custom ID) or course._id (MongoDB's ID)
+      // Based on your backend, courseId is likely what's expected for lookups.
+      const identifierForBackend = course.courseId; // Assuming your backend looks up by 'courseId'
+
+      if (!identifierForBackend) {
+          throw new Error('Course ID (courseId) is missing from the course object.');
+      }
+      // --- END CRITICAL CORRECTION ---
+
       const orderCreationPayload = {
         amount: amountInPaisa,
-        currency: 'INR', // Ensure this matches your backend's expectation
-        receipt: `receipt_${Date.now()}_${course.id}`, // Unique receipt for each order
-        courseId: course.id,
+        currency: 'INR',
+        receipt: `receipt_${Date.now()}_${identifierForBackend}`, // Use the correct identifier
+        courseId: identifierForBackend, // <--- THIS IS THE KEY FIX
         userName: prefillName,
         userEmail: prefillEmail,
         userContact: prefillContact,
-        // Any other fields your backend's /create-order endpoint requires
       };
 
       console.log('Frontend (RazorpayButton): Sending order creation payload to backend:', orderCreationPayload);
@@ -100,14 +116,15 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
         razorpay_payment_id,
         razorpay_order_id,
         razorpay_signature,
-        courseId: course.id,
+        // --- CRITICAL CORRECTION HERE TOO ---
+        // Ensure you send the same identifier used for order creation
+        courseId: identifierForBackend, // <--- USE THE SAME IDENTIFIER
+        // --- END CRITICAL CORRECTION ---
         courseName: course.title,
-        amountPaid: orderData.amount, // Send the same amount (in paisa) used for order creation
+        amountPaid: orderData.amount,
         userName: prefillName,
         userEmail: prefillEmail,
         userContact: prefillContact,
-        // You might want to send timestamp if your backend requires it
-        // timestamp: new Date().toISOString(),
       };
 
       console.log('Frontend (RazorpayButton): Sending payment verification payload to backend:', paymentVerificationPayload);
@@ -133,13 +150,11 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
       if (verificationData.success) {
         onPaymentSuccess(razorpay_payment_id, razorpay_order_id, razorpay_signature);
       } else {
-        // Backend indicated verification failed despite Razorpay success
         onPaymentError('VERIFICATION_FAILED_BACKEND', verificationData.message || 'Payment could not be verified by backend.');
       }
 
     } catch (error: any) {
       console.error('Frontend (RazorpayButton): Payment process failed:', error);
-      // Determine the error type to provide a more specific message
       if (error.code === 2) { // RazorpayCheckout.Error.RZPM_CANCELLED
         onPaymentError('PAYMENT_CANCELLED', 'Payment was cancelled by the user.');
       } else if (error.description) {
@@ -156,7 +171,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
     <TouchableOpacity
       style={styles.button}
       onPress={handlePayment}
-      disabled={loading} // Disable button while processing
+      disabled={loading}
     >
       {loading ? (
         <ActivityIndicator color="#fff" />
@@ -169,7 +184,7 @@ const RazorpayButton: React.FC<RazorpayButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#007bff', // Example primary blue
+    backgroundColor: '#007bff',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
@@ -181,7 +196,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-    elevation: 8, // For Android shadow
+    elevation: 8,
   },
   buttonText: {
     color: '#fff',
