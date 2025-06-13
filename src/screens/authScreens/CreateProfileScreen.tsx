@@ -64,7 +64,7 @@ const CreateProfileScreen: React.FC = ({}) => {
   const translateXResidenceCity = useSharedValue(width);
   const translateXEducation = useSharedValue(width);
   const translateXCollegeName = useSharedValue(width); // Corrected: Must be a const
- const  translateXCollegeCityVillage = useSharedValue(width); // Corrected: Must be a const
+  const translateXCollegeCityVillage = useSharedValue(width); // Corrected: Must be a const
 
 
   const [showAdditionalFields, setShowAdditionalFields] = useState<boolean>(false);
@@ -173,13 +173,18 @@ const CreateProfileScreen: React.FC = ({}) => {
 
   const handleConfirmDate = (date: Date): void => {
     const today = new Date();
+    // Normalize today's date to midnight UTC to prevent timezone issues with comparison
+    today.setHours(0, 0, 0, 0);
+
     const eighteenYearsAgo = new Date(
       today.getFullYear() - 18,
       today.getMonth(),
       today.getDate(),
     );
+    // Normalize the selected date to midnight UTC for consistent comparison
+    const selectedDateNormalized = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-    if (date > eighteenYearsAgo) {
+    if (selectedDateNormalized > eighteenYearsAgo) {
       Alert.alert(
         'Age Restriction',
         'You must be at least 18 years old to create a profile.',
@@ -189,7 +194,11 @@ const CreateProfileScreen: React.FC = ({}) => {
       return;
     }
 
-    setDateOfBirth(date.toLocaleDateString('en-CA')); // YYYY-MM-DD format
+    // Format date as YYYY-MM-DD manually to avoid locale/timezone issues
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+    const day = date.getDate().toString().padStart(2, '0');
+    setDateOfBirth(`${year}-${month}-${day}`); // <-- UPDATED LINE
     hideDatePicker();
   };
 
@@ -261,21 +270,33 @@ const CreateProfileScreen: React.FC = ({}) => {
     }
 
     if (dateOfBirth) {
-      const dob = new Date(dateOfBirth);
-      const today = new Date();
-      const eighteenYearsAgo = new Date(
-        today.getFullYear() - 18,
-        today.getMonth(),
-        today.getDate(),
-      );
-      if (dob > eighteenYearsAgo) {
-        Alert.alert(
-          'Age Restriction',
-          'You must be at least 18 years old to create a profile.'
+        // Re-check age based on the YYYY-MM-DD string, ensuring proper parsing
+        const dob = new Date(dateOfBirth);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize today's date to midnight UTC
+
+        const eighteenYearsAgo = new Date(
+            today.getFullYear() - 18,
+            today.getMonth(),
+            today.getDate(),
         );
-        return;
-      }
+
+        // Normalize DOB for accurate comparison. When creating Date from "YYYY-MM-DD",
+        // it's usually interpreted as UTC midnight, but comparison to local `today` can still be tricky.
+        // Explicitly set to UTC midnight for robustness.
+        const dobForComparison = new Date(Date.UTC(dob.getFullYear(), dob.getMonth(), dob.getDate()));
+        const eighteenYearsAgoForComparison = new Date(Date.UTC(eighteenYearsAgo.getFullYear(), eighteenYearsAgo.getMonth(), eighteenYearsAgo.getDate()));
+
+
+        if (dobForComparison > eighteenYearsAgoForComparison) {
+            Alert.alert(
+                'Age Restriction',
+                'You must be at least 18 years old to create a profile.'
+            );
+            return;
+        }
     }
+
 
     if (!email) {
       Alert.alert('Authentication Error', 'User email not found. Please log in again.');
@@ -293,7 +314,7 @@ const CreateProfileScreen: React.FC = ({}) => {
         mobileNo: mobileNo,
         whatsAppNumber: whatsAppNumber,
         email: email, // This is the user's email ID
-        dateOfBirth: dateOfBirth,
+        dateOfBirth: dateOfBirth, // This will now be YYYY-MM-DD
         gender: selectedGender,
         residenceCity: residenceCity,
         education: finalEducationValue,
@@ -361,7 +382,7 @@ const CreateProfileScreen: React.FC = ({}) => {
         // This runs ONLY if both backend operations are successful (or the second one warns but doesn't fail critically)
         storage.set('firstName', firstName);
         storage.set('lastName', lastName);
-        storage.set('appId', UserId);   
+        storage.set('appId', UserId);   // Assuming 'UserId' is what you want to store as 'appId'
         
         console.log('User profile data stored in MMKV:', {
           firstName,

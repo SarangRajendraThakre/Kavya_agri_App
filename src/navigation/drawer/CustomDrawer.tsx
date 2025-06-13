@@ -36,6 +36,7 @@ import {
 import {navigate, resetAndNavigate} from '../../utils/NavigationUtils';
 import {storage} from '../../utils/storage'; // Assuming 'storage' is your MMKV instance
 import {CommonActions} from '@react-navigation/native';
+import { useProfile } from '../../context/ProfileContext';
 
 // --- ProfileMenuItem (Optimized for Drawer) ---
 interface ProfileMenuItemProps {
@@ -133,6 +134,9 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
   // Changed state variable name for clarity and type for Image source
   const [profileImageSource, setProfileImageSource] = useState<any>(defaultProfileImage);
 
+    const { profileImage } = useProfile();
+
+
   // A simple alert function (for demonstration)
   const showAlert = (message: string) => {
     // console.log(message); // Log for debugging
@@ -192,7 +196,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
       {/* Drawer Header (Profile Card style - optimized) */}
       <View style={profileStyles.profileCardCustomDrawer}>
         <Image
-          source={profileImageSource} // Use the state variable that holds the correctly formatted source
+          source={{ uri: profileImage }} // Use Context value
           style={profileStyles.profileImage}
         />
         <View style={profileStyles.profileInfo}>
@@ -253,7 +257,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = props => {
           />
           <CustomProfileMenuItem
             iconName="information-outline" // Icon for About App
-            title="About App"
+            title="About us"
             onPress={() => navigate('AboutUsScreen')}
           />
           <CustomProfileMenuItem

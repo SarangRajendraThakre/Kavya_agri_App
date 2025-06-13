@@ -54,15 +54,9 @@ const industryData = [
   {
     key: 'agri-inputs',
     title: 'Agri Inputs',
-    shortDescription: 'From seeds to crop protection, explore a thriving sector.',
+    shortDescription: ' Agri advice From sowing to harvesting, explore a thriving sector.',
     icon: 'sprout',
-    // ASSUMPTION: All images are in a folder like `assets/images/cards/`
-    // You MUST VERIFY these paths relative to THIS `ExploreScreen.tsx` file.
-    // If ExploreScreen.tsx is in `src/screens`, then `../../assets` goes to `src/assets`.
-    // So, if your images are in `YourProject/assets/images/CareerTopics/`, the path would be:
-    // require('../../assets/images/CareerTopics/AgriInput.jpg')
-    // If your image `Career Adda.jpg` is actually the first one, ensure its path is correct.
-    image: require('../../assets/images/CarrierTopics/AgriInput.jpg'), // Placeholder - use your actual image for this
+     image: require('../../assets/images/CarrierTopics/AgriInput.jpg'), // Placeholder - use your actual image for this
     fullDescription: `Agri Input is one of the fastest growing industries in the Agriculture field. In the last few years, most companies have moved into Agri Input Business. These companies run their business through online channels and corporate offices, making Agri Input business very time-saving compared to field business. Different teams are responsible for running this business within an internal organization. Agri Input Business is dedicated to B2C & B2B Customers and is mainly categorized into 4 categories: Seed, Crop Nutrition, Crop Protection, & Hardware. People can explore their careers in various roles across multiple departments within this industry.`,
   },
   {
@@ -111,7 +105,8 @@ const industryData = [
     shortDescription: 'High-value crops, innovation, and agribusiness in plant cultivation.',
     icon: 'flower', // Assuming 'flower' maps to an icon like FontAwesome or MaterialCommunityIcons
     image: require('../../assets/images/CarrierTopics/seedproducton.jpg'),
-    fullDescription: `Horticulture is a branch of agriculture that deals with the art, science, technology, and business of growing plants. It includes the cultivation of fruits, vegetables, flowers, ornamental plants, and landscape design. It's a high-value sector known for innovation and agribusiness opportunities.`,
+    fullDescription: `The Seed Production Industry is a vital part of the agricultural ecosystem. It focuses on the development, multiplication, processing, packaging, and distribution of high-quality seeds for crops. Quality seeds are the foundation of healthy and productive farming
+This industry offers strong career potential for agriculture graduates, especially those with knowledge in plant breeding, agronomy, genetics, and seed technology. It combines technical knowledge, fieldwork, lab research, and agri-business skills`,
   }
 ];
 
@@ -191,7 +186,7 @@ const Home = ({ navigation }: any) => {
         {/* --- END MODIFIED --- */}
           <Text style={styles.sectionTitle}>Program Overview: One Program, Multiple Career Choices!</Text>
           <Text style={styles.sectionDescription}>
-            This program introduces you to six high-potential careers in agriculture. With our expert guidance, you’ll gain the clarity and skills to choose the right path and grow with confidence.
+            This program introduces you to 7 high-potential careers in agriculture. With our expert guidance, you’ll gain the clarity and skills to choose the right path and grow with confidence.
           </Text>
 
           <View style={styles.careerCardsGrid}>
@@ -299,7 +294,7 @@ const styles = StyleSheet.create({
     // fontFamily: 'Poppins-Bold',
   },
   sectionDescription: {
-    fontSize: fontR(15),
+    fontSize: fontR(18),
     color: Colors.subtleText,
     textAlign: 'center',
     marginBottom: verticalScale(25),

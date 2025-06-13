@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
     paddingVertical: 20,
-    paddingHorizontal: 25,
+    paddingHorizontal: 15,
     justifyContent: 'space-between',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: '#EEEEEE',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   contactValue: {
     color: '#333333',
-    fontSize: 19,
+    fontSize: 12,
     fontWeight: '600',
     marginTop: 3,
   },
