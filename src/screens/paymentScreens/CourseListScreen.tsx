@@ -5,18 +5,6 @@ import { Course } from '../../navigation/types';
 import { navigate } from '../../utils/NavigationUtils';
 import CourseCard from './CourseCard';
 
-// --- Dummy Course Data ---
-const DUMMY_COURSES: Course[] = [
-  {
-    id: '1',
-    title: 'Agri Support Program', // Updated title
-    description:
-      'Comprehensive support program for modern agriculture techniques, crop management, and market insights.',
-    price: 1, // Updated price
-    imageUrl:
-      'https://kavyaprofiles.s3.ap-south-1.amazonaws.com/profile-images/684bfc3e8146395cc72f4a5a/1749822162124-250668b1-db97-486e-8891-82eb27957bd0-0a806856-a85e-4870-a993-e8624a12932b.jpg',
-  },
-];
 
 const CourseListScreen: React.FC = () => {
   const handleCardPress = (course: Course) => {

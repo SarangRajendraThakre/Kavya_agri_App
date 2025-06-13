@@ -84,7 +84,7 @@ const AboutUsScreen = () => {
 
           <Text style={styles.leadersCornerText}>
             Our leadership team consists of{' '}
-            <Text style={styles.leadersCornerHighlight}>6 seasoned professionals</Text>,
+            <Text style={styles.leadersCornerHighlight}>7 seasoned professionals</Text>,
             each with over <Text style={styles.leadersCornerHighlight}>6 years of hands-on experience</Text>
             in the agriculture industry. These leaders are not just experts in
             their fields—they are passionate educators who will guide you
@@ -102,7 +102,7 @@ const AboutUsScreen = () => {
           <View style={styles.leadersList}>
             {/* Using bullet points for emphasis */}
             <Text style={styles.leadersListItem}>
-              • <Text style={styles.leadersListItemHighlight}>6+ years of industry experience</Text>
+              • <Text style={styles.leadersListItemHighlight}>6+ to  15 years of industry experience</Text>
             </Text>
             <Text style={styles.leadersListItem}>
               • <Text style={styles.leadersListItemHighlight}>Experts in Agri Input, Private Banking, Organic Certification,

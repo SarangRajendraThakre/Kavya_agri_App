@@ -141,7 +141,7 @@ const SuccessScreen: React.FC<SuccessScreenProp> = ({ navigation }) => {
                 } catch (profileFetchError: any) {
                     // Handle network errors or other unexpected exceptions
                     console.error('Network or unexpected error fetching profile details on SuccessScreen:', profileFetchError);
-                    Alert.alert('Network Error', 'Failed to fetch full profile details. Please check your internet connection or try again.');
+                    Alert.alert('Network Error');
 
                     // In case of network error, decide fallback:
                     // Option 1: Still go to Parent (e.g., hoping cached data is sufficient, or user can retry there)

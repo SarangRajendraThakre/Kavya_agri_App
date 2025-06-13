@@ -27,13 +27,11 @@ const ProfileSuccessfulScreen: React.FC<ProfileSuccessfulScreenProp> = ({ naviga
 
       if (!userId) {
         console.error('ProfileSuccessfulScreen: userId not found in MMKV.');
-        Alert.alert('Error', 'User ID not found. Cannot fetch profile details.');
         replace('Parent'); // Fallback to Parent or Login
         return;
       }
       if (!accessToken) {
         console.error('ProfileSuccessfulScreen: accessToken not found in MMKV.');
-        Alert.alert('Error', 'Access token not found. Please log in again.');
         replace('LoginScreen'); // Direct to login if token is missing
         return;
       }
@@ -73,12 +71,10 @@ const ProfileSuccessfulScreen: React.FC<ProfileSuccessfulScreenProp> = ({ naviga
           replace('Parent'); // Navigate after successful fetch and storage
         } else if (profileResult.errors) {
           console.error('Error fetching profile details on ProfileSuccessfulScreen:', profileResult.errors[0].message);
-          Alert.alert('Profile Error', profileResult.errors[0].message || 'Failed to fetch profile details.');
           replace('Parent'); // Proceed to main app even with error
         }
       } catch (profileFetchError: any) {
         console.error('Network error fetching profile details on ProfileSuccessfulScreen:', profileFetchError);
-        Alert.alert('Network Error', 'Failed to fetch full profile details. Please check your internet connection.');
         replace('Parent'); // Proceed to main app even with error
       }
     };

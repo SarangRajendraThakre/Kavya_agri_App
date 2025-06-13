@@ -97,8 +97,8 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
         <Icon name="check-circle-outline" size={90} color="#27ae60" style={styles.successIcon} />
 
         {/* Header Texts */}
-        <Text style={styles.headerText}>Payment Successful!</Text>
-        <Text style={styles.subHeaderText}>Thank you for your purchase.</Text>
+        <Text style={styles.headerText}>Registration Successful!</Text>
+        <Text style={styles.subHeaderText}>Thank you for Joining</Text>
 
         {/* Payment Details Section */}
         <View style={styles.detailsContainer}>

@@ -37,6 +37,7 @@ import { CREATE_PROFILE_MUTATION, GET_PROFILE_DETAILS_QUERY, } from '../../utils
 import { goBack } from '../../utils/NavigationUtils';
 import CustomTextInput from '../../components/CustomTextInput';
 import DropdownComponent from '../../components/DropdownComponent';
+import { useProfile } from '../../context/ProfileContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -99,6 +100,9 @@ const ProfileEditScreen: React.FC = () => {
     // --- User ID from storage ---
     const currentUserId = storage.getString('userId');
     const userEmail = storage.getString('userEmail');
+
+
+     const { setProfileImage } = useProfile();
 
     // --- Permissions Request ---
     const requestStoragePermission = async () => {
@@ -206,7 +210,6 @@ const ProfileEditScreen: React.FC = () => {
             }
 
             console.log('Image uploaded to S3 successfully!');
-            Alert.alert('Success', 'Profile image uploaded to S3!');
             setProfileImageDisplayUri(receivedPublicImageUrl); // Update the displayed image
             setS3UploadProgress(1); // Set to 100% on success
 
@@ -217,7 +220,6 @@ const ProfileEditScreen: React.FC = () => {
             console.error('Error in S3 upload process:', error);
             const errorMessage = error.message || 'An unknown error occurred during S3 upload.';
             setS3UploadError(errorMessage);
-            Alert.alert('S3 Upload Failed', errorMessage);
             return { success: false, url: undefined }; // Indicate failure
         } finally {
             setS3UploadLoading(false);
@@ -235,7 +237,6 @@ const ProfileEditScreen: React.FC = () => {
             setLoading(true);
 
             if (!currentUserId) {
-                Alert.alert('Error', 'User ID not found. Please log in again.');
                 setLoading(false);
                 return;
             }
@@ -266,7 +267,6 @@ const ProfileEditScreen: React.FC = () => {
 
                 if (response.data.errors) {
                     const errorMessage = response.data.errors[0]?.message || 'Failed to fetch profile data.';
-                    Alert.alert('Error', errorMessage);
                     if (response.data.errors[0]?.extensions?.code === 'NOT_FOUND') {
                         console.log('Profile not found for this user. Ready to create a new one.');
                         // If profile is not found, keep fields empty/default
@@ -312,7 +312,6 @@ const ProfileEditScreen: React.FC = () => {
                 }
             } catch (error: any) {
                 console.error('Network or Axios error fetching profile:', error);
-                Alert.alert('Error', 'Could not connect to the server or fetch profile data.');
                 setProfileImageDisplayUri('https://via.placeholder.com/150/CCCCCC/FFFFFF?text=PROFILE');
             } finally {
                 setLoading(false);
@@ -419,7 +418,6 @@ const ProfileEditScreen: React.FC = () => {
 
         const finalEducationValue = education === 'Other' ? customEducation : education;
         if (!currentUserId) {
-            Alert.alert('Authentication Error', 'User ID not found. Please log in again.');
             return;
         }
 
@@ -435,10 +433,9 @@ const ProfileEditScreen: React.FC = () => {
                 currentUserId
             );
 
-            if (s3UploadResult.success) {
-                finalProfileImageUrl = s3UploadResult.url;
-            } else {
-                Alert.alert("Image Upload Failed", "Could not upload the new profile image to S3. Please try again.");
+          if (s3UploadResult.success) {
+      setProfileImage(s3UploadResult.url); // Update Context
+    } else {
                 return; // Stop the save process if image upload fails
             }
         }
@@ -486,7 +483,6 @@ const ProfileEditScreen: React.FC = () => {
                 const errorMessage = response.data.errors[0]?.message || 'Something went wrong on the server.';
                 Alert.alert('Operation Failed', errorMessage);
             } else {
-                Alert.alert('Success', 'Profile updated successfully!');
                 setIsEditMode(false);
                 // IMPORTANT: Update originalData with the newly saved data
                 if (response.data.data?.createOrUpdateProfileDetails) {
@@ -522,12 +518,8 @@ const ProfileEditScreen: React.FC = () => {
         } catch (error: any) {
             console.error('Error during profile creation/update:', error);
             if (axios.isAxiosError(error)) {
-                Alert.alert(
-                    'Error',
-                    error.response?.data?.errors?.[0]?.message || 'Server error occurred.'
-                );
+               
             } else {
-                Alert.alert('Error', 'An unexpected error occurred: ' + error.message);
             }
         }
     };
@@ -639,7 +631,6 @@ const ProfileEditScreen: React.FC = () => {
 
             // Note: We no longer automatically upload to S3 here.
             // Upload to S3 will happen during handleSave() to ensure data consistency.
-            Alert.alert('Image Selected', 'Image selected successfully. Click "Save" to upload and update your profile.');
 
         } catch (error: any) {
             if (error.code === 'E_PICKER_CANCELLED') {
@@ -1042,9 +1033,9 @@ const styles = StyleSheet.create({
     },
     cameraIcon: {
         position: 'absolute',
-        bottom: moderateScale(5),
-        right: moderateScale(5),
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        bottom: moderateScale(20),
+        right: moderateScale(50),
+        backgroundColor: 'rgba(5, 4, 4, 0.6)',
         borderRadius: moderateScale(20),
         width: moderateScale(40),
         height: moderateScale(40),

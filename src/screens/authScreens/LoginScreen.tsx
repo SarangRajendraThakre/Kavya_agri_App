@@ -199,7 +199,7 @@ const LoginScreen: React.FC = ({}) => {
       if (result.errors) {
         const errorMessage =
           result.errors[0].message || 'Failed to request OTP.';
-        Alert.alert('Error', errorMessage);
+        Alert.alert('Failed to request OTP');
 
         const cooldownMatch = errorMessage.match(/Please wait (\d+) seconds/);
         if (cooldownMatch && cooldownMatch[1]) {
@@ -216,13 +216,13 @@ const LoginScreen: React.FC = ({}) => {
         // );
         startCountdown(30);
       } else {
-        Alert.alert('Error', 'Failed to request OTP. Please try again.');
+        Alert.alert('Failed to request OTP. Please try again.');
       }
     } catch (error: any) {
       console.error('Request OTP network error:', error);
       Alert.alert(
         'Network Error',
-        'Could not connect to the server. Please check your internet connection.',
+      
       );
     } finally {
       setLoading(false);
@@ -276,7 +276,7 @@ const LoginScreen: React.FC = ({}) => {
       if (result.errors) {
         const errorMessage =
           result.errors[0].message || 'OTP verification failed.';
-        Alert.alert('Error', errorMessage);
+        Alert.alert('OTP verification failed.');
       } else if (result.data && result.data.verifyOtpAndRegister) {
         const {success, message, purpose, user, accessToken, refreshToken} =
           result.data.verifyOtpAndRegister;
@@ -350,23 +350,23 @@ const LoginScreen: React.FC = ({}) => {
             setIsRegisteringNewUser(true);
             Alert.alert(
               'Registration Required',
-              'Please provide additional details to complete your registration.',
+             
             );
           } else {
             replace('SuccessScreen'); // Fallback in case 'purpose' is unexpected
           }
         } else {
-          Alert.alert('Error', message || 'OTP verification failed.');
+          Alert.alert( 'OTP verification failed.');
           // If the backend explicitly says registration is required even on failure, set the state
         }
       } else {
-        Alert.alert('Error', 'OTP verification failed. Unexpected response.');
+        Alert.alert('OTP verification failed. Unexpected response.');
       }
     } catch (error: any) {
       console.error('Verify OTP network error:', error);
       Alert.alert(
         'Network Error',
-        'Could not connect to the server. Please check your internet connection.',
+        
       );
     } finally {
       setLoading(false);
