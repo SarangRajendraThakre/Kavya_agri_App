@@ -73,12 +73,7 @@ const CareerDetailScreen: React.FC<CareerDetailScreenProps> = ({ route, navigati
                 </View>
 
                 {/* Call to Action (Repeat from ExploreScreen for consistency) */}
-                <View style={styles.ctaContainer}>
-                    <Text style={styles.ctaText}>Ready to shape your future in {title}?</Text>
-                    <TouchableOpacity style={styles.ctaButton}>
-                        <Text style={styles.ctaButtonText}>Enroll Now!</Text>
-                    </TouchableOpacity>
-                </View>
+                
             </ScrollView>
         </SafeAreaView>
     );
