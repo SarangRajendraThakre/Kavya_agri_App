@@ -63,7 +63,7 @@ export default function GoogleButton() {
         displayName: string | null; // User's display name
         photoURL: string | null;     // User's photo URL
         idToken: string;             // Google's ID Token (optional for backend if Firebase ID Token is used)
-        firebaseAccessToken: string; // The Firebase ID Token (for backend verification)
+        firebaseAccessToken: string;  
     }
 
     // Define the type for the expected backend response (based on your console log)
@@ -76,6 +76,7 @@ export default function GoogleButton() {
         role: string;
         userId: string; // This is the MongoDB _id from your backend
         isProfileCompleted:boolean;
+        referralCode:string;
     }
 
     const sendUserDataToBackend = async (userData: BackendUserData) => {
@@ -126,8 +127,12 @@ export default function GoogleButton() {
                 }
                 if (typeof responseData.refreshToken === 'string') {
                     storage.set('refreshToken', responseData.refreshToken);
+                      storage.set('referralCode', responseData.referralCode);
                     console.log('MMKV Stored: refreshToken =', responseData.refreshToken);
                 }
+                 
+               
+                
 
                  if (typeof responseData.isProfileCompleted === 'boolean') {
                     // MMKV storage.set expects a string, so convert boolean to string
