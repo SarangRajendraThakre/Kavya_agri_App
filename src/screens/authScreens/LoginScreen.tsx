@@ -22,7 +22,7 @@ import CustomTextInput from '../../components/CustomTextInput';
 import {replace} from '../../utils/NavigationUtils';
 
 import {Linking} from 'react-native';
-import GoogleButton from '../../components/GoogleButton';
+import GoogleButton from './GoogleButton';
 import OTPTextInput from 'react-native-otp-textinput'; // Assuming this is your custom component
 
 // Import your new CustomCheckbox component
@@ -325,6 +325,7 @@ const LoginScreen: React.FC = ({}) => {
               storage.set('appId',user.appId);
               storage.set('referralCode',user.referralCode);
               console.log(  storage.set('appId',user.appId));
+             
 
               // This line is problematic:
               // storage.set('isProfileCompleted', String(isProfileCompleted));
