@@ -13,6 +13,10 @@ export const BACKEND_API_URL = 'https://api.kavyaagri.in/auth/userCreation';
  export const PRESIGNED_URL_BACKEND_ENDPOINT = 'https://api.kavyaagri.in/generate-s3-presigned-url';
 
 
+ export const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
+
+
+
 export enum Colors {
   primary = '#e695a4',
   background = '#000',
