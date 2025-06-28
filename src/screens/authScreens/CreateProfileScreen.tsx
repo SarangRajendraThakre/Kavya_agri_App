@@ -382,7 +382,7 @@ const CreateProfileScreen: React.FC = ({}) => {
         // This runs ONLY if both backend operations are successful (or the second one warns but doesn't fail critically)
         storage.set('firstName', firstName);
         storage.set('lastName', lastName);
-        storage.set('appId', UserId);   // Assuming 'UserId' is what you want to store as 'appId'
+     
         
         console.log('User profile data stored in MMKV:', {
           firstName,

@@ -433,12 +433,29 @@ const ProfileEditScreen: React.FC = () => {
                 currentUserId
             );
 
-          if (s3UploadResult.success) {
-      setProfileImage(s3UploadResult.url); // Update Context
-    } else {
-                return; // Stop the save process if image upload fails
-            }
+      
+        if (s3UploadResult.success && s3UploadResult.url) { // <-- IMPORTANT: Check for s3UploadResult.url
+            finalProfileImageUrl = s3UploadResult.url; // <-- THIS IS THE CRUCIAL CHANGE: Assign the S3 URL
+            setProfileImage(s3UploadResult.url); // Update Context (this is already correct)
+        } else {
+            // If S3 upload fails, we should typically inform the user and/or stop the save.
+            Alert.alert("Image Upload Failed", s3UploadError || "Could not upload image to S3.");
+            return; // Stop the save process if image upload fails
         }
+    } else if (originalData?.profileImage && profileImageDisplayUri === originalData.profileImage) {
+        // If no new local image was selected, but there was an original image, and it's still displayed,
+        // use the original S3 URL. This covers cases where profileImageDisplayUri might still be local
+        // but no new image was selected (e.g., loaded default placeholder but never changed).
+        finalProfileImageUrl = originalData.profileImage;
+    } else if (profileImageDisplayUri && !localImageSource) {
+        // This covers cases where a profile was fetched, it had an S3 image,
+        // and no new image was selected. The profileImageDisplayUri would already be the S3 URL.
+        // Or if the user cleared the local image source, and we want to keep the existing S3 URL.
+        finalProfileImageUrl = profileImageDisplayUri;
+    }
+    // If no image was ever set, or the user specifically 'removed' it (which isn't explicitly handled here),
+    // finalProfileImageUrl might remain undefined, which is fine if your backend handles nullable profileImage.
+
 
         const variables = {
             input: {
