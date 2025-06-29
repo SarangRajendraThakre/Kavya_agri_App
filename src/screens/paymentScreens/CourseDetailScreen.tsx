@@ -1,48 +1,51 @@
-// screens/CourseDetailScreen.tsx (Corrected)
+// screens/CourseDetailScreen.tsx
+
 import React from 'react';
 import { View, Text, Image, StyleSheet, Alert, ScrollView, Button } from 'react-native';
-import { CourseDetailScreenProps, Course } from '../../navigation/types';
-import { goBack } from '../../utils/NavigationUtils';
-import { Backend_Main } from '../../utils/Constants';
-import RazorpayButton from './RazorpayButton';
-import { useNavigation } from '@react-navigation/native';
+import { CourseDetailScreenProps, Course } from '../../navigation/types'; // Use NativeStackScreenProps type
+import { goBack } from '../../utils/NavigationUtils'; // Assuming you have this utility
+import { Backend_Main, RAZORPAY_KEY_ID } from '../../utils/Constants'; // Ensure these are defined
+import RazorpayButton from './RazorpayButton'; // Ensure this path is correct
 
-const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
-  const navigation = useNavigation<CourseDetailScreenProps['navigation']>();
+// Add navigation to props
+const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route, navigation }) => {
+  // Use route.params directly as per NativeStackScreenProps
+  const {
+    course,
+    originalCoursePriceDisplay,
+    prefillEmail,
+    prefillContact,
+    prefillName,
+    couponCodeUsed, // NEW: Extract coupon code
+    discountApplied, // NEW: Extract discount applied
+  } = route.params;
 
-  const course: Course | undefined = route.params?.course; // Ensure it can be undefined
-  const prefillEmail = route.params?.prefillEmail || '';
-  const prefillContact = route.params?.prefillContact || '';
-  const prefillName = route.params?.prefillName || '';
-
-  // console.log('Course Image URL:', course?.imageUrl); // For debugging
-  // console.log('Course object received in CourseDetailScreen:', course); // Add this for debugging
-
-  // --- CRITICAL CORRECTION HERE ---
-  // Change !course.id to !course._id
-  if (!course || !course._id) { // Use _id as per your Course type
-    console.error('Course object or its _id is missing in CourseDetailScreen:', course); // Log the issue
+  // Basic validation that course data is present
+  if (!course || !course._id || typeof course.price !== 'number' || !course.courseId) {
+    console.error('Course object or its _id/price/courseId is missing in CourseDetailScreen:', course);
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Course details not found. Please go back.</Text>
+        <Text style={styles.errorText}>Course details not found or incomplete. Please go back.</Text>
         <Button title="Go Back" onPress={() => goBack()} />
       </View>
     );
   }
-  // --- END CRITICAL CORRECTION ---
 
   const handlePaymentSuccess = (paymentId: string, orderId: string, signature: string) => {
     console.log('Payment successful in CourseDetailScreen:', { paymentId, orderId, signature });
 
+    // Navigate to PaymentSuccess, passing all necessary details
     navigation.replace('PaymentSuccess', {
       courseName: course.title,
-      amountPaid: course.price * 100, // Amount in paisa
+      amountPaid: Math.round(course.price * 100), // Use the final course.price (which is already discounted if applicable)
       paymentId: paymentId,
       orderId: orderId,
-      paymentDate: new Date().toISOString(),
+      paymentDate: new Date().toISOString(), // Current date/time of success
       userName: prefillName,
       userEmail: prefillEmail,
       userContact: prefillContact,
+      couponCodeUsed: couponCodeUsed, // NEW: Pass coupon details to success screen
+      discountApplied: discountApplied, // NEW: Pass coupon details to success screen
     });
   };
 
@@ -56,15 +59,15 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
       errorMessage = `Payment failed: ${description}`;
     }
 
-    Alert.alert('Payment Failed', errorMessage);
   };
 
-  const order_creation_rz_url = Backend_Main + '/payment/razorpay/create-order';
-  const verfiy_rz_url = Backend_Main + '/payment/razorpay/verify-payment';
+  // Adjusted paths to match typical backend structure if not already 'api/razorpay'
+  const order_creation_rz_url = Backend_Main + '/api/payment/razorpay/create-order';
+  const verfiy_rz_url = Backend_Main + '/api/payment/razorpay/verify-payment';
 
   return (
     <ScrollView style={styles.scrollViewContainer} contentContainerStyle={styles.contentContainer}>
-      {course.imageUrl ? ( // Conditional render for image to avoid broken image icon
+      {course.imageUrl ? (
         <Image source={{ uri: course.imageUrl }} style={styles.banner} />
       ) : (
         <View style={styles.noImageBanner}>
@@ -75,27 +78,56 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
       <Text style={styles.description}>{course.description}</Text>
 
       <View style={styles.priceContainer}>
-        <Text style={styles.originalPrice}>Original Price: ₹1499</Text> {/* You might want to pass this from backend too */}
-        <Text style={styles.currentPrice}>Special Price: ₹{course.price}</Text>
-        <Text style={styles.discountMessage}>Don't miss this limited-time offer!</Text>
+        {/* Display original price if it's different from the final price, indicating a discount */}
+        {originalCoursePriceDisplay > course.price && (
+          <Text style={styles.originalPriceCrossedOut}>
+            Original Price: ₹{originalCoursePriceDisplay.toFixed(2)}
+          </Text>
+        )}
+        <Text style={styles.currentPrice}>Final Price: ₹{course.price.toFixed(2)}</Text>
+        <Text style={styles.discountMessage}>Review your details below before proceeding to payment.</Text>
       </View>
 
       <View style={styles.userDetailsContainer}>
         <Text style={styles.userDetailsHeader}>Your Details:</Text>
-        {prefillName && <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Name:</Text> {prefillName}</Text>}
-        {prefillEmail && <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Email:</Text> {prefillEmail}</Text>}
-        {prefillContact && <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Contact:</Text> {prefillContact}</Text>}
-        <Text style={styles.reviewText}>Please review before proceeding.</Text>
+        {prefillName ? (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Name:</Text> {prefillName}</Text>
+        ) : (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Name:</Text> Not provided</Text>
+        )}
+        {prefillEmail ? (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Email:</Text> {prefillEmail}</Text>
+        ) : (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Email:</Text> Not provided</Text>
+        )}
+        {prefillContact ? (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Contact:</Text> {prefillContact}</Text>
+        ) : (
+            <Text style={styles.userDetailsText}><Text style={styles.userDetailsLabel}>Contact:</Text> Not provided</Text>
+        )}
+        {couponCodeUsed && ( // Optionally display coupon details
+            <Text style={styles.userDetailsText}>
+                <Text style={styles.userDetailsLabel}>Coupon Used:</Text> {couponCodeUsed}
+            </Text>
+        )}
+        {discountApplied !== undefined && ( // Optionally display discount applied
+            <Text style={styles.userDetailsText}>
+                <Text style={styles.userDetailsLabel}>Discount:</Text> ₹{discountApplied.toFixed(2)}
+            </Text>
+        )}
+        <Text style={styles.reviewText}>If these details are incorrect, please go back to update.</Text>
       </View>
 
       <RazorpayButton
-        course={course}
-        razorpayKeyId="rzp_live_uBHRfJO7KjWWIb" // Keep your actual key
+        course={course} // This course object has the final price set in PaymentDetail
+        razorpayKeyId={RAZORPAY_KEY_ID}
         backendOrderCreationUrl={order_creation_rz_url}
         backendPaymentVerificationUrl={verfiy_rz_url}
         prefillEmail={prefillEmail}
         prefillContact={prefillContact}
         prefillName={prefillName}
+        couponCodeUsed={couponCodeUsed} // NEW: Pass coupon details to Razorpay button
+        discountApplied={discountApplied} // NEW: Pass coupon details to Razorpay button
         onPaymentSuccess={handlePaymentSuccess}
         onPaymentError={handlePaymentError}
       />
@@ -164,7 +196,7 @@ const styles = StyleSheet.create({
     borderColor: '#d0e0e8',
     width: '100%',
   },
-  originalPrice: {
+  originalPriceCrossedOut: { // Style for crossed out original price on CourseDetailScreen
     fontSize: 20,
     color: '#95a5a6',
     textDecorationLine: 'line-through',

@@ -11,7 +11,6 @@ import {Colors, Fonts} from '../../utils/Constants';
 import CustomDrawer from './CustomDrawer';
 import Main from './Main'; // This is likely your Tab Navigator wrapped in a stack
 import AboutUsScreen from '../../screens/DrawerScreens/AboutUsScreen';
-import CourseListScreen from '../../screens/paymentScreens/CourseListScreen'; // Keep if accessible from drawer
 import LeadersCornerScreen from '../../screens/home/LeadersCornerScreen';
 import CertificateScreen from '../../screens/DrawerScreens/CertificateScreen';
 import ReferralScreen from '../../screens/DrawerScreens/ReferralScreen';
@@ -71,11 +70,7 @@ const DrawerNavigator: React.FC = () => {
         }}
       />
 
-      <Drawer.Screen
-        name="CourseList"
-        component={CourseListScreen}
-        options={{title: 'All Courses'}}
-      />
+   
 
       <Drawer.Screen
         name="ProgramBenefit"
@@ -100,19 +95,7 @@ const DrawerNavigator: React.FC = () => {
           headerShown: false,
         }}
       />
-      {/*
-        <Drawer.Screen
-          name="PaymentDetail"
-          component={PaymentDetail}
-          options={{
-            title: 'Payment', // Appropriate title
-            headerShown: false,
-          }}
-        />
-        // REMOVED: This screen should be part of RootStackParamList
-        // and navigated to from other screens in your app, appearing
-        // above the drawer.
-      */}
+   
 
       <Drawer.Screen
         name="CertificateScreen"

@@ -1,20 +1,21 @@
 // utils/theme.ts or constants/styles.ts
 
-export const API_GRAPHQL_ENDPOINT = 'http://192.168.207.188:3000/graphql';
-export const Backend_Main = 'http://192.168.207.188:3000';
-export const BACKEND_API_URL = 'https://192.168.207.188:3000/auth/userCreation';
-export const PRESIGNED_URL_BACKEND_ENDPOINT = 'http://192.168.207.188:3000/generate-s3-presigned-url';
+// export const API_GRAPHQL_ENDPOINT = 'http://192.168.207.188:3000/graphql';
+// export const Backend_Main = 'http://192.168.207.188:3000';
+// export const BACKEND_API_URL = 'https://192.168.207.188:3000/auth/userCreation';
+// export const PRESIGNED_URL_BACKEND_ENDPOINT = 'http://192.168.207.188:3000/generate-s3-presigned-url';
 
 
 
-// export const API_GRAPHQL_ENDPOINT = 'https://api.kavyaagri.in/graphql';
-// export const Backend_Main = 'https://api.kavyaagri.in';
-// export const BACKEND_API_URL = 'https://api.kavyaagri.in/auth/userCreation';
-//  export const PRESIGNED_URL_BACKEND_ENDPOINT = 'https://api.kavyaagri.in/generate-s3-presigned-url';
+export const API_GRAPHQL_ENDPOINT = 'https://api.kavyaagri.in/graphql';
+export const Backend_Main = 'https://api.kavyaagri.in';
+export const BACKEND_API_URL = 'https://api.kavyaagri.in/auth/userCreation';
+ export const PRESIGNED_URL_BACKEND_ENDPOINT = 'https://api.kavyaagri.in/generate-s3-presigned-url';
 
 
  export const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
+ export const RAZORPAY_KEY_ID = 'rzp_live_uBHRfJO7KjWWIb';
 
 
 export enum Colors {

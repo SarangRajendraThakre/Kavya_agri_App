@@ -1,4 +1,5 @@
 // screens/PaymentSuccessScreen.tsx
+
 import React, { useEffect, useCallback } from 'react';
 import {
   View,
@@ -35,6 +36,8 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
     userName,
     userEmail,
     userContact,
+    couponCodeUsed,   // NEW: Extract coupon code
+    discountApplied,  // NEW: Extract discount applied
   } = route.params;
 
   // Format date for user-friendly display
@@ -79,10 +82,10 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
     );
   }, [navigation]);
 
-  // Handle navigation to "My Courses" (currently an alert and then home)
+
   const handleGoToMyCourses = () => {
     Alert.alert('Feature Coming Soon', 'Your purchased courses will be available in a "My Courses" section!', [
-      { text: 'OK', onPress: handleGoToHome }, // Go home after acknowledging
+      { text: 'OK', onPress: handleGoToHome },
     ]);
   };
 
@@ -126,11 +129,25 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
             <Text style={styles.detailLabel}>Date:</Text>
             <Text style={styles.detailValue}>{formattedDate}</Text>
           </View>
+          {couponCodeUsed && ( // NEW: Display coupon code if present
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Coupon Used:</Text>
+              <Text style={styles.detailValue}>{couponCodeUsed}</Text>
+            </View>
+          )}
+          {discountApplied !== undefined && ( // NEW: Display discount amount if present
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Discount:</Text>
+              <Text style={styles.detailValue}>₹{discountApplied.toFixed(2)}</Text>
+            </View>
+          )}
         </View>
 
         {/* User Information Section */}
         <View style={styles.userInfoContainer}>
           <Text style={styles.userInfoHeader}>Purchased By:</Text>
+
+
           <Text style={styles.userInfoText}>
             <Text style={styles.userInfoLabel}>Name:</Text> {userName}
           </Text>
@@ -142,12 +159,10 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
           </Text>
         </View>
 
-        {/* Confirmation Message */}
         <Text style={styles.confirmationMessage}>
           A confirmation email has been sent to **{userEmail}** with your course access details.
         </Text>
 
-        {/* Action Buttons */}
         <TouchableOpacity style={styles.button} onPress={handleGoToMyCourses}>
           <Text style={styles.buttonText}>Go to My Courses</Text>
         </TouchableOpacity>
@@ -163,13 +178,13 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ route, navi
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#e9f7ef', // Light green background for a positive feel
+    backgroundColor: '#e9f7ef',
   },
   scrollContent: {
     flexGrow: 1,
     padding: 20,
-    alignItems: 'center', // Center content horizontally
-    paddingTop: Platform.OS === 'android' ? 40 : 20, // More top padding for full screen
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? 40 : 20,
   },
   successIcon: {
     marginBottom: 20,
