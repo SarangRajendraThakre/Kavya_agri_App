@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../utils/storage'; // Adjust path as needed
-import defaultProfileImage from '../assets/images/profileimage.jpg'; // Import default image here
+import defaultProfileImage from '../assets/images/profileImage.png'; // Import default image here
 import { Image } from 'react-native';
 
 interface ProfileContextType {

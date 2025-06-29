@@ -16,13 +16,11 @@ import {
 } from '@react-navigation/drawer';
 
 // Import your RootDrawerParamList and other types from types.ts
-import {RootDrawerParamList} from '../types'; // Adjust path as needed
 
 import defaultProfileImage from '../../assets/images/profileImage.png'; // Make sure the path is correct and uses /
 
 // Import your constants
 import {Colors, Fonts} from '../../utils/Constants'; // Adjust path
-import Sidemenusection from '../../components/Sidemenusection'; // Adjust path if needed
 
 // Import your responsive utilities
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -35,7 +33,6 @@ import {
 } from '../../utils/Scaling'; // Adjust path
 import {navigate, resetAndNavigate} from '../../utils/NavigationUtils';
 import {storage} from '../../utils/storage'; // Assuming 'storage' is your MMKV instance
-import {CommonActions} from '@react-navigation/native';
 import { useProfile } from '../../context/ProfileContext';
 
 // --- ProfileMenuItem (Optimized for Drawer) ---

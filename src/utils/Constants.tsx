@@ -2,7 +2,7 @@
 
 // export const API_GRAPHQL_ENDPOINT = 'http://192.168.207.188:3000/graphql';
 // export const Backend_Main = 'http://192.168.207.188:3000';
-// export const BACKEND_API_URL = 'https://192.168.207.188:3000/auth/userCreation';
+// export const BACKEND_API_URL = 'http://192.168.207.188:3000/auth/userCreation';
 // export const PRESIGNED_URL_BACKEND_ENDPOINT = 'http://192.168.207.188:3000/generate-s3-presigned-url';
 
 
