@@ -15,7 +15,7 @@ export const BACKEND_API_URL = 'https://api.kavyaagri.in/auth/userCreation';
 
  export const WEB_CLIENT_ID = '248628718653-g37462gv6b5n2ks3unindsqgh8r7cpaq.apps.googleusercontent.com';
 
- export const RAZORPAY_KEY_ID = 'rzp_live_uBHRfJO7KjWWIb';
+ export const RAZORPAY_KEY_ID = 'rzp_live_V75FDpoJv70QWC';
 
 
 export enum Colors {
